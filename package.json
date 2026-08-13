@@ -1,0 +1,16 @@
+{
+  "name": "dedsec-messenger",
+  "version": "1.0.0",
+  "description": "DEDSEC Secure Messenger",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "build": "npm install"
+  },
+  "dependencies": {
+    "express": "^4.21.0",
+    "socket.io": "^4.7.0",
+    "bcryptjs": "^2.4.3",
+    "sql.js": "^1.10.0"
+  }
+}

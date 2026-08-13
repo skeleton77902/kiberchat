@@ -1,0 +1,1239 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEON CITY // CYBERPUNK MESSENGER</title>
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=Orbitron:wght@400;500;700;900&family=Noto+Sans+JP:wght@300;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg: #0a0010;
+            --card: rgba(15, 5, 25, 0.9);
+            --card2: rgba(20, 10, 35, 0.95);
+            --border: #2a1040;
+            --neon-pink: #ff2d78;
+            --neon-cyan: #00f0ff;
+            --neon-purple: #b44dff;
+            --neon-yellow: #ffe600;
+            --neon-green: #00ff88;
+            --text: #c8c8d0;
+            --text2: #6a6a7a;
+            --online: #00ff88;
+            --offline: #2a1a30;
+            --panel: rgba(10, 5, 20, 0.85);
+            --glow-pink: rgba(255, 45, 120, 0.3);
+            --glow-cyan: rgba(0, 240, 255, 0.3);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Rajdhani', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            height: 100vh;
+            overflow: hidden;
+            cursor: default;
+            position: relative;
+        }
+
+        /* Дождь */
+        .rain {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .drop {
+            position: absolute;
+            width: 2px;
+            background: linear-gradient(transparent, rgba(0, 240, 255, 0.3));
+            animation: rain linear infinite;
+        }
+
+        @keyframes rain {
+            0% { transform: translateY(-100px); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(100vh); opacity: 0; }
+        }
+
+        /* Голографическая сетка */
+        .holo-grid {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: 
+                linear-gradient(rgba(180, 77, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 240, 255, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            pointer-events: none;
+            z-index: 0;
+            animation: gridPulse 4s ease-in-out infinite;
+        }
+
+        @keyframes gridPulse {
+            0%, 100% { opacity: 0.5; }
+            50% { opacity: 1; }
+        }
+
+        /* Японский текст на фоне */
+        .japanese-bg {
+            position: fixed;
+            top: 20px;
+            right: 30px;
+            font-family: 'Noto Sans JP', sans-serif;
+            font-size: 180px;
+            font-weight: 700;
+            color: rgba(255, 45, 120, 0.03);
+            pointer-events: none;
+            z-index: 0;
+            user-select: none;
+            writing-mode: vertical-rl;
+            letter-spacing: 30px;
+        }
+
+        /* === АВТОРИЗАЦИЯ === */
+        .auth-overlay {
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(5, 0, 15, 0.95);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            backdrop-filter: blur(20px);
+        }
+
+        .auth-overlay.hidden { display: none; }
+
+        .auth-box {
+            background: var(--panel);
+            border: 1px solid rgba(180, 77, 255, 0.3);
+            padding: 50px 45px;
+            width: 440px;
+            position: relative;
+            clip-path: polygon(15px 0, 100% 0, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0 100%, 0 15px);
+            box-shadow: 
+                0 0 60px rgba(180, 77, 255, 0.15),
+                0 0 120px rgba(0, 240, 255, 0.05),
+                inset 0 1px 0 rgba(255, 255, 255, 0.03);
+        }
+
+        .auth-box::before {
+            content: '';
+            position: absolute;
+            top: -1px; left: 20px; right: 20px;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--neon-cyan), transparent);
+            animation: scanLine 2s ease-in-out infinite;
+        }
+
+        @keyframes scanLine {
+            0%, 100% { opacity: 0.2; }
+            50% { opacity: 1; }
+        }
+
+        .auth-logo {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 38px;
+            font-weight: 900;
+            color: #fff;
+            text-align: center;
+            text-shadow: 
+                0 0 20px var(--neon-pink),
+                0 0 40px var(--neon-pink),
+                0 0 80px var(--neon-purple),
+                0 0 120px var(--neon-cyan);
+            letter-spacing: 12px;
+            margin-bottom: 5px;
+            animation: logoFlicker 3s infinite;
+        }
+
+        @keyframes logoFlicker {
+            0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% { opacity: 1; }
+            20%, 24%, 55% { opacity: 0.4; }
+        }
+
+        .auth-subtitle {
+            text-align: center;
+            color: var(--neon-cyan);
+            font-size: 10px;
+            letter-spacing: 6px;
+            margin-bottom: 35px;
+            opacity: 0.7;
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        .auth-input {
+            width: 100%;
+            padding: 16px 20px;
+            background: rgba(0, 0, 0, 0.6);
+            border: 1px solid rgba(180, 77, 255, 0.2);
+            color: var(--neon-cyan);
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 16px;
+            font-weight: 500;
+            letter-spacing: 1px;
+            margin-bottom: 16px;
+            outline: none;
+            transition: all 0.4s;
+            clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
+        }
+
+        .auth-input:focus {
+            border-color: var(--neon-cyan);
+            box-shadow: 
+                0 0 20px var(--glow-cyan),
+                inset 0 0 20px rgba(0, 240, 255, 0.05);
+        }
+
+        .auth-input::placeholder { color: #3a2a4a; }
+
+        .auth-btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, rgba(180, 77, 255, 0.1), rgba(0, 240, 255, 0.05));
+            border: 1px solid var(--neon-purple);
+            color: var(--neon-cyan);
+            font-family: 'Orbitron', sans-serif;
+            font-size: 14px;
+            font-weight: 700;
+            letter-spacing: 6px;
+            cursor: pointer;
+            text-transform: uppercase;
+            transition: all 0.4s;
+            margin-top: 10px;
+            clip-path: polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .auth-btn::after {
+            content: '';
+            position: absolute;
+            top: -50%; left: -50%;
+            width: 200%; height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(0, 240, 255, 0.1), transparent);
+            animation: btnShine 2s infinite;
+        }
+
+        @keyframes btnShine {
+            0% { transform: translateX(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) rotate(45deg); }
+        }
+
+        .auth-btn:hover {
+            background: linear-gradient(135deg, rgba(180, 77, 255, 0.25), rgba(0, 240, 255, 0.15));
+            border-color: var(--neon-cyan);
+            box-shadow: 
+                0 0 30px var(--glow-cyan),
+                0 0 60px var(--glow-pink);
+            text-shadow: 0 0 15px var(--neon-cyan);
+        }
+
+        .auth-switch {
+            text-align: center;
+            margin-top: 20px;
+            color: var(--text2);
+            font-size: 13px;
+            font-weight: 300;
+        }
+
+        .auth-switch a {
+            color: var(--neon-pink);
+            cursor: pointer;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s;
+        }
+
+        .auth-switch a:hover { 
+            text-shadow: 0 0 10px var(--neon-pink);
+            color: #fff;
+        }
+
+        /* === ПРИЛОЖЕНИЕ === */
+        .app-container {
+            position: relative;
+            z-index: 1;
+            height: 100vh;
+            display: flex;
+        }
+
+        .app-container.hidden { display: none; }
+
+        /* === САЙДБАР === */
+        .sidebar {
+            width: 340px;
+            min-width: 340px;
+            background: var(--panel);
+            border-right: 1px solid rgba(180, 77, 255, 0.15);
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            backdrop-filter: blur(10px);
+        }
+
+        .sidebar-header {
+            padding: 28px 20px;
+            text-align: center;
+            background: rgba(10, 5, 20, 0.8);
+            border-bottom: 1px solid rgba(0, 240, 255, 0.15);
+            position: relative;
+        }
+
+        .sidebar-header::after {
+            content: '';
+            position: absolute;
+            bottom: 0; left: 10%; right: 10%;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--neon-pink), transparent);
+        }
+
+        .sidebar-logo {
+            font-family: 'Orbitron', sans-serif;
+            font-size: 24px;
+            font-weight: 900;
+            color: #fff;
+            text-shadow: 0 0 20px var(--neon-cyan);
+            letter-spacing: 8px;
+        }
+
+        .sidebar-ja {
+            font-size: 11px;
+            color: var(--neon-pink);
+            font-family: 'Noto Sans JP', sans-serif;
+            opacity: 0.7;
+            letter-spacing: 4px;
+            margin-top: 5px;
+        }
+
+        .user-profile {
+            padding: 22px;
+            border-bottom: 1px solid rgba(180, 77, 255, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        .user-avatar {
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 20px;
+            color: #fff;
+            flex-shrink: 0;
+            clip-path: polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px);
+            position: relative;
+        }
+
+        .user-details { flex: 1; min-width: 0; }
+
+        .user-display-name {
+            font-size: 17px;
+            font-weight: 600;
+            color: #eee;
+            letter-spacing: 1px;
+        }
+
+        .user-dedsec-id {
+            font-size: 10px;
+            color: var(--neon-cyan);
+            letter-spacing: 2px;
+            margin-top: 3px;
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        .user-status-badge {
+            font-size: 9px;
+            padding: 3px 10px;
+            letter-spacing: 3px;
+            font-weight: 600;
+            display: inline-block;
+            margin-top: 6px;
+            clip-path: polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px);
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        .badge-founder {
+            background: rgba(255, 230, 0, 0.1);
+            color: var(--neon-yellow);
+            border: 1px solid var(--neon-yellow);
+            text-shadow: 0 0 10px var(--neon-yellow);
+        }
+
+        .badge-normis {
+            background: rgba(100, 100, 100, 0.1);
+            color: #777;
+            border: 1px solid #333;
+        }
+
+        .contacts-section {
+            flex: 1;
+            overflow-y: auto;
+            padding: 12px;
+        }
+
+        .contacts-title {
+            font-size: 9px;
+            color: var(--neon-pink);
+            letter-spacing: 5px;
+            padding: 14px 12px;
+            text-transform: uppercase;
+            font-family: 'Orbitron', sans-serif;
+            opacity: 0.8;
+        }
+
+        .contact-item {
+            padding: 15px;
+            margin: 5px 0;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid transparent;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
+        }
+
+        .contact-item:hover {
+            border-color: rgba(180, 77, 255, 0.3);
+            background: rgba(180, 77, 255, 0.05);
+            box-shadow: 0 0 15px rgba(180, 77, 255, 0.1);
+        }
+
+        .contact-item.active {
+            border-color: var(--neon-cyan) !important;
+            background: rgba(0, 240, 255, 0.05) !important;
+            box-shadow: 
+                0 0 20px var(--glow-cyan),
+                inset 0 0 20px rgba(0, 240, 255, 0.03) !important;
+        }
+
+        .contact-item.founder-contact {
+            border-left: 2px solid var(--neon-yellow);
+        }
+
+        .contact-avatar {
+            width: 42px;
+            height: 42px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 17px;
+            color: #fff;
+            flex-shrink: 0;
+            clip-path: polygon(5px 0, 100% 0, 100% calc(100% - 5px), calc(100% - 5px) 100%, 0 100%, 0 5px);
+        }
+
+        .contact-info { flex: 1; min-width: 0; }
+
+        .contact-name {
+            font-size: 15px;
+            font-weight: 600;
+            color: #ddd;
+            letter-spacing: 1px;
+        }
+
+        .contact-last-msg {
+            font-size: 11px;
+            color: #555;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            margin-top: 4px;
+            font-weight: 300;
+        }
+
+        .contact-unread {
+            background: var(--neon-pink);
+            color: #fff;
+            font-size: 10px;
+            padding: 3px 9px;
+            font-weight: 700;
+            clip-path: polygon(3px 0, 100% 0, 100% calc(100% - 3px), calc(100% - 3px) 100%, 0 100%, 0 3px);
+            animation: unreadPulse 2s infinite;
+        }
+
+        @keyframes unreadPulse {
+            0%, 100% { box-shadow: 0 0 5px var(--neon-pink); }
+            50% { box-shadow: 0 0 20px var(--neon-pink); }
+        }
+
+        .add-contact-area {
+            padding: 18px;
+            border-top: 1px solid rgba(180, 77, 255, 0.1);
+            background: rgba(10, 5, 20, 0.6);
+        }
+
+        .add-contact-input {
+            width: 100%;
+            padding: 13px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(180, 77, 255, 0.15);
+            color: var(--neon-cyan);
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 14px;
+            margin-bottom: 10px;
+            outline: none;
+            transition: all 0.3s;
+            clip-path: polygon(5px 0, 100% 0, 100% calc(100% - 5px), calc(100% - 5px) 100%, 0 100%, 0 5px);
+        }
+
+        .add-contact-input:focus {
+            border-color: var(--neon-cyan);
+            box-shadow: 0 0 15px var(--glow-cyan);
+        }
+
+        .btn-sm {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--neon-purple);
+            background: rgba(180, 77, 255, 0.05);
+            color: var(--neon-purple);
+            font-family: 'Orbitron', sans-serif;
+            font-size: 10px;
+            letter-spacing: 3px;
+            cursor: pointer;
+            text-transform: uppercase;
+            transition: all 0.3s;
+            clip-path: polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px);
+        }
+
+        .btn-sm:hover {
+            background: rgba(180, 77, 255, 0.15);
+            border-color: var(--neon-cyan);
+            color: var(--neon-cyan);
+            box-shadow: 0 0 20px var(--glow-cyan);
+        }
+
+        /* === ЧАТ === */
+        .chat-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            background: rgba(5, 0, 15, 0.5);
+        }
+
+        .chat-placeholder {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: var(--text2);
+        }
+
+        .chat-placeholder-icon {
+            font-size: 100px;
+            margin-bottom: 25px;
+            opacity: 0.08;
+            animation: placeholderPulse 3s infinite;
+        }
+
+        @keyframes placeholderPulse {
+            0%, 100% { filter: hue-rotate(0deg); }
+            50% { filter: hue-rotate(30deg); }
+        }
+
+        .chat-placeholder-text {
+            font-size: 14px;
+            letter-spacing: 6px;
+            opacity: 0.4;
+            color: var(--neon-cyan);
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        .chat-header {
+            padding: 18px 25px;
+            border-bottom: 1px solid rgba(0, 240, 255, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(10, 5, 20, 0.8);
+        }
+
+        .chat-header-name {
+            font-size: 17px;
+            font-weight: 600;
+            color: #ddd;
+            letter-spacing: 1px;
+        }
+
+        .chat-header-status {
+            font-size: 10px;
+            color: var(--text2);
+            letter-spacing: 2px;
+            margin-top: 3px;
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        .btn-icon {
+            padding: 10px 18px;
+            border: 1px solid rgba(0, 240, 255, 0.2);
+            background: rgba(0, 240, 255, 0.03);
+            color: var(--neon-cyan);
+            font-family: 'Orbitron', sans-serif;
+            font-size: 10px;
+            letter-spacing: 2px;
+            cursor: pointer;
+            transition: all 0.3s;
+            clip-path: polygon(5px 0, 100% 0, 100% calc(100% - 5px), calc(100% - 5px) 100%, 0 100%, 0 5px);
+        }
+
+        .btn-icon:hover {
+            border-color: var(--neon-cyan);
+            box-shadow: 0 0 15px var(--glow-cyan);
+            background: rgba(0, 240, 255, 0.1);
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 25px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .msg-bubble {
+            max-width: 70%;
+            padding: 14px 18px;
+            font-size: 14px;
+            line-height: 1.6;
+            word-wrap: break-word;
+            animation: msgPop 0.3s ease-out;
+            font-weight: 400;
+        }
+
+        @keyframes msgPop {
+            from { opacity: 0; transform: translateY(15px) scale(0.95); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .msg-bubble.sent {
+            background: rgba(180, 77, 255, 0.1);
+            border: 1px solid rgba(180, 77, 255, 0.3);
+            align-self: flex-end;
+            margin-left: 30%;
+            clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+        }
+
+        .msg-bubble.received {
+            background: rgba(0, 240, 255, 0.05);
+            border: 1px solid rgba(0, 240, 255, 0.2);
+            align-self: flex-start;
+            margin-right: 30%;
+            clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+        }
+
+        .msg-bubble.from-founder {
+            border-color: var(--neon-yellow) !important;
+            box-shadow: 0 0 15px rgba(255, 230, 0, 0.1);
+        }
+
+        .msg-sender-badge {
+            font-size: 9px;
+            font-weight: 600;
+            letter-spacing: 2px;
+            margin-bottom: 5px;
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        .msg-time {
+            font-size: 9px;
+            color: #444;
+            margin-top: 6px;
+            letter-spacing: 1px;
+        }
+
+        .msg-time.sent-time { text-align: right; }
+
+        .msg-system {
+            align-self: center;
+            font-size: 9px;
+            color: var(--neon-pink);
+            padding: 6px 14px;
+            background: rgba(255, 45, 120, 0.05);
+            border: 1px solid rgba(255, 45, 120, 0.15);
+            letter-spacing: 3px;
+            font-family: 'Orbitron', sans-serif;
+            clip-path: polygon(5px 0, 100% 0, 100% calc(100% - 5px), calc(100% - 5px) 100%, 0 100%, 0 5px);
+        }
+
+        .typing-indicator {
+            font-size: 11px;
+            color: var(--neon-cyan);
+            padding: 5px 15px;
+            font-weight: 300;
+            animation: typingBlink 0.8s infinite;
+            letter-spacing: 1px;
+        }
+
+        @keyframes typingBlink {
+            0%, 100% { opacity: 0.4; }
+            50% { opacity: 1; }
+        }
+
+        .location-card {
+            background: rgba(0, 240, 255, 0.03);
+            border: 1px solid var(--neon-cyan);
+            padding: 18px;
+            margin: 15px 25px;
+            display: none;
+            animation: fadeIn 0.4s;
+            clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
+        }
+
+        .location-card.show { display: block; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .location-card-title {
+            font-size: 9px;
+            color: var(--neon-pink);
+            letter-spacing: 3px;
+            margin-bottom: 10px;
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        .location-card-address {
+            font-size: 14px;
+            color: #ccc;
+            line-height: 1.6;
+            font-weight: 300;
+        }
+
+        .location-card-coords {
+            font-size: 10px;
+            color: var(--neon-cyan);
+            margin-top: 8px;
+            font-family: 'Orbitron', sans-serif;
+            letter-spacing: 1px;
+        }
+
+        .chat-input-area {
+            padding: 18px;
+            border-top: 1px solid rgba(180, 77, 255, 0.1);
+            display: flex;
+            gap: 12px;
+            background: rgba(10, 5, 20, 0.8);
+        }
+
+        .chat-input {
+            flex: 1;
+            padding: 15px 20px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(180, 77, 255, 0.2);
+            color: var(--neon-cyan);
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 15px;
+            outline: none;
+            transition: all 0.4s;
+            clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
+        }
+
+        .chat-input:focus {
+            border-color: var(--neon-cyan);
+            box-shadow: 
+                0 0 20px var(--glow-cyan),
+                inset 0 0 20px rgba(0, 240, 255, 0.03);
+        }
+
+        .send-btn {
+            padding: 15px 28px;
+            background: linear-gradient(135deg, rgba(180, 77, 255, 0.15), rgba(0, 240, 255, 0.1));
+            color: var(--neon-cyan);
+            border: 1px solid var(--neon-purple);
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 700;
+            letter-spacing: 4px;
+            cursor: pointer;
+            font-size: 11px;
+            text-transform: uppercase;
+            transition: all 0.3s;
+            clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
+        }
+
+        .send-btn:hover {
+            background: linear-gradient(135deg, rgba(180, 77, 255, 0.3), rgba(0, 240, 255, 0.2));
+            border-color: var(--neon-cyan);
+            box-shadow: 0 0 30px var(--glow-cyan);
+        }
+
+        .toast {
+            position: fixed;
+            top: 25px;
+            right: 25px;
+            background: var(--panel);
+            border: 1px solid var(--neon-cyan);
+            padding: 18px 25px;
+            z-index: 2000;
+            font-size: 13px;
+            color: var(--neon-cyan);
+            letter-spacing: 2px;
+            font-family: 'Orbitron', sans-serif;
+            transform: translateX(120%);
+            transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            box-shadow: 0 0 30px var(--glow-cyan);
+            clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
+        }
+
+        .toast.show { transform: translateX(0); }
+
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: rgba(0, 0, 0, 0.3); }
+        ::-webkit-scrollbar-thumb { 
+            background: var(--neon-purple);
+            clip-path: polygon(2px 0, 100% 0, 100% calc(100% - 2px), calc(100% - 2px) 100%, 0 100%, 0 2px);
+        }
+
+        @media (max-width: 768px) {
+            .sidebar { width: 280px; min-width: 280px; }
+            .msg-bubble { max-width: 85%; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Дождь -->
+    <div class="rain" id="rain"></div>
+    
+    <!-- Голографическая сетка -->
+    <div class="holo-grid"></div>
+    
+    <!-- Японский текст -->
+    <div class="japanese-bg">電脳都市</div>
+
+    <!-- Авторизация -->
+    <div class="auth-overlay" id="authOverlay">
+        <div class="auth-box">
+            <div class="auth-logo">NEON CITY</div>
+            <div class="auth-subtitle">[ CYBERPUNK NETWORK ]</div>
+            
+            <div id="loginForm">
+                <input type="text" class="auth-input" id="loginUsername" placeholder="USERNAME">
+                <input type="password" class="auth-input" id="loginPassword" placeholder="PASSWORD">
+                <button class="auth-btn" onclick="login()">▸ CONNECT</button>
+                <div class="auth-switch">
+                    No ID? <a onclick="toggleAuth()">REGISTER</a>
+                </div>
+            </div>
+
+            <div id="registerForm" style="display:none;">
+                <input type="text" class="auth-input" id="regUsername" placeholder="CHOOSE NAME">
+                <input type="password" class="auth-input" id="regPassword" placeholder="PASSWORD">
+                <button class="auth-btn" onclick="register()">▸ INIT</button>
+                <div class="auth-switch">
+                    Have ID? <a onclick="toggleAuth()">CONNECT</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Приложение -->
+    <div class="app-container hidden" id="appContainer">
+        
+        <!-- Сайдбар -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo">NEON CITY</div>
+                <div class="sidebar-ja">電脳通信</div>
+            </div>
+
+            <div class="user-profile">
+                <div class="user-avatar" id="myAvatar"></div>
+                <div class="user-details">
+                    <div class="user-display-name" id="myName"></div>
+                    <div class="user-dedsec-id" id="myDedsecId"></div>
+                    <div id="myStatusBadge"></div>
+                </div>
+            </div>
+
+            <div class="contacts-section" id="contactsList">
+                <div class="contacts-title">// NETWORK</div>
+            </div>
+
+            <div class="add-contact-area">
+                <input type="text" class="add-contact-input" id="addContactInput" placeholder="ID or Username...">
+                <button class="btn-sm" onclick="addContact()">+ ADD NODE</button>
+                <button class="btn-sm" style="margin-top:5px; color: var(--neon-pink); border-color: var(--neon-pink);" onclick="shareMyLocation()">
+                    ◆ SHARE POSITION
+                </button>
+            </div>
+        </div>
+
+        <!-- Чат -->
+        <div class="chat-area">
+            <div class="chat-placeholder" id="chatPlaceholder">
+                <div class="chat-placeholder-icon">◆</div>
+                <div class="chat-placeholder-text">SELECT NODE</div>
+            </div>
+
+            <div id="activeChat" style="display:none; flex:1; flex-direction:column; height:100%;">
+                <div class="chat-header">
+                    <div class="chat-header-info">
+                        <div class="contact-avatar" id="chatAvatar" style="width:42px;height:42px;font-size:17px;"></div>
+                        <div>
+                            <div class="chat-header-name" id="chatName"></div>
+                            <div class="chat-header-status" id="chatStatus"></div>
+                        </div>
+                    </div>
+                    <div class="chat-header-actions">
+                        <button class="btn-icon" onclick="requestLocation()">◆ TRACE</button>
+                    </div>
+                </div>
+
+                <div class="location-card" id="locationCard">
+                    <div class="location-card-title">// TRACE DATA</div>
+                    <div class="location-card-address" id="locationAddress"></div>
+                    <div class="location-card-coords" id="locationCoords"></div>
+                </div>
+
+                <div class="chat-messages" id="chatMessages"></div>
+
+                <div class="chat-input-area">
+                    <input type="text" class="chat-input" id="messageInput" placeholder="Message..." onkeypress="handleKey(event)" oninput="handleTyping()">
+                    <button class="send-btn" onclick="sendMessage()">SEND</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
+
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+    <script>
+        // Дождь
+        function createRain() {
+            const container = document.getElementById('rain');
+            for (let i = 0; i < 80; i++) {
+                const drop = document.createElement('div');
+                drop.className = 'drop';
+                drop.style.left = Math.random() * 100 + '%';
+                drop.style.height = (Math.random() * 40 + 20) + 'px';
+                drop.style.animationDuration = (Math.random() * 1 + 1.5) + 's';
+                drop.style.animationDelay = Math.random() * 3 + 's';
+                container.appendChild(drop);
+            }
+        }
+        createRain();
+
+        const API = '';
+        let currentUser = null;
+        let currentContact = null;
+        let socket = null;
+        let typingTimeout = null;
+
+        function toggleAuth() {
+            document.getElementById('loginForm').style.display = 
+                document.getElementById('loginForm').style.display === 'none' ? 'block' : 'none';
+            document.getElementById('registerForm').style.display = 
+                document.getElementById('registerForm').style.display === 'none' ? 'block' : 'none';
+        }
+
+        async function login() {
+            const username = document.getElementById('loginUsername').value.trim();
+            const password = document.getElementById('loginPassword').value.trim();
+            if (!username || !password) return showToast('⚠️ Enter credentials');
+
+            try {
+                const res = await fetch(`${API}/api/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    currentUser = data;
+                    initApp();
+                } else {
+                    showToast('✕ ' + data.error);
+                }
+            } catch (e) {
+                showToast('✕ Connection failed');
+            }
+        }
+
+        async function register() {
+            const username = document.getElementById('regUsername').value.trim();
+            const password = document.getElementById('regPassword').value.trim();
+            if (!username || !password) return showToast('⚠️ Enter credentials');
+
+            try {
+                const res = await fetch(`${API}/api/register`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    showToast('◆ Registered! ID: ' + data.dedsecId);
+                    toggleAuth();
+                } else {
+                    showToast('✕ ' + data.error);
+                }
+            } catch (e) {
+                showToast('✕ Connection failed');
+            }
+        }
+
+        function initApp() {
+            document.getElementById('authOverlay').classList.add('hidden');
+            document.getElementById('appContainer').classList.remove('hidden');
+            
+            document.getElementById('myName').textContent = currentUser.username;
+            document.getElementById('myDedsecId').textContent = '◆ ' + currentUser.dedsecId;
+            document.getElementById('myAvatar').style.background = currentUser.avatarColor;
+            document.getElementById('myAvatar').textContent = currentUser.username[0].toUpperCase();
+
+            if (currentUser.eternalStatus === 'founder') {
+                document.getElementById('myStatusBadge').innerHTML = 
+                    '<span class="user-status-badge badge-founder">ADMIN</span>';
+            } else {
+                document.getElementById('myStatusBadge').innerHTML = 
+                    '<span class="user-status-badge badge-normis">USER</span>';
+            }
+
+            connectSocket();
+            loadContacts();
+        }
+
+        function connectSocket() {
+            socket = io();
+            socket.emit('authenticate', currentUser.userId);
+
+            socket.on('new_message', (data) => {
+                if (currentContact && data.sender_id === currentContact.id) {
+                    addMessageBubble(data.message, 'received', data.created_at, data.senderEternalStatus);
+                    markMessagesRead();
+                }
+                loadContacts();
+            });
+
+            socket.on('message_sent', (data) => {
+                if (currentContact && data.receiver_id === currentContact.id) {
+                    addMessageBubble(data.message, 'sent', data.created_at, currentUser.eternalStatus);
+                }
+            });
+
+            socket.on('user_status_change', (data) => {
+                if (currentContact && currentContact.id === data.userId) updateChatStatus(data.status);
+                loadContacts();
+            });
+
+            socket.on('user_typing', (data) => {
+                if (currentContact) showTyping(data.username);
+            });
+
+            socket.on('user_stop_typing', () => hideTyping());
+
+            socket.on('location_requested', (data) => {
+                showToast('◆ ' + data.fromUsername + ' requests trace');
+                if (confirm(data.fromUsername + ' requests your position. Share?')) sendLocationTo(data.fromUserId);
+            });
+
+            socket.on('location_shared', (data) => showLocationCard(data.latitude, data.longitude, data.address));
+            socket.on('contact_added', () => loadContacts());
+        }
+
+        async function loadContacts() {
+            try {
+                const res = await fetch(`${API}/api/contacts/${currentUser.userId}`);
+                const contacts = await res.json();
+                const container = document.getElementById('contactsList');
+                
+                if (contacts.length === 0) {
+                    container.innerHTML = `
+                        <div class="contacts-title">// NETWORK</div>
+                        <div style="text-align:center;color:#3a2a4a;padding:40px;font-size:13px;font-weight:300;">
+                            [ NO CONNECTIONS ]<br>
+                            <span style="color:#2a1a30;">Add node to network</span>
+                        </div>`;
+                } else {
+                    container.innerHTML = '<div class="contacts-title">// NETWORK</div>' + 
+                        contacts.map(c => `
+                            <div class="contact-item ${currentContact && currentContact.id === c.id ? 'active' : ''} ${c.eternal_status === 'founder' ? 'founder-contact' : ''}" 
+                                 onclick="openChat(${c.id}, '${c.username}', '${c.avatar_color}', '${c.status}', '${c.eternal_status}')">
+                                <div class="contact-avatar" style="background:${c.avatar_color}">
+                                    ${c.username[0].toUpperCase()}
+                                </div>
+                                <div class="contact-info">
+                                    <div class="contact-name">${c.username}</div>
+                                    <div class="contact-last-msg">${c.last_message || 'No data...'}</div>
+                                </div>
+                                ${c.unread_count > 0 ? `<div class="contact-unread">${c.unread_count}</div>` : ''}
+                            </div>
+                        `).join('');
+                }
+            } catch (e) {}
+        }
+
+        async function addContact() {
+            const input = document.getElementById('addContactInput');
+            const username = input.value.trim();
+            if (!username) return showToast('⚠️ Enter ID');
+
+            try {
+                const res = await fetch(`${API}/api/contacts/add`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ userId: currentUser.userId, contactUsername: username })
+                });
+                const data = await res.json();
+                if (res.ok) { showToast('◆ Node added'); input.value = ''; loadContacts(); }
+                else showToast('✕ ' + data.error);
+            } catch (e) { showToast('✕ Error'); }
+        }
+
+        async function openChat(contactId, contactName, avatarColor, status, eternalStatus) {
+            currentContact = { id: contactId, username: contactName, avatarColor, status, eternalStatus };
+            document.getElementById('chatPlaceholder').style.display = 'none';
+            document.getElementById('activeChat').style.display = 'flex';
+            document.getElementById('chatName').textContent = contactName;
+            document.getElementById('chatAvatar').style.background = avatarColor;
+            document.getElementById('chatAvatar').textContent = contactName[0].toUpperCase();
+            document.getElementById('locationCard').classList.remove('show');
+            updateChatStatus(status);
+            loadContacts();
+            await loadMessages();
+            document.getElementById('messageInput').focus();
+        }
+
+        function updateChatStatus(status) {
+            document.getElementById('chatStatus').innerHTML = status === 'online' ? 
+                '<span style="color:var(--neon-green);">◆ ONLINE</span>' : 
+                '<span style="color:#3a2a4a;">◇ OFFLINE</span>';
+        }
+
+        async function loadMessages() {
+            if (!currentContact) return;
+            try {
+                const res = await fetch(`${API}/api/messages/${currentUser.userId}/${currentContact.id}?limit=50`);
+                const messages = await res.json();
+                const container = document.getElementById('chatMessages');
+                container.innerHTML = `<div class="msg-system">◆ SECURE CHANNEL — ${currentContact.username.toUpperCase()}</div>`;
+                messages.forEach(msg => {
+                    const type = msg.sender_id === currentUser.userId ? 'sent' : 'received';
+                    addMessageBubble(msg.message, type, msg.created_at, type === 'sent' ? currentUser.eternal_status : currentContact.eternal_status, false);
+                });
+                container.scrollTop = container.scrollHeight;
+                markMessagesRead();
+            } catch (e) {}
+        }
+
+        function addMessageBubble(text, type, timestamp, eternalStatus, scroll = true) {
+            const container = document.getElementById('chatMessages');
+            const time = new Date(timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            const bubble = document.createElement('div');
+            bubble.className = `msg-bubble ${type}${type === 'received' && eternalStatus === 'founder' ? ' from-founder' : ''}`;
+            let badge = eternalStatus === 'founder' ? '<div class="msg-sender-badge" style="color:#ffe600;">◆ ADMIN</div>' : '';
+            bubble.innerHTML = `${badge}${text}<div class="msg-time ${type === 'sent' ? 'sent-time' : ''}">${time}</div>`;
+            container.appendChild(bubble);
+            if (scroll) container.scrollTop = container.scrollHeight;
+        }
+
+        async function markMessagesRead() {
+            if (!currentContact) return;
+            try { await fetch(`${API}/api/messages/${currentUser.userId}/${currentContact.id}?limit=1`); } catch (e) {}
+        }
+
+        function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const text = input.value.trim();
+            if (!text || !currentContact) return;
+            socket.emit('send_message', { senderId: currentUser.userId, receiverId: currentContact.id, message: text });
+            input.value = ''; input.focus(); stopTyping();
+        }
+
+        function handleKey(e) { if (e.key === 'Enter') sendMessage(); }
+
+        function handleTyping() {
+            if (!currentContact) return;
+            socket.emit('typing', { senderId: currentUser.userId, receiverId: currentContact.id, username: currentUser.username });
+            clearTimeout(typingTimeout);
+            typingTimeout = setTimeout(stopTyping, 2000);
+        }
+
+        function stopTyping() { if (currentContact) socket.emit('stop_typing', { senderId: currentUser.userId, receiverId: currentContact.id }); }
+
+        function showTyping(username) {
+            const container = document.getElementById('chatMessages');
+            let indicator = document.getElementById('typingIndicator');
+            if (!indicator) {
+                indicator = document.createElement('div');
+                indicator.id = 'typingIndicator';
+                indicator.className = 'typing-indicator';
+                container.appendChild(indicator);
+            }
+            indicator.textContent = username + ' is typing...';
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function hideTyping() { const i = document.getElementById('typingIndicator'); if (i) i.remove(); }
+
+        function shareMyLocation() {
+            if (!navigator.geolocation) return showToast('✕ No GPS');
+            if (!confirm('Share position?')) return;
+            navigator.geolocation.getCurrentPosition(async (pos) => {
+                const { latitude, longitude } = pos.coords;
+                let address = '';
+                try { const r = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`); address = (await r.json()).display_name || ''; } catch (e) {}
+                try {
+                    await fetch(`${API}/api/location/update`, {
+                        method: 'POST', headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ userId: currentUser.userId, latitude, longitude, address })
+                    });
+                    showToast('◆ Position saved');
+                } catch (e) { showToast('✕ Error'); }
+            }, () => showToast('✕ Denied'));
+        }
+
+        function requestLocation() {
+            if (!currentContact) return;
+            socket.emit('request_location', { fromUserId: currentUser.userId, fromUsername: currentUser.username, toUserId: currentContact.id });
+            showToast('◆ Trace requested');
+        }
+
+        function sendLocationTo(toUserId) {
+            if (!navigator.geolocation) return;
+            navigator.geolocation.getCurrentPosition(async (pos) => {
+                const { latitude, longitude } = pos.coords;
+                let address = '';
+                try { const r = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`); address = (await r.json()).display_name || ''; } catch (e) {}
+                socket.emit('share_location', { fromUserId: currentUser.userId, toUserId, latitude, longitude, address });
+            });
+        }
+
+        function showLocationCard(lat, lon, address) {
+            document.getElementById('locationAddress').textContent = address || 'Unknown';
+            document.getElementById('locationCoords').textContent = `◆ ${lat.toFixed(4)}, ${lon.toFixed(4)}`;
+            document.getElementById('locationCard').classList.add('show');
+            showToast('◆ Trace complete');
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+    </script>
+</body>
+</html>
