@@ -1,1240 +1,1783 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="google-site-verification" content="352yikuDs9GK_9gHpLiz8AXQLItMYaBwrEzAOE9FdFE" />
-    <title>NEON CITY // CYBERPUNK MESSENGER</title>
-    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=Orbitron:wght@400;500;700;900&family=Noto+Sans+JP:wght@300;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        :root {
-            --bg: #0a0010;
-            --card: rgba(15, 5, 25, 0.9);
-            --card2: rgba(20, 10, 35, 0.95);
-            --border: #2a1040;
-            --neon-pink: #ff2d78;
-            --neon-cyan: #00f0ff;
-            --neon-purple: #b44dff;
-            --neon-yellow: #ffe600;
-            --neon-green: #00ff88;
-            --text: #c8c8d0;
-            --text2: #6a6a7a;
-            --online: #00ff88;
-            --offline: #2a1a30;
-            --panel: rgba(10, 5, 20, 0.85);
-            --glow-pink: rgba(255, 45, 120, 0.3);
-            --glow-cyan: rgba(0, 240, 255, 0.3);
-        }
-
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-
-        body {
-            font-family: 'Rajdhani', sans-serif;
-            background: var(--bg);
-            color: var(--text);
-            height: 100vh;
-            overflow: hidden;
-            cursor: default;
-            position: relative;
-        }
-
-        /* Дождь */
-        .rain {
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            pointer-events: none;
-            z-index: 0;
-        }
-
-        .drop {
-            position: absolute;
-            width: 2px;
-            background: linear-gradient(transparent, rgba(0, 240, 255, 0.3));
-            animation: rain linear infinite;
-        }
-
-        @keyframes rain {
-            0% { transform: translateY(-100px); opacity: 0; }
-            10% { opacity: 1; }
-            90% { opacity: 1; }
-            100% { transform: translateY(100vh); opacity: 0; }
-        }
-
-        /* Голографическая сетка */
-        .holo-grid {
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background: 
-                linear-gradient(rgba(180, 77, 255, 0.03) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(0, 240, 255, 0.03) 1px, transparent 1px);
-            background-size: 50px 50px;
-            pointer-events: none;
-            z-index: 0;
-            animation: gridPulse 4s ease-in-out infinite;
-        }
-
-        @keyframes gridPulse {
-            0%, 100% { opacity: 0.5; }
-            50% { opacity: 1; }
-        }
-
-        /* Японский текст на фоне */
-        .japanese-bg {
-            position: fixed;
-            top: 20px;
-            right: 30px;
-            font-family: 'Noto Sans JP', sans-serif;
-            font-size: 180px;
-            font-weight: 700;
-            color: rgba(255, 45, 120, 0.03);
-            pointer-events: none;
-            z-index: 0;
-            user-select: none;
-            writing-mode: vertical-rl;
-            letter-spacing: 30px;
-        }
-
-        /* === АВТОРИЗАЦИЯ === */
-        .auth-overlay {
-            position: fixed;
-            top: 0; left: 0;
-            width: 100%; height: 100%;
-            background: rgba(5, 0, 15, 0.95);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-            backdrop-filter: blur(20px);
-        }
-
-        .auth-overlay.hidden { display: none; }
-
-        .auth-box {
-            background: var(--panel);
-            border: 1px solid rgba(180, 77, 255, 0.3);
-            padding: 50px 45px;
-            width: 440px;
-            position: relative;
-            clip-path: polygon(15px 0, 100% 0, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0 100%, 0 15px);
-            box-shadow: 
-                0 0 60px rgba(180, 77, 255, 0.15),
-                0 0 120px rgba(0, 240, 255, 0.05),
-                inset 0 1px 0 rgba(255, 255, 255, 0.03);
-        }
-
-        .auth-box::before {
-            content: '';
-            position: absolute;
-            top: -1px; left: 20px; right: 20px;
-            height: 1px;
-            background: linear-gradient(90deg, transparent, var(--neon-cyan), transparent);
-            animation: scanLine 2s ease-in-out infinite;
-        }
-
-        @keyframes scanLine {
-            0%, 100% { opacity: 0.2; }
-            50% { opacity: 1; }
-        }
-
-        .auth-logo {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 38px;
-            font-weight: 900;
-            color: #fff;
-            text-align: center;
-            text-shadow: 
-                0 0 20px var(--neon-pink),
-                0 0 40px var(--neon-pink),
-                0 0 80px var(--neon-purple),
-                0 0 120px var(--neon-cyan);
-            letter-spacing: 12px;
-            margin-bottom: 5px;
-            animation: logoFlicker 3s infinite;
-        }
-
-        @keyframes logoFlicker {
-            0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% { opacity: 1; }
-            20%, 24%, 55% { opacity: 0.4; }
-        }
-
-        .auth-subtitle {
-            text-align: center;
-            color: var(--neon-cyan);
-            font-size: 10px;
-            letter-spacing: 6px;
-            margin-bottom: 35px;
-            opacity: 0.7;
-            font-family: 'Orbitron', sans-serif;
-        }
-
-        .auth-input {
-            width: 100%;
-            padding: 16px 20px;
-            background: rgba(0, 0, 0, 0.6);
-            border: 1px solid rgba(180, 77, 255, 0.2);
-            color: var(--neon-cyan);
-            font-family: 'Rajdhani', sans-serif;
-            font-size: 16px;
-            font-weight: 500;
-            letter-spacing: 1px;
-            margin-bottom: 16px;
-            outline: none;
-            transition: all 0.4s;
-            clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
-        }
-
-        .auth-input:focus {
-            border-color: var(--neon-cyan);
-            box-shadow: 
-                0 0 20px var(--glow-cyan),
-                inset 0 0 20px rgba(0, 240, 255, 0.05);
-        }
-
-        .auth-input::placeholder { color: #3a2a4a; }
-
-        .auth-btn {
-            width: 100%;
-            padding: 16px;
-            background: linear-gradient(135deg, rgba(180, 77, 255, 0.1), rgba(0, 240, 255, 0.05));
-            border: 1px solid var(--neon-purple);
-            color: var(--neon-cyan);
-            font-family: 'Orbitron', sans-serif;
-            font-size: 14px;
-            font-weight: 700;
-            letter-spacing: 6px;
-            cursor: pointer;
-            text-transform: uppercase;
-            transition: all 0.4s;
-            margin-top: 10px;
-            clip-path: polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .auth-btn::after {
-            content: '';
-            position: absolute;
-            top: -50%; left: -50%;
-            width: 200%; height: 200%;
-            background: linear-gradient(45deg, transparent, rgba(0, 240, 255, 0.1), transparent);
-            animation: btnShine 2s infinite;
-        }
-
-        @keyframes btnShine {
-            0% { transform: translateX(-100%) rotate(45deg); }
-            100% { transform: translateX(100%) rotate(45deg); }
-        }
-
-        .auth-btn:hover {
-            background: linear-gradient(135deg, rgba(180, 77, 255, 0.25), rgba(0, 240, 255, 0.15));
-            border-color: var(--neon-cyan);
-            box-shadow: 
-                0 0 30px var(--glow-cyan),
-                0 0 60px var(--glow-pink);
-            text-shadow: 0 0 15px var(--neon-cyan);
-        }
-
-        .auth-switch {
-            text-align: center;
-            margin-top: 20px;
-            color: var(--text2);
-            font-size: 13px;
-            font-weight: 300;
-        }
-
-        .auth-switch a {
-            color: var(--neon-pink);
-            cursor: pointer;
-            text-decoration: none;
-            font-weight: 500;
-            transition: all 0.3s;
-        }
-
-        .auth-switch a:hover { 
-            text-shadow: 0 0 10px var(--neon-pink);
-            color: #fff;
-        }
-
-        /* === ПРИЛОЖЕНИЕ === */
-        .app-container {
-            position: relative;
-            z-index: 1;
-            height: 100vh;
-            display: flex;
-        }
-
-        .app-container.hidden { display: none; }
-
-        /* === САЙДБАР === */
-        .sidebar {
-            width: 340px;
-            min-width: 340px;
-            background: var(--panel);
-            border-right: 1px solid rgba(180, 77, 255, 0.15);
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-            backdrop-filter: blur(10px);
-        }
-
-        .sidebar-header {
-            padding: 28px 20px;
-            text-align: center;
-            background: rgba(10, 5, 20, 0.8);
-            border-bottom: 1px solid rgba(0, 240, 255, 0.15);
-            position: relative;
-        }
-
-        .sidebar-header::after {
-            content: '';
-            position: absolute;
-            bottom: 0; left: 10%; right: 10%;
-            height: 1px;
-            background: linear-gradient(90deg, transparent, var(--neon-pink), transparent);
-        }
-
-        .sidebar-logo {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 24px;
-            font-weight: 900;
-            color: #fff;
-            text-shadow: 0 0 20px var(--neon-cyan);
-            letter-spacing: 8px;
-        }
-
-        .sidebar-ja {
-            font-size: 11px;
-            color: var(--neon-pink);
-            font-family: 'Noto Sans JP', sans-serif;
-            opacity: 0.7;
-            letter-spacing: 4px;
-            margin-top: 5px;
-        }
-
-        .user-profile {
-            padding: 22px;
-            border-bottom: 1px solid rgba(180, 77, 255, 0.1);
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            background: rgba(0, 0, 0, 0.2);
-        }
-
-        .user-avatar {
-            width: 48px;
-            height: 48px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-            font-size: 20px;
-            color: #fff;
-            flex-shrink: 0;
-            clip-path: polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px);
-            position: relative;
-        }
-
-        .user-details { flex: 1; min-width: 0; }
-
-        .user-display-name {
-            font-size: 17px;
-            font-weight: 600;
-            color: #eee;
-            letter-spacing: 1px;
-        }
-
-        .user-dedsec-id {
-            font-size: 10px;
-            color: var(--neon-cyan);
-            letter-spacing: 2px;
-            margin-top: 3px;
-            font-family: 'Orbitron', sans-serif;
-        }
-
-        .user-status-badge {
-            font-size: 9px;
-            padding: 3px 10px;
-            letter-spacing: 3px;
-            font-weight: 600;
-            display: inline-block;
-            margin-top: 6px;
-            clip-path: polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px);
-            font-family: 'Orbitron', sans-serif;
-        }
-
-        .badge-founder {
-            background: rgba(255, 230, 0, 0.1);
-            color: var(--neon-yellow);
-            border: 1px solid var(--neon-yellow);
-            text-shadow: 0 0 10px var(--neon-yellow);
-        }
-
-        .badge-normis {
-            background: rgba(100, 100, 100, 0.1);
-            color: #777;
-            border: 1px solid #333;
-        }
-
-        .contacts-section {
-            flex: 1;
-            overflow-y: auto;
-            padding: 12px;
-        }
-
-        .contacts-title {
-            font-size: 9px;
-            color: var(--neon-pink);
-            letter-spacing: 5px;
-            padding: 14px 12px;
-            text-transform: uppercase;
-            font-family: 'Orbitron', sans-serif;
-            opacity: 0.8;
-        }
-
-        .contact-item {
-            padding: 15px;
-            margin: 5px 0;
-            background: rgba(0, 0, 0, 0.3);
-            border: 1px solid transparent;
-            cursor: pointer;
-            transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            gap: 14px;
-            clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
-        }
-
-        .contact-item:hover {
-            border-color: rgba(180, 77, 255, 0.3);
-            background: rgba(180, 77, 255, 0.05);
-            box-shadow: 0 0 15px rgba(180, 77, 255, 0.1);
-        }
-
-        .contact-item.active {
-            border-color: var(--neon-cyan) !important;
-            background: rgba(0, 240, 255, 0.05) !important;
-            box-shadow: 
-                0 0 20px var(--glow-cyan),
-                inset 0 0 20px rgba(0, 240, 255, 0.03) !important;
-        }
-
-        .contact-item.founder-contact {
-            border-left: 2px solid var(--neon-yellow);
-        }
-
-        .contact-avatar {
-            width: 42px;
-            height: 42px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 700;
-            font-size: 17px;
-            color: #fff;
-            flex-shrink: 0;
-            clip-path: polygon(5px 0, 100% 0, 100% calc(100% - 5px), calc(100% - 5px) 100%, 0 100%, 0 5px);
-        }
-
-        .contact-info { flex: 1; min-width: 0; }
-
-        .contact-name {
-            font-size: 15px;
-            font-weight: 600;
-            color: #ddd;
-            letter-spacing: 1px;
-        }
-
-        .contact-last-msg {
-            font-size: 11px;
-            color: #555;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            margin-top: 4px;
-            font-weight: 300;
-        }
-
-        .contact-unread {
-            background: var(--neon-pink);
-            color: #fff;
-            font-size: 10px;
-            padding: 3px 9px;
-            font-weight: 700;
-            clip-path: polygon(3px 0, 100% 0, 100% calc(100% - 3px), calc(100% - 3px) 100%, 0 100%, 0 3px);
-            animation: unreadPulse 2s infinite;
-        }
-
-        @keyframes unreadPulse {
-            0%, 100% { box-shadow: 0 0 5px var(--neon-pink); }
-            50% { box-shadow: 0 0 20px var(--neon-pink); }
-        }
-
-        .add-contact-area {
-            padding: 18px;
-            border-top: 1px solid rgba(180, 77, 255, 0.1);
-            background: rgba(10, 5, 20, 0.6);
-        }
-
-        .add-contact-input {
-            width: 100%;
-            padding: 13px;
-            background: rgba(0, 0, 0, 0.5);
-            border: 1px solid rgba(180, 77, 255, 0.15);
-            color: var(--neon-cyan);
-            font-family: 'Rajdhani', sans-serif;
-            font-size: 14px;
-            margin-bottom: 10px;
-            outline: none;
-            transition: all 0.3s;
-            clip-path: polygon(5px 0, 100% 0, 100% calc(100% - 5px), calc(100% - 5px) 100%, 0 100%, 0 5px);
-        }
-
-        .add-contact-input:focus {
-            border-color: var(--neon-cyan);
-            box-shadow: 0 0 15px var(--glow-cyan);
-        }
-
-        .btn-sm {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid var(--neon-purple);
-            background: rgba(180, 77, 255, 0.05);
-            color: var(--neon-purple);
-            font-family: 'Orbitron', sans-serif;
-            font-size: 10px;
-            letter-spacing: 3px;
-            cursor: pointer;
-            text-transform: uppercase;
-            transition: all 0.3s;
-            clip-path: polygon(6px 0, 100% 0, 100% calc(100% - 6px), calc(100% - 6px) 100%, 0 100%, 0 6px);
-        }
-
-        .btn-sm:hover {
-            background: rgba(180, 77, 255, 0.15);
-            border-color: var(--neon-cyan);
-            color: var(--neon-cyan);
-            box-shadow: 0 0 20px var(--glow-cyan);
-        }
-
-        /* === ЧАТ === */
-        .chat-area {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-            background: rgba(5, 0, 15, 0.5);
-        }
-
-        .chat-placeholder {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            color: var(--text2);
-        }
-
-        .chat-placeholder-icon {
-            font-size: 100px;
-            margin-bottom: 25px;
-            opacity: 0.08;
-            animation: placeholderPulse 3s infinite;
-        }
-
-        @keyframes placeholderPulse {
-            0%, 100% { filter: hue-rotate(0deg); }
-            50% { filter: hue-rotate(30deg); }
-        }
-
-        .chat-placeholder-text {
-            font-size: 14px;
-            letter-spacing: 6px;
-            opacity: 0.4;
-            color: var(--neon-cyan);
-            font-family: 'Orbitron', sans-serif;
-        }
-
-        .chat-header {
-            padding: 18px 25px;
-            border-bottom: 1px solid rgba(0, 240, 255, 0.1);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: rgba(10, 5, 20, 0.8);
-        }
-
-        .chat-header-name {
-            font-size: 17px;
-            font-weight: 600;
-            color: #ddd;
-            letter-spacing: 1px;
-        }
-
-        .chat-header-status {
-            font-size: 10px;
-            color: var(--text2);
-            letter-spacing: 2px;
-            margin-top: 3px;
-            font-family: 'Orbitron', sans-serif;
-        }
-
-        .btn-icon {
-            padding: 10px 18px;
-            border: 1px solid rgba(0, 240, 255, 0.2);
-            background: rgba(0, 240, 255, 0.03);
-            color: var(--neon-cyan);
-            font-family: 'Orbitron', sans-serif;
-            font-size: 10px;
-            letter-spacing: 2px;
-            cursor: pointer;
-            transition: all 0.3s;
-            clip-path: polygon(5px 0, 100% 0, 100% calc(100% - 5px), calc(100% - 5px) 100%, 0 100%, 0 5px);
-        }
-
-        .btn-icon:hover {
-            border-color: var(--neon-cyan);
-            box-shadow: 0 0 15px var(--glow-cyan);
-            background: rgba(0, 240, 255, 0.1);
-        }
-
-        .chat-messages {
-            flex: 1;
-            overflow-y: auto;
-            padding: 25px;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
-
-        .msg-bubble {
-            max-width: 70%;
-            padding: 14px 18px;
-            font-size: 14px;
-            line-height: 1.6;
-            word-wrap: break-word;
-            animation: msgPop 0.3s ease-out;
-            font-weight: 400;
-        }
-
-        @keyframes msgPop {
-            from { opacity: 0; transform: translateY(15px) scale(0.95); }
-            to { opacity: 1; transform: translateY(0) scale(1); }
-        }
-
-        .msg-bubble.sent {
-            background: rgba(180, 77, 255, 0.1);
-            border: 1px solid rgba(180, 77, 255, 0.3);
-            align-self: flex-end;
-            margin-left: 30%;
-            clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
-        }
-
-        .msg-bubble.received {
-            background: rgba(0, 240, 255, 0.05);
-            border: 1px solid rgba(0, 240, 255, 0.2);
-            align-self: flex-start;
-            margin-right: 30%;
-            clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
-        }
-
-        .msg-bubble.from-founder {
-            border-color: var(--neon-yellow) !important;
-            box-shadow: 0 0 15px rgba(255, 230, 0, 0.1);
-        }
-
-        .msg-sender-badge {
-            font-size: 9px;
-            font-weight: 600;
-            letter-spacing: 2px;
-            margin-bottom: 5px;
-            font-family: 'Orbitron', sans-serif;
-        }
-
-        .msg-time {
-            font-size: 9px;
-            color: #444;
-            margin-top: 6px;
-            letter-spacing: 1px;
-        }
-
-        .msg-time.sent-time { text-align: right; }
-
-        .msg-system {
-            align-self: center;
-            font-size: 9px;
-            color: var(--neon-pink);
-            padding: 6px 14px;
-            background: rgba(255, 45, 120, 0.05);
-            border: 1px solid rgba(255, 45, 120, 0.15);
-            letter-spacing: 3px;
-            font-family: 'Orbitron', sans-serif;
-            clip-path: polygon(5px 0, 100% 0, 100% calc(100% - 5px), calc(100% - 5px) 100%, 0 100%, 0 5px);
-        }
-
-        .typing-indicator {
-            font-size: 11px;
-            color: var(--neon-cyan);
-            padding: 5px 15px;
-            font-weight: 300;
-            animation: typingBlink 0.8s infinite;
-            letter-spacing: 1px;
-        }
-
-        @keyframes typingBlink {
-            0%, 100% { opacity: 0.4; }
-            50% { opacity: 1; }
-        }
-
-        .location-card {
-            background: rgba(0, 240, 255, 0.03);
-            border: 1px solid var(--neon-cyan);
-            padding: 18px;
-            margin: 15px 25px;
-            display: none;
-            animation: fadeIn 0.4s;
-            clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
-        }
-
-        .location-card.show { display: block; }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .location-card-title {
-            font-size: 9px;
-            color: var(--neon-pink);
-            letter-spacing: 3px;
-            margin-bottom: 10px;
-            font-family: 'Orbitron', sans-serif;
-        }
-
-        .location-card-address {
-            font-size: 14px;
-            color: #ccc;
-            line-height: 1.6;
-            font-weight: 300;
-        }
-
-        .location-card-coords {
-            font-size: 10px;
-            color: var(--neon-cyan);
-            margin-top: 8px;
-            font-family: 'Orbitron', sans-serif;
-            letter-spacing: 1px;
-        }
-
-        .chat-input-area {
-            padding: 18px;
-            border-top: 1px solid rgba(180, 77, 255, 0.1);
-            display: flex;
-            gap: 12px;
-            background: rgba(10, 5, 20, 0.8);
-        }
-
-        .chat-input {
-            flex: 1;
-            padding: 15px 20px;
-            background: rgba(0, 0, 0, 0.5);
-            border: 1px solid rgba(180, 77, 255, 0.2);
-            color: var(--neon-cyan);
-            font-family: 'Rajdhani', sans-serif;
-            font-size: 15px;
-            outline: none;
-            transition: all 0.4s;
-            clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
-        }
-
-        .chat-input:focus {
-            border-color: var(--neon-cyan);
-            box-shadow: 
-                0 0 20px var(--glow-cyan),
-                inset 0 0 20px rgba(0, 240, 255, 0.03);
-        }
-
-        .send-btn {
-            padding: 15px 28px;
-            background: linear-gradient(135deg, rgba(180, 77, 255, 0.15), rgba(0, 240, 255, 0.1));
-            color: var(--neon-cyan);
-            border: 1px solid var(--neon-purple);
-            font-family: 'Orbitron', sans-serif;
-            font-weight: 700;
-            letter-spacing: 4px;
-            cursor: pointer;
-            font-size: 11px;
-            text-transform: uppercase;
-            transition: all 0.3s;
-            clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
-        }
-
-        .send-btn:hover {
-            background: linear-gradient(135deg, rgba(180, 77, 255, 0.3), rgba(0, 240, 255, 0.2));
-            border-color: var(--neon-cyan);
-            box-shadow: 0 0 30px var(--glow-cyan);
-        }
-
-        .toast {
-            position: fixed;
-            top: 25px;
-            right: 25px;
-            background: var(--panel);
-            border: 1px solid var(--neon-cyan);
-            padding: 18px 25px;
-            z-index: 2000;
-            font-size: 13px;
-            color: var(--neon-cyan);
-            letter-spacing: 2px;
-            font-family: 'Orbitron', sans-serif;
-            transform: translateX(120%);
-            transition: transform 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-            box-shadow: 0 0 30px var(--glow-cyan);
-            clip-path: polygon(8px 0, 100% 0, 100% calc(100% - 8px), calc(100% - 8px) 100%, 0 100%, 0 8px);
-        }
-
-        .toast.show { transform: translateX(0); }
-
-        ::-webkit-scrollbar { width: 4px; }
-        ::-webkit-scrollbar-track { background: rgba(0, 0, 0, 0.3); }
-        ::-webkit-scrollbar-thumb { 
-            background: var(--neon-purple);
-            clip-path: polygon(2px 0, 100% 0, 100% calc(100% - 2px), calc(100% - 2px) 100%, 0 100%, 0 2px);
-        }
-
-        @media (max-width: 768px) {
-            .sidebar { width: 280px; min-width: 280px; }
-            .msg-bubble { max-width: 85%; }
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DEVHUB // GameDev Messenger</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+:root {
+    --bg: #0d1117;
+    --bg2: #161b22;
+    --bg3: #21262d;
+    --border: #30363d;
+    --text: #c9d1d9;
+    --text2: #8b949e;
+    --accent: #58a6ff;
+    --accent2: #7c3aed;
+    --green: #3fb950;
+    --yellow: #d29922;
+    --red: #f85149;
+    --pink: #f778ba;
+    --unity: #d4d4d4;
+    --unreal: #0e1128;
+    --godot: #478cbf;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    height: 100vh;
+    overflow: hidden;
+}
+
+/* === AUTH === */
+.auth-screen {
+    position: fixed;
+    inset: 0;
+    background: radial-gradient(ellipse at top, #1a2332 0%, #0d1117 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+    padding: 20px;
+}
+
+.auth-screen.hidden { display: none; }
+
+.auth-box {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 40px;
+    width: 100%;
+    max-width: 420px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+}
+
+.auth-logo {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--accent);
+    text-align: center;
+    margin-bottom: 8px;
+}
+
+.auth-logo .bracket { color: var(--text2); }
+
+.auth-sub {
+    text-align: center;
+    color: var(--text2);
+    font-size: 13px;
+    margin-bottom: 32px;
+    font-family: 'JetBrains Mono', monospace;
+}
+
+.auth-tabs {
+    display: flex;
+    gap: 4px;
+    background: var(--bg);
+    padding: 4px;
+    border-radius: 8px;
+    margin-bottom: 24px;
+}
+
+.auth-tab {
+    flex: 1;
+    padding: 10px;
+    background: transparent;
+    border: none;
+    color: var(--text2);
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: all 0.2s;
+}
+
+.auth-tab.active {
+    background: var(--bg3);
+    color: var(--text);
+}
+
+.auth-input {
+    width: 100%;
+    padding: 12px 14px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-family: inherit;
+    font-size: 14px;
+    margin-bottom: 12px;
+    outline: none;
+    transition: all 0.2s;
+}
+
+.auth-input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(88,166,255,0.1);
+}
+
+.auth-input::placeholder { color: var(--text2); }
+
+.engine-select {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+.engine-opt {
+    padding: 14px 8px;
+    background: var(--bg);
+    border: 2px solid var(--border);
+    border-radius: 8px;
+    cursor: pointer;
+    text-align: center;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text2);
+    transition: all 0.2s;
+    font-family: 'JetBrains Mono', monospace;
+}
+
+.engine-opt:hover { border-color: var(--text2); }
+
+.engine-opt.selected {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: rgba(88,166,255,0.05);
+}
+
+.engine-opt i {
+    display: block;
+    font-size: 20px;
+    margin-bottom: 6px;
+}
+
+.auth-btn {
+    width: 100%;
+    padding: 13px;
+    background: var(--accent);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-top: 8px;
+}
+
+.auth-btn:hover {
+    background: #4a95e0;
+}
+
+.auth-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* === APP === */
+.app {
+    display: flex;
+    height: 100vh;
+}
+
+.app.hidden { display: none; }
+
+/* Sidebar */
+.sidebar {
+    width: 280px;
+    background: var(--bg2);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+}
+
+.sb-header {
+    padding: 16px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.sb-logo {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--accent);
+}
+
+.sb-logo .bracket { color: var(--text2); }
+
+.user-chip {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 14px;
+    color: white;
+    flex-shrink: 0;
+    font-family: 'JetBrains Mono', monospace;
+}
+
+.user-info { flex: 1; min-width: 0; }
+.user-name { font-size: 14px; font-weight: 600; }
+.user-engine { font-size: 11px; color: var(--text2); font-family: 'JetBrains Mono', monospace; }
+
+.sb-section {
+    padding: 16px 16px 8px;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text2);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-family: 'JetBrains Mono', monospace;
+}
+
+.channels {
+    flex: 1;
+    overflow-y: auto;
+    padding: 0 8px 8px;
+}
+
+.channel {
+    padding: 8px 12px;
+    margin: 2px 0;
+    border-radius: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+    transition: all 0.15s;
+}
+
+.channel:hover { background: var(--bg3); }
+
+.channel.active {
+    background: var(--bg3);
+    color: var(--accent);
+    font-weight: 500;
+}
+
+.channel-icon {
+    width: 20px;
+    text-align: center;
+    font-size: 14px;
+    color: var(--text2);
+}
+
+.channel.active .channel-icon { color: var(--accent); }
+
+.channel-badge {
+    margin-left: auto;
+    background: var(--red);
+    color: white;
+    font-size: 10px;
+    padding: 2px 6px;
+    border-radius: 10px;
+    font-weight: 600;
+}
+
+.channel.add-channel {
+    color: var(--text2);
+    font-size: 13px;
+}
+
+/* Main */
+.main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background: var(--bg);
+    min-width: 0;
+}
+
+.topbar {
+    padding: 12px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--bg2);
+    min-height: 60px;
+}
+
+.topbar-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.topbar-title {
+    font-size: 15px;
+    font-weight: 600;
+}
+
+.topbar-sub {
+    font-size: 12px;
+    color: var(--text2);
+    font-family: 'JetBrains Mono', monospace;
+}
+
+.tabs {
+    display: flex;
+    gap: 4px;
+    background: var(--bg);
+    padding: 3px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+}
+
+.tab {
+    padding: 6px 12px;
+    background: transparent;
+    border: none;
+    color: var(--text2);
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: all 0.15s;
+}
+
+.tab.active {
+    background: var(--bg3);
+    color: var(--text);
+}
+
+.tab:hover:not(.active) { color: var(--text); }
+
+/* Content */
+.content {
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+.view {
+    display: none;
+    flex-direction: column;
+    height: 100%;
+}
+
+.view.active { display: flex; }
+
+/* Chat view */
+.chat-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.msg {
+    display: flex;
+    gap: 10px;
+    animation: msgIn 0.2s ease-out;
+}
+
+@keyframes msgIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.msg-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 13px;
+    color: white;
+    flex-shrink: 0;
+    font-family: 'JetBrains Mono', monospace;
+}
+
+.msg-body { flex: 1; min-width: 0; }
+
+.msg-header {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    margin-bottom: 4px;
+}
+
+.msg-author {
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.msg-badge {
+    font-size: 10px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    background: var(--bg3);
+    color: var(--text2);
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 600;
+}
+
+.msg-time {
+    font-size: 11px;
+    color: var(--text2);
+    font-family: 'JetBrains Mono', monospace;
+}
+
+.msg-text {
+    font-size: 14px;
+    line-height: 1.5;
+    color: var(--text);
+    word-wrap: break-word;
+}
+
+.msg-attachment {
+    margin-top: 8px;
+    padding: 10px 12px;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.msg-attachment:hover { border-color: var(--accent); }
+
+.msg-attachment i { color: var(--accent); }
+
+.chat-input {
+    padding: 16px 20px;
+    border-top: 1px solid var(--border);
+    background: var(--bg2);
+}
+
+.chat-input-wrap {
+    display: flex;
+    gap: 10px;
+    align-items: flex-end;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 6px 6px 6px 14px;
+    transition: all 0.2s;
+}
+
+.chat-input-wrap:focus-within {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(88,166,255,0.1);
+}
+
+.chat-input-wrap textarea {
+    flex: 1;
+    padding: 8px 0;
+    background: transparent;
+    border: none;
+    color: var(--text);
+    font-family: inherit;
+    font-size: 14px;
+    resize: none;
+    outline: none;
+    max-height: 120px;
+    line-height: 1.5;
+}
+
+.chat-input-wrap textarea::placeholder { color: var(--text2); }
+
+.input-btn {
+    width: 34px;
+    height: 34px;
+    border-radius: 6px;
+    background: transparent;
+    border: none;
+    color: var(--text2);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+    flex-shrink: 0;
+}
+
+.input-btn:hover {
+    background: var(--bg3);
+    color: var(--text);
+}
+
+.send-btn {
+    background: var(--accent);
+    color: white;
+}
+
+.send-btn:hover {
+    background: #4a95e0;
+    color: white;
+}
+
+/* Playtests */
+.section {
+    padding: 24px;
+    overflow-y: auto;
+    flex: 1;
+}
+
+.section-title {
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 4px;
+}
+
+.section-sub {
+    font-size: 13px;
+    color: var(--text2);
+    margin-bottom: 24px;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 12px;
+    margin-bottom: 24px;
+}
+
+.stat-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+}
+
+.stat-label {
+    font-size: 11px;
+    color: var(--text2);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 8px;
+    font-family: 'JetBrains Mono', monospace;
+}
+
+.stat-value {
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--text);
+    font-family: 'JetBrains Mono', monospace;
+}
+
+.stat-value.green { color: var(--green); }
+.stat-value.yellow { color: var(--yellow); }
+.stat-value.red { color: var(--red); }
+.stat-value.accent { color: var(--accent); }
+
+.section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin: 24px 0 16px;
+}
+
+.section-h2 {
+    font-size: 15px;
+    font-weight: 600;
+}
+
+.btn {
+    padding: 8px 14px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background: var(--bg2);
+    color: var(--text);
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.15s;
+}
+
+.btn:hover { background: var(--bg3); border-color: var(--text2); }
+
+.btn.primary {
+    background: var(--accent);
+    color: white;
+    border-color: var(--accent);
+}
+
+.btn.primary:hover { background: #4a95e0; }
+
+.btn.danger {
+    color: var(--red);
+    border-color: rgba(248,81,73,0.3);
+}
+
+.btn.danger:hover { background: rgba(248,81,73,0.1); }
+
+/* Builds list */
+.build-list { display: flex; flex-direction: column; gap: 8px; }
+
+.build-item {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    transition: all 0.2s;
+}
+
+.build-item:hover { border-color: var(--accent); }
+
+.build-platform {
+    width: 44px;
+    height: 44px;
+    border-radius: 8px;
+    background: var(--bg3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    color: var(--accent);
+    flex-shrink: 0;
+}
+
+.build-info { flex: 1; min-width: 0; }
+
+.build-version {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.build-meta {
+    font-size: 12px;
+    color: var(--text2);
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.build-actions { display: flex; gap: 6px; }
+
+/* Feedback */
+.feedback-list { display: flex; flex-direction: column; gap: 8px; }
+
+.feedback-item {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+    transition: all 0.2s;
+}
+
+.feedback-item:hover { border-color: var(--accent); }
+
+.feedback-top {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.feedback-type {
+    font-size: 10px;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-weight: 700;
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 0.5px;
+}
+
+.type-BUG { background: rgba(248,81,73,0.15); color: var(--red); }
+.type-FEATURE { background: rgba(88,166,255,0.15); color: var(--accent); }
+.type-BALANCE { background: rgba(210,153,34,0.15); color: var(--yellow); }
+.type-UX { background: rgba(247,120,186,0.15); color: var(--pink); }
+.type-PERFORMANCE { background: rgba(124,58,237,0.15); color: var(--accent2); }
+
+.feedback-status {
+    font-size: 10px;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-weight: 700;
+    font-family: 'JetBrains Mono', monospace;
+}
+
+.status-OPEN { background: rgba(210,153,34,0.15); color: var(--yellow); }
+.status-IN_PROGRESS { background: rgba(88,166,255,0.15); color: var(--accent); }
+.status-FIXED { background: rgba(63,185,80,0.15); color: var(--green); }
+.status-WONT_FIX { background: var(--bg3); color: var(--text2); }
+
+.feedback-title {
+    font-size: 15px;
+    font-weight: 600;
+    margin-bottom: 6px;
+}
+
+.feedback-content {
+    font-size: 13px;
+    color: var(--text2);
+    line-height: 1.5;
+    margin-bottom: 12px;
+}
+
+.feedback-footer {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    font-size: 12px;
+    color: var(--text2);
+}
+
+.feedback-votes {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    cursor: pointer;
+    padding: 4px 10px;
+    border-radius: 6px;
+    transition: all 0.15s;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 600;
+}
+
+.feedback-votes:hover {
+    background: var(--bg3);
+    color: var(--accent);
+}
+
+.feedback-votes.voted { color: var(--accent); }
+
+/* Modal */
+.modal-bg {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 200;
+    padding: 20px;
+    backdrop-filter: blur(4px);
+}
+
+.modal-bg.show { display: flex; }
+
+.modal {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px;
+    width: 100%;
+    max-width: 500px;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+}
+
+.modal-title {
+    font-size: 18px;
+    font-weight: 700;
+    margin-bottom: 20px;
+}
+
+.modal-field { margin-bottom: 16px; }
+
+.modal-label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text2);
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-family: 'JetBrains Mono', monospace;
+}
+
+.modal-input, .modal-textarea, .modal-select {
+    width: 100%;
+    padding: 10px 12px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-family: inherit;
+    font-size: 14px;
+    outline: none;
+    transition: all 0.2s;
+}
+
+.modal-textarea { resize: vertical; min-height: 80px; }
+
+.modal-input:focus, .modal-textarea:focus, .modal-select:focus {
+    border-color: var(--accent);
+}
+
+.modal-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+.modal-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+    margin-top: 20px;
+}
+
+/* Progress */
+.progress {
+    background: var(--bg3);
+    border-radius: 4px;
+    height: 6px;
+    overflow: hidden;
+    margin-top: 6px;
+}
+
+.progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    transition: width 0.4s;
+}
+
+/* Toast */
+.toast {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    padding: 14px 18px;
+    border-radius: 8px;
+    font-size: 13px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+    transform: translateX(400px);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 500;
+    max-width: 340px;
+}
+
+.toast.show { transform: translateX(0); }
+.toast.success { border-left-color: var(--green); }
+.toast.error { border-left-color: var(--red); }
+
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--bg3); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: var(--border); }
+
+/* Empty state */
+.empty {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text2);
+}
+
+.empty-icon {
+    font-size: 48px;
+    margin-bottom: 16px;
+    opacity: 0.3;
+}
+
+.empty-title {
+    font-size: 15px;
+    font-weight: 600;
+    margin-bottom: 6px;
+    color: var(--text);
+}
+
+.empty-sub {
+    font-size: 13px;
+}
+
+@media (max-width: 768px) {
+    .sidebar { width: 60px; }
+    .sb-logo span:not(.bracket), .user-info, .sb-section, .channel span:not(.channel-icon) { display: none; }
+    .channel { justify-content: center; }
+    .topbar-title { font-size: 14px; }
+    .section { padding: 16px; }
+}
+</style>
 </head>
 <body>
 
-    <!-- Дождь -->
-    <div class="rain" id="rain"></div>
-    
-    <!-- Голографическая сетка -->
-    <div class="holo-grid"></div>
-    
-    <!-- Японский текст -->
-    <div class="japanese-bg">電脳都市</div>
+<!-- AUTH -->
+<div class="auth-screen" id="authScreen">
+    <div class="auth-box">
+        <div class="auth-logo"><span class="bracket">&lt;</span>DEVHUB<span class="bracket">/&gt;</span></div>
+        <div class="auth-sub">messenger for game developers</div>
 
-    <!-- Авторизация -->
-    <div class="auth-overlay" id="authOverlay">
-        <div class="auth-box">
-            <div class="auth-logo">NEON CITY</div>
-            <div class="auth-subtitle">[ CYBERPUNK NETWORK ]</div>
-            
-            <div id="loginForm">
-                <input type="text" class="auth-input" id="loginUsername" placeholder="USERNAME">
-                <input type="password" class="auth-input" id="loginPassword" placeholder="PASSWORD">
-                <button class="auth-btn" onclick="login()">▸ CONNECT</button>
-                <div class="auth-switch">
-                    No ID? <a onclick="toggleAuth()">REGISTER</a>
+        <div class="auth-tabs">
+            <button class="auth-tab active" onclick="switchAuth('login')">Вход</button>
+            <button class="auth-tab" onclick="switchAuth('register')">Регистрация</button>
+        </div>
+
+        <div id="loginForm">
+            <input type="text" class="auth-input" id="loginUsername" placeholder="username">
+            <input type="password" class="auth-input" id="loginPassword" placeholder="password">
+            <button class="auth-btn" onclick="login()">Войти</button>
+        </div>
+
+        <div id="registerForm" style="display:none;">
+            <input type="text" class="auth-input" id="regUsername" placeholder="username">
+            <input type="password" class="auth-input" id="regPassword" placeholder="password">
+            <div class="modal-label" style="margin-top: 8px;">Твой движок</div>
+            <div class="engine-select">
+                <div class="engine-opt selected" data-engine="Unity" onclick="selectEngine(this)">
+                    <i class="fas fa-cube"></i>Unity
+                </div>
+                <div class="engine-opt" data-engine="Unreal" onclick="selectEngine(this)">
+                    <i class="fas fa-mountain"></i>Unreal
+                </div>
+                <div class="engine-opt" data-engine="Godot" onclick="selectEngine(this)">
+                    <i class="fas fa-robot"></i>Godot
                 </div>
             </div>
-
-            <div id="registerForm" style="display:none;">
-                <input type="text" class="auth-input" id="regUsername" placeholder="CHOOSE NAME">
-                <input type="password" class="auth-input" id="regPassword" placeholder="PASSWORD">
-                <button class="auth-btn" onclick="register()">▸ INIT</button>
-                <div class="auth-switch">
-                    Have ID? <a onclick="toggleAuth()">CONNECT</a>
-                </div>
-            </div>
+            <button class="auth-btn" onclick="register()">Создать аккаунт</button>
         </div>
     </div>
+</div>
 
-    <!-- Приложение -->
-    <div class="app-container hidden" id="appContainer">
-        
-        <!-- Сайдбар -->
-        <div class="sidebar">
-            <div class="sidebar-header">
-                <div class="sidebar-logo">NEON CITY</div>
-                <div class="sidebar-ja">電脳通信</div>
+<!-- APP -->
+<div class="app hidden" id="app">
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="sb-header">
+            <div class="sb-logo"><span class="bracket">&lt;</span>DEVHUB<span class="bracket">/&gt;</span></div>
+            <button class="input-btn" onclick="logout()" title="Выйти">
+                <i class="fas fa-sign-out-alt"></i>
+            </button>
+        </div>
+
+        <div class="user-chip">
+            <div class="avatar" id="myAvatar"></div>
+            <div class="user-info">
+                <div class="user-name" id="myName"></div>
+                <div class="user-engine" id="myEngine"></div>
             </div>
+        </div>
 
-            <div class="user-profile">
-                <div class="user-avatar" id="myAvatar"></div>
-                <div class="user-details">
-                    <div class="user-display-name" id="myName"></div>
-                    <div class="user-dedsec-id" id="myDedsecId"></div>
-                    <div id="myStatusBadge"></div>
-                </div>
+        <div class="sb-section">Каналы</div>
+        <div class="channels" id="channelsList"></div>
+    </div>
+
+    <!-- Main -->
+    <div class="main">
+        <div class="topbar">
+            <div class="topbar-info">
+                <div class="topbar-title" id="currentChannel">#general</div>
+                <div class="topbar-sub" id="currentChannelSub">общий чат</div>
             </div>
-
-            <div class="contacts-section" id="contactsList">
-                <div class="contacts-title">// NETWORK</div>
-            </div>
-
-            <div class="add-contact-area">
-                <input type="text" class="add-contact-input" id="addContactInput" placeholder="ID or Username...">
-                <button class="btn-sm" onclick="addContact()">+ ADD NODE</button>
-                <button class="btn-sm" style="margin-top:5px; color: var(--neon-pink); border-color: var(--neon-pink);" onclick="shareMyLocation()">
-                    ◆ SHARE POSITION
+            <div class="tabs">
+                <button class="tab active" onclick="switchView('chat', this)">
+                    <i class="fas fa-comments"></i> Чат
+                </button>
+                <button class="tab" onclick="switchView('playtests', this)">
+                    <i class="fas fa-gamepad"></i> Плейтесты
+                </button>
+                <button class="tab" onclick="switchView('feedback', this)">
+                    <i class="fas fa-bug"></i> Фидбек
                 </button>
             </div>
         </div>
 
-        <!-- Чат -->
-        <div class="chat-area">
-            <div class="chat-placeholder" id="chatPlaceholder">
-                <div class="chat-placeholder-icon">◆</div>
-                <div class="chat-placeholder-text">SELECT NODE</div>
+        <div class="content">
+            <!-- CHAT VIEW -->
+            <div class="view active" id="view-chat">
+                <div class="chat-messages" id="chatMessages"></div>
+                <div class="chat-input">
+                    <div class="chat-input-wrap">
+                        <textarea id="messageInput" placeholder="Написать сообщение..." rows="1" onkeydown="handleInputKey(event)" oninput="autoResize(this)"></textarea>
+                        <button class="input-btn" onclick="attachFile()" title="Прикрепить">
+                            <i class="fas fa-paperclip"></i>
+                        </button>
+                        <button class="input-btn send-btn" onclick="sendMessage()" title="Отправить">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                </div>
             </div>
 
-            <div id="activeChat" style="display:none; flex:1; flex-direction:column; height:100%;">
-                <div class="chat-header">
-                    <div class="chat-header-info">
-                        <div class="contact-avatar" id="chatAvatar" style="width:42px;height:42px;font-size:17px;"></div>
-                        <div>
-                            <div class="chat-header-name" id="chatName"></div>
-                            <div class="chat-header-status" id="chatStatus"></div>
+            <!-- PLAYTEST VIEW -->
+            <div class="view" id="view-playtests">
+                <div class="section">
+                    <div class="section-title">🎮 Плейтесты</div>
+                    <div class="section-sub">Загружай билды, собирай метрики и фидбек от тестеров</div>
+
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-label">Всего билдов</div>
+                            <div class="stat-value accent" id="statBuilds">0</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Плейтест-сессий</div>
+                            <div class="stat-value" id="statRuns">0</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Среднее время</div>
+                            <div class="stat-value green" id="statAvgTime">0м</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-label">Баг-репортов</div>
+                            <div class="stat-value yellow" id="statBugs">0</div>
                         </div>
                     </div>
-                    <div class="chat-header-actions">
-                        <button class="btn-icon" onclick="requestLocation()">◆ TRACE</button>
+
+                    <div class="section-header">
+                        <div class="section-h2">Билды проекта</div>
+                        <button class="btn primary" onclick="openUploadModal()">
+                            <i class="fas fa-upload"></i> Загрузить билд
+                        </button>
                     </div>
+
+                    <div class="build-list" id="buildsList"></div>
                 </div>
+            </div>
 
-                <div class="location-card" id="locationCard">
-                    <div class="location-card-title">// TRACE DATA</div>
-                    <div class="location-card-address" id="locationAddress"></div>
-                    <div class="location-card-coords" id="locationCoords"></div>
-                </div>
+            <!-- FEEDBACK VIEW -->
+            <div class="view" id="view-feedback">
+                <div class="section">
+                    <div class="section-title">🐛 Фидбек и баги</div>
+                    <div class="section-sub">Структурированный фидбек от сообщества</div>
 
-                <div class="chat-messages" id="chatMessages"></div>
+                    <div class="section-header">
+                        <div class="section-h2">Все репорты</div>
+                        <button class="btn primary" onclick="openFeedbackModal()">
+                            <i class="fas fa-plus"></i> Новый фидбек
+                        </button>
+                    </div>
 
-                <div class="chat-input-area">
-                    <input type="text" class="chat-input" id="messageInput" placeholder="Message..." onkeypress="handleKey(event)" oninput="handleTyping()">
-                    <button class="send-btn" onclick="sendMessage()">SEND</button>
+                    <div class="feedback-list" id="feedbackList"></div>
                 </div>
             </div>
         </div>
     </div>
+</div>
 
-    <!-- Toast -->
-    <div class="toast" id="toast"></div>
+<!-- MODAL: Upload Build -->
+<div class="modal-bg" id="uploadModal">
+    <div class="modal">
+        <div class="modal-title">📦 Загрузить билд</div>
+        <div class="modal-field">
+            <label class="modal-label">Версия</label>
+            <input type="text" class="modal-input" id="buildVersion" placeholder="0.1.0">
+        </div>
+        <div class="modal-row">
+            <div class="modal-field">
+                <label class="modal-label">Платформа</label>
+                <select class="modal-select" id="buildPlatform">
+                    <option>Windows</option>
+                    <option>macOS</option>
+                    <option>Linux</option>
+                    <option>WebGL</option>
+                    <option>Android</option>
+                    <option>iOS</option>
+                </select>
+            </div>
+            <div class="modal-field">
+                <label class="modal-label">Размер (МБ)</label>
+                <input type="number" class="modal-input" id="buildSize" placeholder="120">
+            </div>
+        </div>
+        <div class="modal-field">
+            <label class="modal-label">Changelog</label>
+            <textarea class="modal-textarea" id="buildChangelog" placeholder="Что нового в этой версии..."></textarea>
+        </div>
+        <div class="modal-actions">
+            <button class="btn" onclick="closeModal('uploadModal')">Отмена</button>
+            <button class="btn primary" onclick="uploadBuild()">
+                <i class="fas fa-upload"></i> Загрузить
+            </button>
+        </div>
+    </div>
+</div>
 
-    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
-    <script>
-        // Дождь
-        function createRain() {
-            const container = document.getElementById('rain');
-            for (let i = 0; i < 80; i++) {
-                const drop = document.createElement('div');
-                drop.className = 'drop';
-                drop.style.left = Math.random() * 100 + '%';
-                drop.style.height = (Math.random() * 40 + 20) + 'px';
-                drop.style.animationDuration = (Math.random() * 1 + 1.5) + 's';
-                drop.style.animationDelay = Math.random() * 3 + 's';
-                container.appendChild(drop);
-            }
-        }
-        createRain();
+<!-- MODAL: New Feedback -->
+<div class="modal-bg" id="feedbackModal">
+    <div class="modal">
+        <div class="modal-title">🐛 Новый фидбек</div>
+        <div class="modal-row">
+            <div class="modal-field">
+                <label class="modal-label">Тип</label>
+                <select class="modal-select" id="fbType">
+                    <option value="BUG">🐛 Баг</option>
+                    <option value="FEATURE">💡 Фича</option>
+                    <option value="BALANCE">⚖️ Баланс</option>
+                    <option value="UX">🎨 UX</option>
+                    <option value="PERFORMANCE">⚡ Производительность</option>
+                </select>
+            </div>
+            <div class="modal-field">
+                <label class="modal-label">Приоритет</label>
+                <select class="modal-select" id="fbPriority">
+                    <option value="LOW">Низкий</option>
+                    <option value="MEDIUM" selected>Средний</option>
+                    <option value="HIGH">Высокий</option>
+                    <option value="CRITICAL">Критический</option>
+                </select>
+            </div>
+        </div>
+        <div class="modal-field">
+            <label class="modal-label">Заголовок</label>
+            <input type="text" class="modal-input" id="fbTitle" placeholder="Кратко о проблеме">
+        </div>
+        <div class="modal-field">
+            <label class="modal-label">Описание</label>
+            <textarea class="modal-textarea" id="fbContent" placeholder="Как воспроизвести, что ожидалось, что произошло..."></textarea>
+        </div>
+        <div class="modal-actions">
+            <button class="btn" onclick="closeModal('feedbackModal')">Отмена</button>
+            <button class="btn primary" onclick="submitFeedback()">
+                <i class="fas fa-paper-plane"></i> Отправить
+            </button>
+        </div>
+    </div>
+</div>
 
-        const API = '';
-        let currentUser = null;
-        let currentContact = null;
-        let socket = null;
-        let typingTimeout = null;
+<!-- MODAL: Playtest run -->
+<div class="modal-bg" id="playtestModal">
+    <div class="modal">
+        <div class="modal-title">🎮 Плейтест-сессия</div>
+        <div class="modal-field">
+            <label class="modal-label">Длительность</label>
+            <input type="number" class="modal-input" id="ptDuration" placeholder="минуты" value="15">
+        </div>
+        <div class="modal-field">
+            <label class="modal-label">Смертей</label>
+            <input type="number" class="modal-input" id="ptDeaths" placeholder="0" value="0">
+        </div>
+        <div class="modal-row">
+            <div class="modal-field">
+                <label class="modal-label">Средний FPS</label>
+                <input type="number" class="modal-input" id="ptFps" placeholder="60" value="60">
+            </div>
+            <div class="modal-field">
+                <label class="modal-label">Пройдено</label>
+                <select class="modal-select" id="ptCompleted">
+                    <option value="true">Да</option>
+                    <option value="false">Нет</option>
+                </select>
+            </div>
+        </div>
+        <div class="modal-actions">
+            <button class="btn" onclick="closeModal('playtestModal')">Отмена</button>
+            <button class="btn primary" onclick="submitPlaytest()">
+                <i class="fas fa-flag-checkered"></i> Завершить
+            </button>
+        </div>
+    </div>
+</div>
 
-        function toggleAuth() {
-            document.getElementById('loginForm').style.display = 
-                document.getElementById('loginForm').style.display === 'none' ? 'block' : 'none';
-            document.getElementById('registerForm').style.display = 
-                document.getElementById('registerForm').style.display === 'none' ? 'block' : 'none';
-        }
+<div class="toast" id="toast"></div>
 
-        async function login() {
-            const username = document.getElementById('loginUsername').value.trim();
-            const password = document.getElementById('loginPassword').value.trim();
-            if (!username || !password) return showToast('⚠️ Enter credentials');
+<script>
+// ==================== STATE ====================
+const DB = {
+    get(key, def) {
+        try { return JSON.parse(localStorage.getItem('devhub_' + key)) || def; }
+        catch { return def; }
+    },
+    set(key, val) { localStorage.setItem('devhub_' + key, JSON.stringify(val)); }
+};
 
-            try {
-                const res = await fetch(`${API}/api/login`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ username, password })
-                });
-                const data = await res.json();
-                if (res.ok) {
-                    currentUser = data;
-                    initApp();
-                } else {
-                    showToast('✕ ' + data.error);
-                }
-            } catch (e) {
-                showToast('✕ Connection failed');
-            }
-        }
+let currentUser = null;
+let currentChannel = null;
+let currentView = 'chat';
+let currentEngine = 'Unity';
+let currentPlaytestBuild = null;
 
-        async function register() {
-            const username = document.getElementById('regUsername').value.trim();
-            const password = document.getElementById('regPassword').value.trim();
-            if (!username || !password) return showToast('⚠️ Enter credentials');
+// ==================== INIT ====================
+function initApp() {
+    const saved = DB.get('user', null);
+    if (saved) {
+        currentUser = saved;
+        showApp();
+    }
+}
 
-            try {
-                const res = await fetch(`${API}/api/register`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ username, password })
-                });
-                const data = await res.json();
-                if (res.ok) {
-                    showToast('◆ Registered! ID: ' + data.dedsecId);
-                    toggleAuth();
-                } else {
-                    showToast('✕ ' + data.error);
-                }
-            } catch (e) {
-                showToast('✕ Connection failed');
-            }
-        }
+// ==================== AUTH ====================
+function switchAuth(mode) {
+    document.querySelectorAll('.auth-tab').forEach((t, i) => {
+        t.classList.toggle('active', (mode === 'login' && i === 0) || (mode === 'register' && i === 1));
+    });
+    document.getElementById('loginForm').style.display = mode === 'login' ? 'block' : 'none';
+    document.getElementById('registerForm').style.display = mode === 'register' ? 'block' : 'none';
+}
 
-        function initApp() {
-            document.getElementById('authOverlay').classList.add('hidden');
-            document.getElementById('appContainer').classList.remove('hidden');
-            
-            document.getElementById('myName').textContent = currentUser.username;
-            document.getElementById('myDedsecId').textContent = '◆ ' + currentUser.dedsecId;
-            document.getElementById('myAvatar').style.background = currentUser.avatarColor;
-            document.getElementById('myAvatar').textContent = currentUser.username[0].toUpperCase();
+function selectEngine(el) {
+    document.querySelectorAll('.engine-opt').forEach(e => e.classList.remove('selected'));
+    el.classList.add('selected');
+    currentEngine = el.dataset.engine;
+}
 
-            if (currentUser.eternalStatus === 'founder') {
-                document.getElementById('myStatusBadge').innerHTML = 
-                    '<span class="user-status-badge badge-founder">ADMIN</span>';
-            } else {
-                document.getElementById('myStatusBadge').innerHTML = 
-                    '<span class="user-status-badge badge-normis">USER</span>';
-            }
+function login() {
+    const username = document.getElementById('loginUsername').value.trim();
+    const password = document.getElementById('loginPassword').value.trim();
 
-            connectSocket();
-            loadContacts();
-        }
+    if (!username || !password) return toast('Заполни все поля', 'error');
 
-        function connectSocket() {
-            socket = io();
-            socket.emit('authenticate', currentUser.userId);
+    const users = DB.get('users', {});
+    const user = users[username];
 
-            socket.on('new_message', (data) => {
-                if (currentContact && data.sender_id === currentContact.id) {
-                    addMessageBubble(data.message, 'received', data.created_at, data.senderEternalStatus);
-                    markMessagesRead();
-                }
-                loadContacts();
-            });
+    if (!user || user.password !== password) {
+        return toast('Неверный логин или пароль', 'error');
+    }
 
-            socket.on('message_sent', (data) => {
-                if (currentContact && data.receiver_id === currentContact.id) {
-                    addMessageBubble(data.message, 'sent', data.created_at, currentUser.eternalStatus);
-                }
-            });
+    currentUser = { username, engine: user.engine, color: user.color };
+    DB.set('user', currentUser);
+    showApp();
+}
 
-            socket.on('user_status_change', (data) => {
-                if (currentContact && currentContact.id === data.userId) updateChatStatus(data.status);
-                loadContacts();
-            });
+function register() {
+    const username = document.getElementById('regUsername').value.trim();
+    const password = document.getElementById('regPassword').value.trim();
 
-            socket.on('user_typing', (data) => {
-                if (currentContact) showTyping(data.username);
-            });
+    if (!username || password.length < 3) return toast('Логин и пароль от 3 символов', 'error');
 
-            socket.on('user_stop_typing', () => hideTyping());
+    const users = DB.get('users', {});
+    if (users[username]) return toast('Такой ник уже занят', 'error');
 
-            socket.on('location_requested', (data) => {
-                showToast('◆ ' + data.fromUsername + ' requests trace');
-                if (confirm(data.fromUsername + ' requests your position. Share?')) sendLocationTo(data.fromUserId);
-            });
+    const colors = ['#58a6ff', '#7c3aed', '#3fb950', '#d29922', '#f778ba', '#f85149'];
+    const color = colors[Math.floor(Math.random() * colors.length)];
 
-            socket.on('location_shared', (data) => showLocationCard(data.latitude, data.longitude, data.address));
-            socket.on('contact_added', () => loadContacts());
-        }
+    users[username] = { password, engine: currentEngine, color };
+    DB.set('users', users);
 
-        async function loadContacts() {
-            try {
-                const res = await fetch(`${API}/api/contacts/${currentUser.userId}`);
-                const contacts = await res.json();
-                const container = document.getElementById('contactsList');
-                
-                if (contacts.length === 0) {
-                    container.innerHTML = `
-                        <div class="contacts-title">// NETWORK</div>
-                        <div style="text-align:center;color:#3a2a4a;padding:40px;font-size:13px;font-weight:300;">
-                            [ NO CONNECTIONS ]<br>
-                            <span style="color:#2a1a30;">Add node to network</span>
-                        </div>`;
-                } else {
-                    container.innerHTML = '<div class="contacts-title">// NETWORK</div>' + 
-                        contacts.map(c => `
-                            <div class="contact-item ${currentContact && currentContact.id === c.id ? 'active' : ''} ${c.eternal_status === 'founder' ? 'founder-contact' : ''}" 
-                                 onclick="openChat(${c.id}, '${c.username}', '${c.avatar_color}', '${c.status}', '${c.eternal_status}')">
-                                <div class="contact-avatar" style="background:${c.avatar_color}">
-                                    ${c.username[0].toUpperCase()}
-                                </div>
-                                <div class="contact-info">
-                                    <div class="contact-name">${c.username}</div>
-                                    <div class="contact-last-msg">${c.last_message || 'No data...'}</div>
-                                </div>
-                                ${c.unread_count > 0 ? `<div class="contact-unread">${c.unread_count}</div>` : ''}
-                            </div>
-                        `).join('');
-                }
-            } catch (e) {}
-        }
+    // Welcome message
+    const channels = DB.get('channels', ['general', 'unity', 'unreal', 'godot', 'assets', 'help']);
+    const messages = DB.get('messages', {});
+    if (!messages.general) messages.general = [];
+    messages.general.push({
+        author: 'System',
+        text: `👋 Добро пожаловать в DEVHUB, ${username}! Твой движок: ${currentEngine}`,
+        time: Date.now(),
+        isSystem: true
+    });
+    DB.set('messages', messages);
 
-        async function addContact() {
-            const input = document.getElementById('addContactInput');
-            const username = input.value.trim();
-            if (!username) return showToast('⚠️ Enter ID');
+    currentUser = { username, engine: currentEngine, color };
+    DB.set('user', currentUser);
+    showApp();
+}
 
-            try {
-                const res = await fetch(`${API}/api/contacts/add`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ userId: currentUser.userId, contactUsername: username })
-                });
-                const data = await res.json();
-                if (res.ok) { showToast('◆ Node added'); input.value = ''; loadContacts(); }
-                else showToast('✕ ' + data.error);
-            } catch (e) { showToast('✕ Error'); }
-        }
+function logout() {
+    if (!confirm('Выйти из аккаунта?')) return;
+    localStorage.removeItem('devhub_user');
+    location.reload();
+}
 
-        async function openChat(contactId, contactName, avatarColor, status, eternalStatus) {
-            currentContact = { id: contactId, username: contactName, avatarColor, status, eternalStatus };
-            document.getElementById('chatPlaceholder').style.display = 'none';
-            document.getElementById('activeChat').style.display = 'flex';
-            document.getElementById('chatName').textContent = contactName;
-            document.getElementById('chatAvatar').style.background = avatarColor;
-            document.getElementById('chatAvatar').textContent = contactName[0].toUpperCase();
-            document.getElementById('locationCard').classList.remove('show');
-            updateChatStatus(status);
-            loadContacts();
-            await loadMessages();
-            document.getElementById('messageInput').focus();
-        }
+function showApp() {
+    document.getElementById('authScreen').classList.add('hidden');
+    document.getElementById('app').classList.remove('hidden');
+    initUI();
+}
 
-        function updateChatStatus(status) {
-            document.getElementById('chatStatus').innerHTML = status === 'online' ? 
-                '<span style="color:var(--neon-green);">◆ ONLINE</span>' : 
-                '<span style="color:#3a2a4a;">◇ OFFLINE</span>';
-        }
+// ==================== UI INIT ====================
+function initUI() {
+    document.getElementById('myAvatar').textContent = currentUser.username[0].toUpperCase();
+    document.getElementById('myAvatar').style.background = currentUser.color;
+    document.getElementById('myName').textContent = currentUser.username;
+    document.getElementById('myEngine').textContent = currentUser.engine;
 
-        async function loadMessages() {
-            if (!currentContact) return;
-            try {
-                const res = await fetch(`${API}/api/messages/${currentUser.userId}/${currentContact.id}?limit=50`);
-                const messages = await res.json();
-                const container = document.getElementById('chatMessages');
-                container.innerHTML = `<div class="msg-system">◆ SECURE CHANNEL — ${currentContact.username.toUpperCase()}</div>`;
-                messages.forEach(msg => {
-                    const type = msg.sender_id === currentUser.userId ? 'sent' : 'received';
-                    addMessageBubble(msg.message, type, msg.created_at, type === 'sent' ? currentUser.eternal_status : currentContact.eternal_status, false);
-                });
-                container.scrollTop = container.scrollHeight;
-                markMessagesRead();
-            } catch (e) {}
-        }
+    renderChannels();
+    selectChannel('general');
+    refreshStats();
+    renderBuilds();
+    renderFeedback();
+}
 
-        function addMessageBubble(text, type, timestamp, eternalStatus, scroll = true) {
-            const container = document.getElementById('chatMessages');
-            const time = new Date(timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-            const bubble = document.createElement('div');
-            bubble.className = `msg-bubble ${type}${type === 'received' && eternalStatus === 'founder' ? ' from-founder' : ''}`;
-            let badge = eternalStatus === 'founder' ? '<div class="msg-sender-badge" style="color:#ffe600;">◆ ADMIN</div>' : '';
-            bubble.innerHTML = `${badge}${text}<div class="msg-time ${type === 'sent' ? 'sent-time' : ''}">${time}</div>`;
-            container.appendChild(bubble);
-            if (scroll) container.scrollTop = container.scrollHeight;
-        }
+function renderChannels() {
+    const channels = DB.get('channels', ['general', 'unity', 'unreal', 'godot', 'assets', 'help', 'jobs']);
+    const container = document.getElementById('channelsList');
 
-        async function markMessagesRead() {
-            if (!currentContact) return;
-            try { await fetch(`${API}/api/messages/${currentUser.userId}/${currentContact.id}?limit=1`); } catch (e) {}
-        }
+    const icons = {
+        general: 'fa-hashtag',
+        unity: 'fa-cube',
+        unreal: 'fa-mountain',
+        godot: 'fa-robot',
+        assets: 'fa-palette',
+        help: 'fa-circle-question',
+        jobs: 'fa-briefcase',
+        showcase: 'fa-star'
+    };
 
-        function sendMessage() {
-            const input = document.getElementById('messageInput');
-            const text = input.value.trim();
-            if (!text || !currentContact) return;
-            socket.emit('send_message', { senderId: currentUser.userId, receiverId: currentContact.id, message: text });
-            input.value = ''; input.focus(); stopTyping();
-        }
+    const names = {
+        general: 'general',
+        unity: 'unity',
+        unreal: 'unreal',
+        godot: 'godot',
+        assets: 'assets',
+        help: 'help',
+        jobs: 'jobs',
+        showcase: 'showcase'
+    };
 
-        function handleKey(e) { if (e.key === 'Enter') sendMessage(); }
+    container.innerHTML = channels.map(ch => `
+        <div class="channel ${currentChannel === ch ? 'active' : ''}" onclick="selectChannel('${ch}')">
+            <span class="channel-icon"><i class="fas ${icons[ch] || 'fa-hashtag'}"></i></span>
+            <span>${names[ch] || ch}</span>
+        </div>
+    `).join('') + `
+        <div class="channel add-channel" onclick="addChannel()">
+            <span class="channel-icon"><i class="fas fa-plus"></i></span>
+            <span>Добавить канал</span>
+        </div>
+    `;
+}
 
-        function handleTyping() {
-            if (!currentContact) return;
-            socket.emit('typing', { senderId: currentUser.userId, receiverId: currentContact.id, username: currentUser.username });
-            clearTimeout(typingTimeout);
-            typingTimeout = setTimeout(stopTyping, 2000);
-        }
+function addChannel() {
+    const name = prompt('Название канала (без #):');
+    if (!name) return;
+    const clean = name.toLowerCase().replace(/[^a-z0-9-]/g, '');
+    if (!clean) return;
 
-        function stopTyping() { if (currentContact) socket.emit('stop_typing', { senderId: currentUser.userId, receiverId: currentContact.id }); }
+    const channels = DB.get('channels', []);
+    if (channels.includes(clean)) return toast('Такой канал уже есть', 'error');
 
-        function showTyping(username) {
-            const container = document.getElementById('chatMessages');
-            let indicator = document.getElementById('typingIndicator');
-            if (!indicator) {
-                indicator = document.createElement('div');
-                indicator.id = 'typingIndicator';
-                indicator.className = 'typing-indicator';
-                container.appendChild(indicator);
-            }
-            indicator.textContent = username + ' is typing...';
-            container.scrollTop = container.scrollHeight;
-        }
+    channels.push(clean);
+    DB.set('channels', channels);
+    renderChannels();
+    toast(`Канал #${clean} создан`, 'success');
+}
 
-        function hideTyping() { const i = document.getElementById('typingIndicator'); if (i) i.remove(); }
+function selectChannel(name) {
+    currentChannel = name;
+    renderChannels();
+    renderMessages();
 
-        function shareMyLocation() {
-            if (!navigator.geolocation) return showToast('✕ No GPS');
-            if (!confirm('Share position?')) return;
-            navigator.geolocation.getCurrentPosition(async (pos) => {
-                const { latitude, longitude } = pos.coords;
-                let address = '';
-                try { const r = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`); address = (await r.json()).display_name || ''; } catch (e) {}
-                try {
-                    await fetch(`${API}/api/location/update`, {
-                        method: 'POST', headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ userId: currentUser.userId, latitude, longitude, address })
-                    });
-                    showToast('◆ Position saved');
-                } catch (e) { showToast('✕ Error'); }
-            }, () => showToast('✕ Denied'));
-        }
+    const subs = {
+        general: 'общий чат',
+        unity: 'Unity разработчики',
+        unreal: 'Unreal Engine',
+        godot: 'Godot Engine',
+        assets: 'ассеты и ресурсы',
+        help: 'помощь новичкам',
+        jobs: 'вакансии и заказы',
+        showcase: 'показать проект'
+    };
 
-        function requestLocation() {
-            if (!currentContact) return;
-            socket.emit('request_location', { fromUserId: currentUser.userId, fromUsername: currentUser.username, toUserId: currentContact.id });
-            showToast('◆ Trace requested');
-        }
+    document.getElementById('currentChannel').textContent = '#' + name;
+    document.getElementById('currentChannelSub').textContent = subs[name] || 'канал';
+}
 
-        function sendLocationTo(toUserId) {
-            if (!navigator.geolocation) return;
-            navigator.geolocation.getCurrentPosition(async (pos) => {
-                const { latitude, longitude } = pos.coords;
-                let address = '';
-                try { const r = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`); address = (await r.json()).display_name || ''; } catch (e) {}
-                socket.emit('share_location', { fromUserId: currentUser.userId, toUserId, latitude, longitude, address });
-            });
-        }
+function switchView(view, btn) {
+    currentView = view;
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    document.getElementById('view-' + view).classList.add('active');
 
-        function showLocationCard(lat, lon, address) {
-            document.getElementById('locationAddress').textContent = address || 'Unknown';
-            document.getElementById('locationCoords').textContent = `◆ ${lat.toFixed(4)}, ${lon.toFixed(4)}`;
-            document.getElementById('locationCard').classList.add('show');
-            showToast('◆ Trace complete');
-        }
+    if (view === 'playtests') { refreshStats(); renderBuilds(); }
+    if (view === 'feedback') renderFeedback();
+}
 
-        function showToast(message) {
-            const toast = document.getElementById('toast');
-            toast.textContent = message;
-            toast.classList.add('show');
-            setTimeout(() => toast.classList.remove('show'), 3000);
-        }
-    </script>
+// ==================== CHAT ====================
+function renderMessages() {
+    const messages = DB.get('messages', {});
+    const msgs = messages[currentChannel] || [];
+    const container = document.getElementById('chatMessages');
+
+    if (msgs.length === 0) {
+        container.innerHTML = `
+            <div class="empty">
+                <div class="empty-icon"><i class="fas fa-comments"></i></div>
+                <div class="empty-title">Пока тихо в #${currentChannel}</div>
+                <div class="empty-sub">Напиши первое сообщение!</div>
+            </div>`;
+        return;
+    }
+
+    const users = DB.get('users', {});
+
+    container.innerHTML = msgs.map(m => {
+        const color = m.isSystem ? '#8b949e' : (users[m.author]?.color || '#58a6ff');
+        const time = new Date(m.time).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+        const engine = users[m.author]?.engine || '';
+
+        return `
+            <div class="msg">
+                <div class="msg-avatar" style="background:${color}">${m.author[0].toUpperCase()}</div>
+                <div class="msg-body">
+                    <div class="msg-header">
+                        <span class="msg-author" style="color:${color}">${escapeHtml(m.author)}</span>
+                        ${engine ? `<span class="msg-badge">${engine}</span>` : ''}
+                        <span class="msg-time">${time}</span>
+                    </div>
+                    <div class="msg-text">${escapeHtml(m.text)}</div>
+                </div>
+            </div>
+        `;
+    }).join('');
+
+    container.scrollTop = container.scrollHeight;
+}
+
+function sendMessage() {
+    const input = document.getElementById('messageInput');
+    const text = input.value.trim();
+    if (!text) return;
+
+    const messages = DB.get('messages', {});
+    if (!messages[currentChannel]) messages[currentChannel] = [];
+    messages[currentChannel].push({
+        author: currentUser.username,
+        text,
+        time: Date.now()
+    });
+    DB.set('messages', messages);
+
+    input.value = '';
+    input.style.height = 'auto';
+    renderMessages();
+}
+
+function handleInputKey(e) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage();
+    }
+}
+
+function autoResize(el) {
+    el.style.height = 'auto';
+    el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+}
+
+function attachFile() {
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.onchange = () => {
+        const file = input.files[0];
+        if (!file) return;
+        toast(`📎 ${file.name} прикреплён (${(file.size/1024).toFixed(1)} KB)`, 'success');
+    };
+    input.click();
+}
+
+// ==================== PLAYTEST ====================
+function refreshStats() {
+    const builds = DB.get('builds', []);
+    const runs = DB.get('playtestRuns', []);
+    const feedback = DB.get('feedback', []);
+
+    document.getElementById('statBuilds').textContent = builds.length;
+    document.getElementById('statRuns').textContent = runs.length;
+    document.getElementById('statBugs').textContent = feedback.filter(f => f.type === 'BUG').length;
+
+    const avgTime = runs.length > 0
+        ? Math.round(runs.reduce((s, r) => s + (r.duration || 0), 0) / runs.length)
+        : 0;
+    document.getElementById('statAvgTime').textContent = avgTime + 'м';
+}
+
+function renderBuilds() {
+    const builds = DB.get('builds', []);
+    const container = document.getElementById('buildsList');
+    const runs = DB.get('playtestRuns', []);
+
+    if (builds.length === 0) {
+        container.innerHTML = `
+            <div class="empty">
+                <div class="empty-icon"><i class="fas fa-box-open"></i></div>
+                <div class="empty-title">Нет загруженных билдов</div>
+                <div class="empty-sub">Загрузи первый билд для плейтеста</div>
+            </div>`;
+        return;
+    }
+
+    const platformIcons = {
+        Windows: 'fa-windows',
+        macOS: 'fa-apple',
+        Linux: 'fa-linux',
+        WebGL: 'fa-globe',
+        Android: 'fa-android',
+        iOS: 'fa-mobile'
+    };
+
+    container.innerHTML = builds.map((b, i) => {
+        const buildRuns = runs.filter(r => r.buildId === i);
+        const avgDur = buildRuns.length ? Math.round(buildRuns.reduce((s, r) => s + r.duration, 0) / buildRuns.length) : 0;
+        const date = new Date(b.time).toLocaleDateString('ru-RU');
+
+        return `
+            <div class="build-item">
+                <div class="build-platform"><i class="fab ${platformIcons[b.platform] || 'fa-windows'}"></i></div>
+                <div class="build-info">
+                    <div class="build-version">v${escapeHtml(b.version)}</div>
+                    <div class="build-meta">
+                        <span><i class="fas fa-desktop"></i> ${b.platform}</span>
+                        <span><i class="fas fa-hdd"></i> ${b.size} MB</span>
+                        <span><i class="fas fa-calendar"></i> ${date}</span>
+                        <span><i class="fas fa-users"></i> ${buildRuns.length} сессий</span>
+                        ${avgDur ? `<span><i class="fas fa-clock"></i> ~${avgDur}м</span>` : ''}
+                    </div>
+                </div>
+                <div class="build-actions">
+                    <button class="btn" onclick="startPlaytest(${i})">
+                        <i class="fas fa-play"></i> Тест
+                    </button>
+                    <button class="btn danger" onclick="deleteBuild(${i})">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+function openUploadModal() {
+    document.getElementById('uploadModal').classList.add('show');
+}
+
+function uploadBuild() {
+    const version = document.getElementById('buildVersion').value.trim();
+    const platform = document.getElementById('buildPlatform').value;
+    const size = parseInt(document.getElementById('buildSize').value) || 100;
+    const changelog = document.getElementById('buildChangelog').value.trim();
+
+    if (!version) return toast('Укажи версию', 'error');
+
+    const builds = DB.get('builds', []);
+    builds.unshift({
+        version,
+        platform,
+        size,
+        changelog,
+        time: Date.now(),
+        author: currentUser.username
+    });
+    DB.set('builds', builds);
+
+    closeModal('uploadModal');
+    document.getElementById('buildVersion').value = '';
+    document.getElementById('buildSize').value = '';
+    document.getElementById('buildChangelog').value = '';
+
+    toast(`✅ Билд v${version} загружен`, 'success');
+    renderBuilds();
+    refreshStats();
+}
+
+function startPlaytest(buildId) {
+    currentPlaytestBuild = buildId;
+    document.getElementById('playtestModal').classList.add('show');
+}
+
+function submitPlaytest() {
+    const duration = parseInt(document.getElementById('ptDuration').value) || 0;
+    const deaths = parseInt(document.getElementById('ptDeaths').value) || 0;
+    const fps = parseInt(document.getElementById('ptFps').value) || 60;
+    const completed = document.getElementById('ptCompleted').value === 'true';
+
+    const runs = DB.get('playtestRuns', []);
+    runs.push({
+        buildId: currentPlaytestBuild,
+        tester: currentUser.username,
+        duration,
+        deaths,
+        fps,
+        completed,
+        time: Date.now()
+    });
+    DB.set('playtestRuns', runs);
+
+    closeModal('playtestModal');
+    toast('🎮 Плейтест-сессия записана', 'success');
+    refreshStats();
+    renderBuilds();
+}
+
+function deleteBuild(i) {
+    if (!confirm('Удалить билд?')) return;
+    const builds = DB.get('builds', []);
+    builds.splice(i, 1);
+    DB.set('builds', builds);
+    renderBuilds();
+    refreshStats();
+    toast('Билд удалён', 'success');
+}
+
+// ==================== FEEDBACK ====================
+function renderFeedback() {
+    const feedback = DB.get('feedback', []);
+    const container = document.getElementById('feedbackList');
+    const users = DB.get('users', {});
+
+    if (feedback.length === 0) {
+        container.innerHTML = `
+            <div class="empty">
+                <div class="empty-icon"><i class="fas fa-bug"></i></div>
+                <div class="empty-title">Нет фидбека</div>
+                <div class="empty-sub">Оставь первый баг-репорт или идею</div>
+            </div>`;
+        return;
+    }
+
+    const typeLabels = {
+        BUG: '🐛 BUG',
+        FEATURE: '💡 FEATURE',
+        BALANCE: '⚖️ BALANCE',
+        UX: '🎨 UX',
+        PERFORMANCE: '⚡ PERF'
+    };
+
+    const statusLabels = {
+        OPEN: 'OPEN',
+        IN_PROGRESS: 'IN PROGRESS',
+        FIXED: 'FIXED',
+        WONT_FIX: 'WONT FIX'
+    };
+
+    container.innerHTML = feedback.map((f, i) => {
+        const color = users[f.author]?.color || '#58a6ff';
+        const date = new Date(f.time).toLocaleDateString('ru-RU');
+
+        return `
+            <div class="feedback-item">
+                <div class="feedback-top">
+                    <span class="feedback-type type-${f.type}">${typeLabels[f.type] || f.type}</span>
+                    <span class="feedback-status status-${f.status}">${statusLabels[f.status] || f.status}</span>
+                    <span class="msg-time" style="margin-left:auto;">${date}</span>
+                </div>
+                <div class="feedback-title">${escapeHtml(f.title)}</div>
+                <div class="feedback-content">${escapeHtml(f.content || '')}</div>
+                <div class="feedback-footer">
+                    <span><i class="fas fa-user"></i> ${escapeHtml(f.author)}</span>
+                    <span><i class="fas fa-tag"></i> ${f.priority}</span>
+                    <div class="feedback-votes ${f.votes?.includes(currentUser.username) ? 'voted' : ''}" onclick="voteFeedback(${i})">
+                        <i class="fas fa-arrow-up"></i> ${(f.votes || []).length}
+                    </div>
+                    ${f.author === currentUser.username ? `
+                        <button class="btn danger" style="margin-left:auto; padding: 4px 10px; font-size: 11px;" onclick="deleteFeedback(${i})">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    ` : ''}
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+function openFeedbackModal() {
+    document.getElementById('feedbackModal').classList.add('show');
+}
+
+function submitFeedback() {
+    const type = document.getElementById('fbType').value;
+    const priority = document.getElementById('fbPriority').value;
+    const title = document.getElementById('fbTitle').value.trim();
+    const content = document.getElementById('fbContent').value.trim();
+
+    if (title.length < 5) return toast('Заголовок от 5 символов', 'error');
+
+    const feedback = DB.get('feedback', []);
+    feedback.unshift({
+        type,
+        priority,
+        title,
+        content,
+        author: currentUser.username,
+        status: 'OPEN',
+        votes: [],
+        time: Date.now()
+    });
+    DB.set('feedback', feedback);
+
+    closeModal('feedbackModal');
+    document.getElementById('fbTitle').value = '';
+    document.getElementById('fbContent').value = '';
+
+    toast('✅ Фидбек отправлен', 'success');
+    renderFeedback();
+    refreshStats();
+}
+
+function voteFeedback(i) {
+    const feedback = DB.get('feedback', []);
+    if (!feedback[i].votes) feedback[i].votes = [];
+    const idx = feedback[i].votes.indexOf(currentUser.username);
+    if (idx === -1) {
+        feedback[i].votes.push(currentUser.username);
+    } else {
+        feedback[i].votes.splice(idx, 1);
+    }
+    DB.set('feedback', feedback);
+    renderFeedback();
+}
+
+function deleteFeedback(i) {
+    if (!confirm('Удалить фидбек?')) return;
+    const feedback = DB.get('feedback', []);
+    feedback.splice(i, 1);
+    DB.set('feedback', feedback);
+    renderFeedback();
+    refreshStats();
+}
+
+// ==================== UTILS ====================
+function closeModal(id) {
+    document.getElementById(id).classList.remove('show');
+}
+
+function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+}
+
+let toastTimer;
+function toast(message, type = 'info') {
+    const el = document.getElementById('toast');
+    el.textContent = message;
+    el.className = 'toast show ' + type;
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => el.classList.remove('show'), 3000);
+}
+
+// Close modals on background click
+document.querySelectorAll('.modal-bg').forEach(bg => {
+    bg.addEventListener('click', (e) => {
+        if (e.target === bg) bg.classList.remove('show');
+    });
+});
+
+// ==================== START ====================
+initApp();
+</script>
 </body>
 </html>
