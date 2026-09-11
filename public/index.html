@@ -6,7 +6,7 @@
 <title>DEVHUB // GameDev Messenger</title>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<script src="/socket.io/socket.io.js"></script>
+<script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
 <style>
 :root {
     --bg: #0a0a0f;
@@ -178,6 +178,18 @@ body {
 }
 
 .auth-btn:hover { transform: translateY(-1px); box-shadow: 0 8px 30px rgba(91, 141, 239, 0.5); }
+
+.auth-clear-btn {
+    background: rgba(248, 113, 113, 0.1);
+    color: var(--red);
+    border: 1px solid rgba(248, 113, 113, 0.3);
+    box-shadow: none;
+    font-size: 12px;
+    padding: 10px;
+    margin-top: 16px;
+}
+
+.auth-clear-btn:hover { background: rgba(248, 113, 113, 0.2); transform: none; box-shadow: none; }
 
 .app { display: flex; height: 100vh; position: relative; z-index: 1; }
 .app.hidden { display: none; }
@@ -1136,6 +1148,20 @@ body {
 .incoming-btn.decline { background: var(--red); }
 .incoming-btn:hover { transform: scale(1.1); }
 
+/* === ID DISPLAY === */
+.my-id-box {
+    background: rgba(91, 141, 239, 0.08);
+    border: 1px solid rgba(91, 141, 239, 0.2);
+    border-radius: 8px;
+    padding: 10px 12px;
+    margin: 4px 8px 8px;
+    font-size: 11px;
+    font-family: 'JetBrains Mono', monospace;
+    color: var(--text2);
+}
+
+.my-id-box strong { color: var(--accent); }
+
 ::-webkit-scrollbar { width: 8px; height: 8px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--bg3); border-radius: 4px; }
@@ -1143,9 +1169,8 @@ body {
 
 @media (max-width: 768px) {
     .sidebar { width: 60px; }
-    .user-info, .sb-section, .friend-name, .channel span:not(.channel-icon) { display: none; }
+    .user-info, .sb-section, .friend-name, .channel span:not(.channel-icon), .add-friend-btn span, .my-id-box { display: none; }
     .channel, .friend { justify-content: center; }
-    .add-friend-btn span { display: none; }
     .section { padding: 16px; }
 }
 </style>
@@ -1177,6 +1202,10 @@ body {
             <input type="password" class="auth-input" id="regPassword" placeholder="password">
             <button class="auth-btn" onclick="register()">Создать аккаунт</button>
         </div>
+
+        <button class="auth-btn auth-clear-btn" onclick="clearAllData()">
+            <i class="fas fa-trash"></i> Сбросить всё (если что-то не работает)
+        </button>
     </div>
 </div>
 
@@ -1200,14 +1229,16 @@ body {
             </div>
         </div>
 
+        <div class="my-id-box">
+            Мой ID: <strong id="myPeerId">...</strong>
+        </div>
+
         <div class="sb-section">Друзья</div>
         <div class="friends-list" id="friendsList"></div>
         <div class="add-friend-btn" onclick="openAddFriend()">
             <i class="fas fa-user-plus"></i>
             <span>Добавить в друзья</span>
         </div>
-
-        <div id="friendRequestsWrap"></div>
 
         <div class="sb-section" style="margin-top: 8px;">Каналы</div>
         <div class="channels" id="channelsList"></div>
@@ -1433,14 +1464,17 @@ body {
     <div class="modal">
         <div class="modal-title">👥 Добавить в друзья</div>
         <div class="modal-field">
-            <label class="modal-label">Никнейм</label>
-            <input type="text" class="modal-input" id="friendUsernameInput" placeholder="Введите ник">
+            <label class="modal-label">Никнейм друга</label>
+            <input type="text" class="modal-input" id="friendUsernameInput" placeholder="Введите ник друга">
+            <div style="font-size: 11px; color: var(--text2); margin-top: 6px;">
+                💡 Друг должен быть зарегистрирован на этом же сайте. Его ник — тот, что он вводил при регистрации.
+            </div>
         </div>
         <div id="addFriendResult" style="font-size: 13px; color: var(--text2); margin-bottom: 8px;"></div>
         <div class="modal-actions">
             <button class="btn" onclick="closeModal('addFriendModal')">Отмена</button>
             <button class="btn primary" onclick="sendFriendRequest()">
-                <i class="fas fa-paper-plane"></i> Отправить
+                <i class="fas fa-paper-plane"></i> Добавить
             </button>
         </div>
     </div>
@@ -1455,7 +1489,7 @@ body {
             <div id="profileStatusBadge"></div>
         </div>
         <div class="modal-field">
-            <label class="modal-label">ID</label>
+            <label class="modal-label">Никнейм</label>
             <div style="font-family: 'JetBrains Mono', monospace; font-size: 13px; color: var(--text2);" id="profileId"></div>
         </div>
         <div class="modal-field" id="profileActions"></div>
@@ -1519,9 +1553,6 @@ body {
 <div class="toast" id="toast"></div>
 
 <script>
-// ==================== API ====================
-const API = '';
-
 // ==================== ФОН ====================
 const canvas = document.getElementById('bgCanvas');
 const ctx = canvas.getContext('2d');
@@ -1634,7 +1665,6 @@ function startMusic() {
             osc.frequency.value = freq;
             filter.type = 'lowpass';
             filter.frequency.value = 800;
-            filter.Q.value = 1;
             gain.gain.setValueAtTime(0, now);
             gain.gain.linearRampToValueAtTime(0.15, now + 2);
             gain.gain.linearRampToValueAtTime(0, now + 6);
@@ -1695,7 +1725,7 @@ document.addEventListener('click', function startOnClick() {
     document.removeEventListener('click', startOnClick);
 }, { once: true });
 
-// ==================== СТЕЙТ ====================
+// ==================== БАЗА ====================
 const DB = {
     get(key, def) {
         try { return JSON.parse(localStorage.getItem('devhub_' + key)) || def; }
@@ -1708,7 +1738,6 @@ let currentUser = null;
 let currentChannel = null;
 let currentView = 'chat';
 let currentPlaytestBuild = null;
-let socket = null;
 
 const FOUNDER_USERNAME = 'payk';
 
@@ -1716,13 +1745,16 @@ function isFounder(username) {
     return username && username.toLowerCase() === FOUNDER_USERNAME.toLowerCase();
 }
 
-// ==================== INIT ====================
+function clearAllData() {
+    if (!confirm('Удалить ВСЕ данные? Все аккаунты, чаты и друзья будут потеряны.')) return;
+    const keys = Object.keys(localStorage).filter(k => k.startsWith('devhub_'));
+    keys.forEach(k => localStorage.removeItem(k));
+    location.reload();
+}
+
 function initApp() {
     const saved = DB.get('user', null);
-    if (saved) {
-        currentUser = saved;
-        showApp();
-    }
+    if (saved) { currentUser = saved; showApp(); }
 }
 
 // ==================== AUTH ====================
@@ -1734,64 +1766,64 @@ function switchAuth(mode) {
     document.getElementById('registerForm').style.display = mode === 'register' ? 'block' : 'none';
 }
 
-async function login() {
+function login() {
     const username = document.getElementById('loginUsername').value.trim();
     const password = document.getElementById('loginPassword').value.trim();
     if (!username || !password) return toast('Заполни поля', 'error');
 
-    try {
-        const res = await fetch(`${API}/api/login`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ username, password })
-        });
-        const data = await res.json();
-        if (res.ok) {
-            currentUser = {
-                userId: data.userId,
-                username: data.username,
-                color: data.avatarColor,
-                eternalStatus: data.eternalStatus
-            };
-            DB.set('user', currentUser);
-            showApp();
-        } else {
-            toast('❌ ' + data.error, 'error');
-        }
-    } catch (e) {
-        toast('❌ Ошибка сервера', 'error');
-    }
+    const users = DB.get('users', {});
+    const user = users[username];
+    if (!user || user.password !== password) return toast('Неверный логин или пароль', 'error');
+
+    currentUser = {
+        username,
+        color: user.color,
+        eternalStatus: user.eternalStatus || (isFounder(username) ? 'founder' : 'normis')
+    };
+    DB.set('user', currentUser);
+    showApp();
 }
 
-async function register() {
+function register() {
     const username = document.getElementById('regUsername').value.trim();
     const password = document.getElementById('regPassword').value.trim();
     if (!username || username.length < 3) return toast('Ник от 3 символов', 'error');
     if (password.length < 3) return toast('Пароль от 3 символов', 'error');
-
-    try {
-        const res = await fetch(`${API}/api/register`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ username, password })
-        });
-        const data = await res.json();
-        if (res.ok) {
-            toast('✅ Аккаунт создан! Войди.', 'success');
-            switchAuth('login');
-            document.getElementById('loginUsername').value = username;
-            document.getElementById('loginPassword').value = password;
-        } else {
-            toast('❌ ' + data.error, 'error');
-        }
-    } catch (e) {
-        toast('❌ Ошибка сервера', 'error');
+    if (isFounder(username) && DB.get('users', {})[username]) {
+        return toast('❌ Ник "payk" уже занят', 'error');
     }
+
+    const users = DB.get('users', {});
+    if (users[username]) return toast('Ник занят', 'error');
+
+    const colors = ['#5b8def', '#a855f7', '#4ade80', '#fbbf24', '#f472b6', '#f87171'];
+    const color = colors[Math.floor(Math.random() * colors.length)];
+    const finalColor = isFounder(username) ? '#ffd700' : color;
+    const eternalStatus = isFounder(username) ? 'founder' : 'normis';
+
+    users[username] = { password, color: finalColor, eternalStatus };
+    DB.set('users', users);
+
+    const channels = DB.get('channels', ['general']);
+    const messages = DB.get('messages', {});
+    if (!messages.general) messages.general = [];
+
+    const welcomeText = isFounder(username)
+        ? `👑 Добро пожаловать, ОСНОВАТЕЛЬ ${username}!`
+        : `👋 Добро пожаловать в DEVHUB, ${username}!`;
+
+    messages.general.push({ author: 'System', text: welcomeText, time: Date.now(), isSystem: true });
+    DB.set('messages', messages);
+
+    currentUser = { username, color: finalColor, eternalStatus };
+    DB.set('user', currentUser);
+    showApp();
+    toast('✅ Аккаунт создан', 'success');
 }
 
 function logout() {
     if (!confirm('Выйти?')) return;
-    if (socket) socket.disconnect();
+    if (peer) { try { peer.destroy(); } catch(e) {} }
     localStorage.removeItem('devhub_user');
     location.reload();
 }
@@ -1814,208 +1846,15 @@ function initUI() {
 
     renderChannels();
     selectChannel('general');
-    loadContacts();
+    renderFriends();
     refreshStats();
     renderBuilds();
     renderFeedback();
 
-    initSocket();
-}
+    updateActivity();
+    setInterval(updateActivity, 60000);
 
-// ==================== SOCKET ====================
-function initSocket() {
-    if (typeof io === 'undefined') {
-        console.warn('Socket.io не загружен');
-        return;
-    }
-
-    socket = io();
-
-    socket.on('connect', () => {
-        console.log('🔌 Socket connected');
-        socket.emit('authenticate', currentUser.userId);
-    });
-
-    // ===== НОВЫЕ СООБЩЕНИЯ =====
-    socket.on('new_message', (data) => {
-        // Найти канал
-        const users = DB.get('users', {});
-        let senderName = null;
-        for (const name in users) {
-            if (users[name].id === data.sender_id) {
-                senderName = name;
-                break;
-            }
-        }
-
-        if (!senderName) return;
-
-        const dmName = 'dm_' + [currentUser.username, senderName].sort().join('_');
-        const messages = DB.get('messages', {});
-        if (!messages[dmName]) messages[dmName] = [];
-        messages[dmName].push({
-            author: senderName,
-            text: data.message,
-            time: Date.now(),
-            type: data.type || 'text'
-        });
-        DB.set('messages', messages);
-
-        if (currentChannel === dmName) renderMessages();
-        toast(`💬 Новое сообщение от ${senderName}`);
-    });
-
-    socket.on('message_sent', () => { /* опционально */ });
-
-    socket.on('contact_added', (data) => {
-        toast(`👤 ${data.username} добавил тебя в друзья`);
-        loadContacts();
-    });
-
-    socket.on('user_status_change', (data) => {
-        const users = DB.get('users', {});
-        for (const uname in users) {
-            if (users[uname].id === data.userId) {
-                users[uname].status = data.status;
-                DB.set('users', users);
-                break;
-            }
-        }
-    });
-
-    // ===== ЗВОНКИ =====
-    socket.on('incoming_call', (data) => {
-        console.log('📞 Incoming call:', data);
-        handleIncomingCall(data);
-    });
-
-    socket.on('call_accepted', async (data) => {
-        console.log('✅ Accepted');
-        if (callState.active && !callState.incoming) {
-            await createAndSendOffer();
-        }
-    });
-
-    socket.on('call_declined', () => {
-        toast('📞 Звонок отклонён');
-        cleanupCall();
-    });
-
-    socket.on('call_failed', (data) => {
-        toast('❌ ' + (data.reason || 'Ошибка'), 'error');
-        cleanupCall();
-    });
-
-    socket.on('webrtc_offer', async (data) => {
-        console.log('📨 Offer received');
-        if (!pc) await initPeerConnection();
-        try {
-            await pc.setRemoteDescription(new RTCSessionDescription(data.sdp));
-            for (const c of callState.pendingCandidates) {
-                try { await pc.addIceCandidate(new RTCIceCandidate(c)); } catch(e) {}
-            }
-            callState.pendingCandidates = [];
-
-            const answer = await pc.createAnswer();
-            await pc.setLocalDescription(answer);
-
-            socket.emit('webrtc_answer', {
-                toUserId: callState.callPartner.id,
-                fromUserId: currentUser.userId,
-                sdp: answer
-            });
-            console.log('📤 Answer sent');
-        } catch (err) {
-            console.error('Offer error:', err);
-        }
-    });
-
-    socket.on('webrtc_answer', async (data) => {
-        console.log('📨 Answer received');
-        if (pc) {
-            try {
-                await pc.setRemoteDescription(new RTCSessionDescription(data.sdp));
-                for (const c of callState.pendingCandidates) {
-                    try { await pc.addIceCandidate(new RTCIceCandidate(c)); } catch(e) {}
-                }
-                callState.pendingCandidates = [];
-            } catch (err) {
-                console.error('Answer error:', err);
-            }
-        }
-    });
-
-    socket.on('webrtc_ice', async (data) => {
-        console.log('📨 ICE received');
-        if (pc && pc.remoteDescription && pc.remoteDescription.type) {
-            try {
-                await pc.addIceCandidate(new RTCIceCandidate(data.candidate));
-            } catch (err) {
-                console.error('ICE error:', err);
-            }
-        } else {
-            callState.pendingCandidates.push(data.candidate);
-        }
-    });
-
-    socket.on('call_ended', () => {
-        toast('📞 Звонок завершён');
-        cleanupCall();
-    });
-}
-
-// ==================== КОНТАКТЫ (загрузка с сервера) ====================
-async function loadContacts() {
-    try {
-        const res = await fetch(`${API}/api/contacts/${currentUser.userId}`);
-        const contacts = await res.json();
-
-        // Кэшируем в localStorage для быстрого доступа
-        const users = DB.get('users', {});
-        contacts.forEach(c => {
-            users[c.username] = {
-                id: c.id,
-                color: c.avatar_color,
-                eternalStatus: c.eternal_status,
-                status: c.status
-            };
-        });
-        DB.set('users', users);
-
-        renderFriends(contacts);
-    } catch (e) {
-        console.error('Load contacts error:', e);
-    }
-}
-
-function renderFriends(contactsData) {
-    const container = document.getElementById('friendsList');
-    const users = DB.get('users', {});
-    const friends = contactsData || Object.keys(users).filter(u => u !== currentUser.username);
-
-    if (friends.length === 0) {
-        container.innerHTML = `<div style="padding: 8px 12px; font-size: 12px; color: var(--text2);">Пока нет друзей</div>`;
-        return;
-    }
-
-    container.innerHTML = friends.map(f => {
-        const u = typeof f === 'object' ? f : (users[f] || {});
-        const name = typeof f === 'object' ? f.username : f;
-        const color = typeof f === 'object' ? f.avatar_color : u.color;
-        const online = (typeof f === 'object' ? f.status : u.status) === 'online';
-        const isFound = isFounder(name);
-        const crown = isFound ? '<span class="friend-crown">👑</span>' : '';
-
-        return `
-            <div class="friend ${online ? 'online' : ''}" onclick="openProfile('${escapeHtml(name)}')">
-                <div class="friend-avatar avatar-wrap" style="background:${color || '#5b8def'}">
-                    ${name[0].toUpperCase()}
-                    ${crown}
-                </div>
-                <div class="friend-name">${escapeHtml(name)}</div>
-            </div>
-        `;
-    }).join('');
+    initPeer();
 }
 
 // ==================== КАНАЛЫ ====================
@@ -2053,10 +1892,8 @@ function addChannel() {
     if (!name) return;
     const clean = name.toLowerCase().replace(/[^a-z0-9-]/g, '');
     if (!clean) return;
-
     const channels = DB.get('channels', []);
     if (channels.includes(clean)) return toast('Канал уже есть', 'error');
-
     channels.push(clean);
     DB.set('channels', channels);
     renderChannels();
@@ -2151,25 +1988,16 @@ function sendMessage() {
     const text = input.value.trim();
     if (!text) return;
 
-    // Сохраняем локально
     const messages = DB.get('messages', {});
     if (!messages[currentChannel]) messages[currentChannel] = [];
     messages[currentChannel].push({ author: currentUser.username, text, time: Date.now() });
     DB.set('messages', messages);
 
-    // Если DM — отправляем через socket
-    if (currentChannel.startsWith('dm_') && socket) {
+    // Отправляем через PeerJS если DM
+    if (currentChannel.startsWith('dm_')) {
         const parts = currentChannel.substring(3).split('_');
         const other = parts.find(p => p !== currentUser.username);
-        const users = DB.get('users', {});
-        const otherUser = users[other];
-        if (otherUser && otherUser.id) {
-            socket.emit('send_message', {
-                senderId: currentUser.userId,
-                receiverId: otherUser.id,
-                message: text
-            });
-        }
+        sendDataToPeer(other, { type: 'message', text, author: currentUser.username, isDM: true });
     }
 
     input.value = '';
@@ -2186,7 +2014,7 @@ function autoResize(el) {
     el.style.height = Math.min(el.scrollHeight, 120) + 'px';
 }
 
-// ==================== СТИКЕРЫ / ЭМОДЗИ / GIF ====================
+// ==================== СТИКЕРЫ / GIF ====================
 const EMOJIS = ['😀','😃','😄','😁','😆','😅','🤣','😂','🙂','🙃','😉','😊','😇','🥰','😍','🤩','😘','😗','😚','😙','🥲','😋','😛','😜','🤪','😝','🤑','🤗','🤭','🤫','🤔','🤐','🤨','😐','😑','😶','😏','😒','🙄','😬','🤥','😌','😔','😪','🤤','😴','😷','🤒','🤕','🤢','🤮','🤧','🥵','🥶','🥴','😵','🤯','🤠','🥳','😎','🤓','🧐','😕','😟','🙁','😮','😯','😲','😳','🥺','😦','😧','😨','😰','😥','😢','😭','😱','😖','😣','😞','😓','😩','😫','🥱','😤','😡','😠','🤬','😈','👿','💀','☠️','💩','🤡','👹','👺','👻','👽','👾','🤖','😺','😸','😹','😻','😼','😽','🙀','😿','😾','💋','💌','❤️','🧡','💛','💚','💙','💜','🖤','🤍','💔','❣️','💕','💞','💓','💗','💖','💘','👍','👎','👌','✌️','🤞','🤟','🤘','🤙','👈','👉','👆','👇','☝️','✋','🤚','🖐','🖖','👋','🤝','🙏','💪','🦾','🦿','🦵','🦶','👂','🦻','👃','🧠','🦷','👀','👁'];
 
 const STICKERS = ['🐱','🐶','🐭','🐹','🐰','🦊','🐻','🐼','🐨','🐯','🦁','🐮','🐷','🐸','🐵','🙈','🙉','🙊','🐒','🐔','🐧','🐦','🐤','🐣','🐥','🦆','🦅','🦉','🦇','🐺','🐗','🐴','🦄','🐝','🐛','🦋','🐌','🐞','🐜','🦟','🦗','🕷','🦂','🐢','🐍','🦎','🦖','🦕','🐙','🦑','🦐','🦞','🦀','🐡','🐠','🐟','🐬','🐳','🐋','🦈','🐊','🐅','🐆','🦓','🎮','🎯','🎲','🎰','🎳','🕹','🎪','🎨','🎭','🎬','📷','📸','🎤','🎧','🎼','🎵','👾','💻','⌨️','🖥️','🖱️','💾','💿','📀','🃏','🀄','🎴'];
@@ -2224,7 +2052,6 @@ function switchEmojiTab(tab, btn) {
 
 function renderEmojiGrid() {
     const grid = document.getElementById('emojiGrid');
-
     if (currentEmojiTab === 'emoji') {
         grid.style.gridTemplateColumns = 'repeat(8, 1fr)';
         grid.innerHTML = EMOJIS.map(e => `<div class="emoji-item" onclick="insertEmoji('${e}')">${e}</div>`).join('');
@@ -2252,20 +2079,10 @@ function sendSticker(sticker) {
     messages[currentChannel].push({ author: currentUser.username, text: sticker, time: Date.now(), type: 'sticker' });
     DB.set('messages', messages);
 
-    // Отправляем через socket если DM
-    if (currentChannel.startsWith('dm_') && socket) {
+    if (currentChannel.startsWith('dm_')) {
         const parts = currentChannel.substring(3).split('_');
         const other = parts.find(p => p !== currentUser.username);
-        const users = DB.get('users', {});
-        const otherUser = users[other];
-        if (otherUser && otherUser.id) {
-            socket.emit('send_message', {
-                senderId: currentUser.userId,
-                receiverId: otherUser.id,
-                message: sticker,
-                type: 'sticker'
-            });
-        }
+        sendDataToPeer(other, { type: 'message', text: sticker, author: currentUser.username, msgType: 'sticker' });
     }
 
     document.getElementById('emojiPicker').classList.remove('show');
@@ -2279,19 +2096,10 @@ function sendGif(index) {
     messages[currentChannel].push({ author: currentUser.username, text: GIFS[index], time: Date.now(), type: 'gif' });
     DB.set('messages', messages);
 
-    if (currentChannel.startsWith('dm_') && socket) {
+    if (currentChannel.startsWith('dm_')) {
         const parts = currentChannel.substring(3).split('_');
         const other = parts.find(p => p !== currentUser.username);
-        const users = DB.get('users', {});
-        const otherUser = users[other];
-        if (otherUser && otherUser.id) {
-            socket.emit('send_message', {
-                senderId: currentUser.userId,
-                receiverId: otherUser.id,
-                message: GIFS[index],
-                type: 'gif'
-            });
-        }
+        sendDataToPeer(other, { type: 'message', text: GIFS[index], author: currentUser.username, msgType: 'gif' });
     }
 
     document.getElementById('emojiPicker').classList.remove('show');
@@ -2302,6 +2110,94 @@ function openGifPicker() {
     const picker = document.getElementById('emojiPicker');
     picker.classList.add('show');
     switchEmojiTab('gifs', document.querySelectorAll('.emoji-picker-tab')[2]);
+}
+
+// ==================== ДРУЗЬЯ ====================
+function getFriends(username) { return DB.get('friends', {})[username] || []; }
+function setFriends(username, list) { const all = DB.get('friends', {}); all[username] = list; DB.set('friends', all); }
+function areFriends(a, b) { return getFriends(a).includes(b); }
+
+function renderFriends() {
+    const container = document.getElementById('friendsList');
+    const friends = getFriends(currentUser.username);
+    const users = DB.get('users', {});
+
+    if (friends.length === 0) {
+        container.innerHTML = `<div style="padding: 8px 12px; font-size: 12px; color: var(--text2);">Пока нет друзей</div>`;
+        return;
+    }
+
+    container.innerHTML = friends.map(f => {
+        const u = users[f] || { color: '#5b8def' };
+        const online = isUserOnline(f);
+        const crown = isFounder(f) ? '<span class="friend-crown">👑</span>' : '';
+        return `
+            <div class="friend ${online ? 'online' : ''}" onclick="openProfile('${escapeHtml(f)}')">
+                <div class="friend-avatar avatar-wrap" style="background:${u.color}">
+                    ${f[0].toUpperCase()}
+                    ${crown}
+                </div>
+                <div class="friend-name">${escapeHtml(f)}</div>
+            </div>
+        `;
+    }).join('');
+}
+
+function isUserOnline(username) {
+    const activity = DB.get('activity', {});
+    const lastSeen = activity[username];
+    if (!lastSeen) return false;
+    return Date.now() - lastSeen < 5 * 60 * 1000;
+}
+
+function updateActivity() {
+    const activity = DB.get('activity', {});
+    activity[currentUser.username] = Date.now();
+    DB.set('activity', activity);
+}
+
+function openAddFriend() {
+    document.getElementById('addFriendModal').classList.add('show');
+    document.getElementById('addFriendResult').textContent = '';
+    document.getElementById('friendUsernameInput').value = '';
+    document.getElementById('friendUsernameInput').focus();
+}
+
+function sendFriendRequest() {
+    const target = document.getElementById('friendUsernameInput').value.trim();
+    const result = document.getElementById('addFriendResult');
+
+    if (!target) { result.textContent = '❌ Введи ник'; result.style.color = 'var(--red)'; return; }
+    if (target === currentUser.username) { result.textContent = '❌ Нельзя себя'; result.style.color = 'var(--red)'; return; }
+
+    const users = DB.get('users', {});
+    if (!users[target]) {
+        result.textContent = `❌ "${target}" не зарегистрирован на этом устройстве`;
+        result.style.color = 'var(--red)';
+        result.innerHTML += '<br><span style="font-size: 11px;">💡 Друг должен сначала создать аккаунт на этом же сайте</span>';
+        return;
+    }
+
+    if (areFriends(currentUser.username, target)) {
+        result.textContent = '✅ Вы уже друзья';
+        result.style.color = 'var(--green)';
+        return;
+    }
+
+    const myFriends = getFriends(currentUser.username);
+    myFriends.push(target);
+    setFriends(currentUser.username, myFriends);
+
+    const theirFriends = getFriends(target);
+    if (!theirFriends.includes(currentUser.username)) theirFriends.push(currentUser.username);
+    setFriends(target, theirFriends);
+
+    result.textContent = '✅ Добавлен в друзья!';
+    result.style.color = 'var(--green)';
+
+    toast(`👥 ${target} теперь в друзьях`, 'success');
+    setTimeout(() => closeModal('addFriendModal'), 1200);
+    renderFriends();
 }
 
 // ==================== ПРОФИЛЬ ====================
@@ -2351,53 +2247,8 @@ function openChatWithProfile() {
     closeModal('profileModal');
     const dmName = 'dm_' + [currentUser.username, viewingProfile].sort().join('_');
     const channels = DB.get('channels', []);
-    if (!channels.includes(dmName)) {
-        channels.push(dmName);
-        DB.set('channels', channels);
-        renderChannels();
-    }
+    if (!channels.includes(dmName)) { channels.push(dmName); DB.set('channels', channels); renderChannels(); }
     selectChannel(dmName);
-}
-
-// ==================== ДОБАВИТЬ ДРУГА ====================
-function openAddFriend() {
-    document.getElementById('addFriendModal').classList.add('show');
-    document.getElementById('addFriendResult').textContent = '';
-    document.getElementById('friendUsernameInput').value = '';
-    document.getElementById('friendUsernameInput').focus();
-}
-
-async function sendFriendRequest() {
-    const target = document.getElementById('friendUsernameInput').value.trim();
-    const result = document.getElementById('addFriendResult');
-
-    if (!target) { result.textContent = '❌ Введи ник'; result.style.color = 'var(--red)'; return; }
-    if (target === currentUser.username) { result.textContent = '❌ Нельзя себя'; result.style.color = 'var(--red)'; return; }
-
-    try {
-        const res = await fetch(`${API}/api/contacts/add`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ userId: currentUser.userId, contactUsername: target })
-        });
-        const data = await res.json();
-
-        if (res.ok) {
-            result.textContent = '✅ Контакт добавлен!';
-            result.style.color = 'var(--green)';
-            toast(`✅ ${target} добавлен`, 'success');
-            setTimeout(() => {
-                closeModal('addFriendModal');
-                loadContacts();
-            }, 1000);
-        } else {
-            result.textContent = '❌ ' + data.error;
-            result.style.color = 'var(--red)';
-        }
-    } catch (e) {
-        result.textContent = '❌ Ошибка сервера';
-        result.style.color = 'var(--red)';
-    }
 }
 
 // ==================== PLAYTEST ====================
@@ -2441,7 +2292,6 @@ function renderBuilds() {
                         <span><i class="fas fa-hdd"></i> ${b.size} MB</span>
                         <span><i class="fas fa-calendar"></i> ${date}</span>
                         <span><i class="fas fa-users"></i> ${buildRuns.length}</span>
-                        ${avgDur ? `<span><i class="fas fa-clock"></i> ~${avgDur}м</span>` : ''}
                     </div>
                 </div>
                 <div class="build-actions">
@@ -2459,17 +2309,15 @@ function uploadBuild() {
     const version = document.getElementById('buildVersion').value.trim();
     const platform = document.getElementById('buildPlatform').value;
     const size = parseInt(document.getElementById('buildSize').value) || 100;
-    const changelog = document.getElementById('buildChangelog').value.trim();
 
     if (!version) return toast('Укажи версию', 'error');
 
     const builds = DB.get('builds', []);
-    builds.unshift({ version, platform, size, changelog, time: Date.now(), author: currentUser.username });
+    builds.unshift({ version, platform, size, time: Date.now(), author: currentUser.username });
     DB.set('builds', builds);
 
     closeModal('uploadModal');
-    ['buildVersion', 'buildSize', 'buildChangelog'].forEach(id => document.getElementById(id).value = '');
-
+    ['buildVersion', 'buildSize'].forEach(id => document.getElementById(id).value = '');
     toast(`✅ Билд v${version}`, 'success');
     renderBuilds();
     refreshStats();
@@ -2483,13 +2331,9 @@ function startPlaytest(buildId) {
 function submitPlaytest() {
     const duration = parseInt(document.getElementById('ptDuration').value) || 0;
     const deaths = parseInt(document.getElementById('ptDeaths').value) || 0;
-    const fps = parseInt(document.getElementById('ptFps').value) || 60;
-    const completed = document.getElementById('ptCompleted').value === 'true';
-
     const runs = DB.get('playtestRuns', []);
-    runs.push({ buildId: currentPlaytestBuild, tester: currentUser.username, duration, deaths, fps, completed, time: Date.now() });
+    runs.push({ buildId: currentPlaytestBuild, tester: currentUser.username, duration, deaths, time: Date.now() });
     DB.set('playtestRuns', runs);
-
     closeModal('playtestModal');
     toast('🎮 Сессия записана', 'success');
     refreshStats();
@@ -2516,7 +2360,6 @@ function renderFeedback() {
     }
 
     const typeLabels = { BUG: '🐛 BUG', FEATURE: '💡 FEATURE', BALANCE: '⚖️ BALANCE', UX: '🎨 UX', PERFORMANCE: '⚡ PERF' };
-    const statusLabels = { OPEN: 'OPEN', IN_PROGRESS: 'IN PROGRESS', FIXED: 'FIXED' };
 
     container.innerHTML = feedback.map((f, i) => {
         const isFound = isFounder(f.author);
@@ -2525,7 +2368,7 @@ function renderFeedback() {
             <div class="feedback-item">
                 <div class="feedback-top">
                     <span class="feedback-type type-${f.type}">${typeLabels[f.type] || f.type}</span>
-                    <span class="feedback-status status-${f.status}">${statusLabels[f.status] || f.status}</span>
+                    <span class="feedback-status status-${f.status}">${f.status}</span>
                     ${isFound ? '<span class="msg-badge badge-founder">👑</span>' : ''}
                     <span class="msg-time" style="margin-left:auto;">${date}</span>
                 </div>
@@ -2533,10 +2376,6 @@ function renderFeedback() {
                 <div class="feedback-content">${escapeHtml(f.content || '')}</div>
                 <div class="feedback-footer">
                     <span><i class="fas fa-user"></i> ${escapeHtml(f.author)}</span>
-                    <span><i class="fas fa-tag"></i> ${f.priority}</span>
-                    <div class="feedback-votes ${f.votes?.includes(currentUser.username) ? 'voted' : ''}" onclick="voteFeedback(${i})">
-                        <i class="fas fa-arrow-up"></i> ${(f.votes || []).length}
-                    </div>
                 </div>
             </div>
         `;
@@ -2554,33 +2393,21 @@ function submitFeedback() {
     if (title.length < 5) return toast('Заголовок от 5 символов', 'error');
 
     const feedback = DB.get('feedback', []);
-    feedback.unshift({ type, priority, title, content, author: currentUser.username, status: 'OPEN', votes: [], time: Date.now() });
+    feedback.unshift({ type, priority, title, content, author: currentUser.username, status: 'OPEN', time: Date.now() });
     DB.set('feedback', feedback);
 
     closeModal('feedbackModal');
     document.getElementById('fbTitle').value = '';
     document.getElementById('fbContent').value = '';
-
     toast('✅ Отправлено', 'success');
     renderFeedback();
     refreshStats();
 }
 
-function voteFeedback(i) {
-    const feedback = DB.get('feedback', []);
-    if (!feedback[i].votes) feedback[i].votes = [];
-    const idx = feedback[i].votes.indexOf(currentUser.username);
-    if (idx === -1) feedback[i].votes.push(currentUser.username);
-    else feedback[i].votes.splice(idx, 1);
-    DB.set('feedback', feedback);
-    renderFeedback();
-}
-
-// ==================== ЗВОНКИ WEBRTC ====================
-let pc = null;
+// ==================== PEERJS ЗВОНКИ ====================
+let peer = null;
+let currentCall = null;
 let localStream = null;
-let remoteStream = null;
-
 let callState = {
     active: false,
     incoming: false,
@@ -2589,10 +2416,158 @@ let callState = {
     callPartner: null,
     startTime: null,
     timerInterval: null,
-    ringToneNodes: [],
-    pendingCandidates: []
+    ringToneNodes: []
 };
 
+function getPeerId(username) {
+    // Стабильный ID для каждого пользователя
+    return 'devhub-' + username.toLowerCase().replace(/[^a-z0-9]/g, '');
+}
+
+function initPeer() {
+    if (typeof Peer === 'undefined') {
+        console.error('PeerJS не загружен');
+        return;
+    }
+
+    const myPeerId = getPeerId(currentUser.username);
+    document.getElementById('myPeerId').textContent = myPeerId;
+
+    peer = new Peer(myPeerId, {
+        debug: 1,
+        config: {
+            iceServers: [
+                { urls: 'stun:stun.l.google.com:19302' },
+                { urls: 'stun:stun1.l.google.com:19302' },
+                { urls: 'stun:stun2.l.google.com:19302' },
+                { urls: 'stun:global.stun.twilio.com:3478' }
+            ]
+        }
+    });
+
+    peer.on('open', (id) => {
+        console.log('✅ Peer registered:', id);
+    });
+
+    peer.on('error', (err) => {
+        console.error('Peer error:', err);
+        if (err.type === 'unavailable-id') {
+            toast('❌ Ник занят. Выбери другой.', 'error');
+        } else if (err.type === 'peer-unavailable') {
+            toast('❌ Друг не в сети или не зарегистрирован', 'error');
+        }
+    });
+
+    // Входящий звонок
+    peer.on('call', (call) => {
+        console.log('📞 Incoming call from:', call.peer);
+        handleIncomingCall(call);
+    });
+
+    // Входящие данные (сообщения)
+    peer.on('connection', (conn) => {
+        conn.on('data', (data) => {
+            handlePeerData(conn, data);
+        });
+        conn.on('open', () => {
+            console.log('📡 Data connection opened with:', conn.peer);
+            if (!activeConnections[conn.peer]) {
+                activeConnections[conn.peer] = conn;
+            }
+        });
+    });
+}
+
+// ==================== ДАННЫЕ ЧЕРЕЗ PEER ====================
+const activeConnections = {};
+
+function connectToPeer(username) {
+    return new Promise((resolve, reject) => {
+        const targetId = getPeerId(username);
+
+        if (activeConnections[targetId] && activeConnections[targetId].open) {
+            return resolve(activeConnections[targetId]);
+        }
+
+        const conn = peer.connect(targetId, { reliable: true });
+
+        const timeout = setTimeout(() => reject(new Error('Timeout')), 5000);
+
+        conn.on('open', () => {
+            clearTimeout(timeout);
+            activeConnections[targetId] = conn;
+            conn.on('data', (data) => handlePeerData(conn, data));
+            resolve(conn);
+        });
+
+        conn.on('error', (err) => {
+            clearTimeout(timeout);
+            reject(err);
+        });
+    });
+}
+
+function sendDataToPeer(username, data) {
+    const targetId = getPeerId(username);
+    const conn = activeConnections[targetId];
+
+    if (conn && conn.open) {
+        conn.send(data);
+    } else {
+        connectToPeer(username).then(c => c.send(data)).catch(err => {
+            console.log('Cannot send to peer:', err);
+        });
+    }
+}
+
+function handlePeerData(conn, data) {
+    console.log('📨 Peer data:', data);
+
+    // Определяем ник отправителя
+    const senderId = conn.peer;
+    const senderUsername = senderId.replace('devhub-', '');
+    const users = DB.get('users', {});
+    let realSender = senderUsername;
+
+    // Ищем по совпадению
+    for (const u in users) {
+        if (getPeerId(u) === senderId) {
+            realSender = u;
+            break;
+        }
+    }
+
+    if (data.type === 'message') {
+        const dmName = 'dm_' + [currentUser.username, realSender].sort().join('_');
+        const messages = DB.get('messages', {});
+        if (!messages[dmName]) messages[dmName] = [];
+        messages[dmName].push({
+            author: realSender,
+            text: data.text,
+            time: Date.now(),
+            type: data.msgType || 'text'
+        });
+        DB.set('messages', messages);
+
+        // Автодобавление в друзья
+        if (!areFriends(currentUser.username, realSender)) {
+            const myFriends = getFriends(currentUser.username);
+            myFriends.push(realSender);
+            setFriends(currentUser.username, myFriends);
+            renderFriends();
+        }
+
+        if (currentChannel === dmName) renderMessages();
+        else toast(`💬 Сообщение от ${realSender}`);
+    }
+
+    if (data.type === 'call-accept') {
+        // Собеседник принял — можно начинать
+        console.log('✅ Call accepted');
+    }
+}
+
+// ==================== МИКРОФОН ====================
 async function getMicrophone() {
     try {
         const stream = await navigator.mediaDevices.getUserMedia({
@@ -2612,88 +2587,7 @@ async function getMicrophone() {
     }
 }
 
-async function initPeerConnection() {
-    const config = {
-        iceServers: [
-            { urls: 'stun:stun.l.google.com:19302' },
-            { urls: 'stun:stun1.l.google.com:19302' },
-            { urls: 'stun:stun2.l.google.com:19302' }
-        ]
-    };
-
-    pc = new RTCPeerConnection(config);
-
-    pc.onicecandidate = (event) => {
-        if (event.candidate && callState.callPartner) {
-            socket.emit('webrtc_ice', {
-                toUserId: callState.callPartner.id,
-                fromUserId: currentUser.userId,
-                candidate: event.candidate
-            });
-        }
-    };
-
-    pc.onconnectionstatechange = () => {
-        console.log('Connection state:', pc.connectionState);
-        if (pc.connectionState === 'connected') {
-            onCallConnected();
-        } else if (pc.connectionState === 'failed') {
-            toast('❌ Соединение потеряно', 'error');
-            cleanupCall();
-        }
-    };
-
-    pc.ontrack = (event) => {
-        console.log('🎧 Получен трек собеседника');
-        remoteStream = event.streams[0];
-
-        let remoteAudio = document.getElementById('remoteAudio');
-        if (!remoteAudio) {
-            remoteAudio = document.createElement('audio');
-            remoteAudio.id = 'remoteAudio';
-            remoteAudio.autoplay = true;
-            remoteAudio.playsInline = true;
-            document.body.appendChild(remoteAudio);
-        }
-        remoteAudio.srcObject = remoteStream;
-
-        // Убеждаемся что играет
-        remoteAudio.play().catch(err => {
-            console.log('Autoplay blocked, retry on click');
-            document.addEventListener('click', () => remoteAudio.play(), { once: true });
-        });
-    };
-
-    if (localStream) {
-        localStream.getTracks().forEach(track => {
-            pc.addTrack(track, localStream);
-        });
-    }
-}
-
-async function createAndSendOffer() {
-    try {
-        if (!pc) await initPeerConnection();
-
-        const offer = await pc.createOffer({
-            offerToReceiveAudio: true,
-            offerToReceiveVideo: false
-        });
-        await pc.setLocalDescription(offer);
-
-        socket.emit('webrtc_offer', {
-            toUserId: callState.callPartner.id,
-            fromUserId: currentUser.userId,
-            sdp: offer
-        });
-        console.log('📤 Offer отправлен');
-    } catch (err) {
-        console.error('Offer error:', err);
-        toast('❌ Ошибка соединения', 'error');
-        cleanupCall();
-    }
-}
-
+// ==================== ЗВОНКИ ====================
 async function startCall() {
     if (!currentChannel || !currentChannel.startsWith('dm_')) {
         return toast('📞 Только в личных чатах', 'error');
@@ -2704,10 +2598,7 @@ async function startCall() {
     if (!partnerName) return toast('Не удалось', 'error');
 
     const users = DB.get('users', {});
-    const partnerData = users[partnerName];
-    if (!partnerData || !partnerData.id) {
-        return toast('❌ Пользователь не найден. Перезайди.', 'error');
-    }
+    if (!users[partnerName]) return toast('❌ Пользователь не найден', 'error');
 
     try {
         await getMicrophone();
@@ -2718,112 +2609,149 @@ async function startCall() {
     callState.active = true;
     callState.ringing = true;
     callState.incoming = false;
-    callState.callPartner = {
-        id: partnerData.id,
-        username: partnerName,
-        color: partnerData.color
-    };
+    callState.callPartner = partnerName;
 
-    showCallOverlay(partnerName, partnerData.color, '📞 Вызов...');
+    showCallOverlay(partnerName, users[partnerName].color, '📞 Вызов...');
     playRingTone();
 
-    socket.emit('call_user', {
-        fromUserId: currentUser.userId,
-        fromUsername: currentUser.username,
-        fromColor: currentUser.color,
-        fromEternalStatus: currentUser.eternalStatus,
-        toUserId: partnerData.id
-    });
+    // Создаём PeerJS вызов
+    const targetId = getPeerId(partnerName);
 
-    setTimeout(() => {
-        if (callState.ringing && callState.active) {
-            toast('📴 Не отвечает', 'error');
-            socket.emit('call_ended', {
-                toUserId: callState.callPartner.id,
-                fromUserId: currentUser.userId
-            });
+    try {
+        currentCall = peer.call(targetId, localStream);
+
+        if (!currentCall) throw new Error('No call created');
+
+        currentCall.on('stream', (remoteStream) => {
+            console.log('🎧 Получен поток');
+            playRemoteStream(remoteStream);
+            onCallConnected();
+        });
+
+        currentCall.on('close', () => {
+            toast('📞 Звонок завершён');
             cleanupCall();
-        }
-    }, 30000);
+        });
+
+        currentCall.on('error', (err) => {
+            console.error('Call error:', err);
+            toast('❌ Ошибка звонка', 'error');
+            cleanupCall();
+        });
+
+        // Таймаут
+        setTimeout(() => {
+            if (callState.ringing && callState.active) {
+                toast('📴 Не отвечает', 'error');
+                cleanupCall();
+            }
+        }, 30000);
+    } catch (err) {
+        console.error('Call error:', err);
+        toast('❌ Не удалось позвонить', 'error');
+        cleanupCall();
+    }
 }
 
-function handleIncomingCall(data) {
+function handleIncomingCall(call) {
     if (callState.active) {
-        socket.emit('call_declined', {
-            toUserId: data.fromUserId,
-            fromUserId: currentUser.userId
-        });
+        call.close();
         return;
     }
 
+    // Определяем звонящего
+    const callerId = call.peer;
+    const users = DB.get('users', {});
+    let callerName = callerId.replace('devhub-', '');
+
+    for (const u in users) {
+        if (getPeerId(u) === callerId) {
+            callerName = u;
+            break;
+        }
+    }
+
     callState.incoming = true;
-    callState.callPartner = {
-        id: data.fromUserId,
-        username: data.fromUsername,
-        color: data.fromColor
-    };
+    callState.callPartner = callerName;
 
     const el = document.getElementById('incomingCall');
     el.classList.add('show');
 
+    const color = users[callerName]?.color || '#5b8def';
     const avatar = document.getElementById('incomingAvatar');
-    avatar.style.background = data.fromColor;
-    avatar.innerHTML = data.fromUsername[0].toUpperCase();
+    avatar.style.background = color;
+    avatar.innerHTML = callerName[0].toUpperCase();
 
-    document.getElementById('incomingName').textContent = data.fromUsername;
+    document.getElementById('incomingName').textContent = callerName;
     document.getElementById('incomingCallSub').textContent =
-        data.fromEternalStatus === 'founder' ? '👑 ОСНОВАТЕЛЬ' : '📞 Входящий звонок';
+        isFounder(callerName) ? '👑 ОСНОВАТЕЛЬ' : '📞 Входящий звонок';
 
     playRingTone();
-    toast(`📞 Звонок от ${data.fromUsername}`);
+    toast(`📞 Звонок от ${callerName}`);
 
+    // Отвечаем на звонок через PeerJS
+    call.answer();
+
+    call.on('stream', (remoteStream) => {
+        console.log('🎧 Получен поток входящего');
+        playRemoteStream(remoteStream);
+    });
+
+    currentCall = call;
+
+    // Автоотклонение через 30 секунд
     setTimeout(() => {
         if (callState.incoming) declineCall();
     }, 30000);
 }
 
-async function acceptCall() {
+function playRemoteStream(stream) {
+    let remoteAudio = document.getElementById('remoteAudio');
+    if (!remoteAudio) {
+        remoteAudio = document.createElement('audio');
+        remoteAudio.id = 'remoteAudio';
+        remoteAudio.autoplay = true;
+        remoteAudio.playsInline = true;
+        document.body.appendChild(remoteAudio);
+    }
+    remoteAudio.srcObject = stream;
+
+    remoteAudio.play().catch(err => {
+        console.log('Autoplay blocked');
+        document.addEventListener('click', () => remoteAudio.play(), { once: true });
+    });
+}
+
+function acceptCall() {
     document.getElementById('incomingCall').classList.remove('show');
     stopRingTone();
-
-    if (!callState.callPartner) return;
-
-    try {
-        await getMicrophone();
-    } catch (err) {
-        toast('❌ Нет доступа к микрофону', 'error');
-        socket.emit('call_declined', {
-            toUserId: callState.callPartner.id,
-            fromUserId: currentUser.userId
-        });
-        cleanupCall();
-        return;
-    }
 
     callState.active = true;
     callState.incoming = false;
     callState.ringing = false;
 
     const partner = callState.callPartner;
-    showCallOverlay(partner.username, partner.color, '🎙 Соединение...');
+    const users = DB.get('users', {});
+    const color = users[partner]?.color || '#5b8def';
 
-    await initPeerConnection();
+    showCallOverlay(partner, color, '🎙 Соединение...');
 
-    socket.emit('call_accepted', {
-        toUserId: partner.id,
-        fromUserId: currentUser.userId
-    });
+    // Для входящего звонка поток уже идёт — ждём onCallConnected
+    // на случай, если поток ещё не пришёл
+    setTimeout(() => {
+        if (callState.active && !callState.startTime && currentCall) {
+            // Если ещё не connected, но звонок есть — считаем что ок
+        }
+    }, 1000);
 }
 
 function declineCall() {
     document.getElementById('incomingCall').classList.remove('show');
     stopRingTone();
 
-    if (callState.callPartner) {
-        socket.emit('call_declined', {
-            toUserId: callState.callPartner.id,
-            fromUserId: currentUser.userId
-        });
+    if (currentCall) {
+        try { currentCall.close(); } catch(e) {}
+        currentCall = null;
     }
 
     callState.incoming = false;
@@ -2832,6 +2760,8 @@ function declineCall() {
 }
 
 function onCallConnected() {
+    if (callState.startTime) return; // Уже подключено
+
     callState.ringing = false;
     callState.startTime = Date.now();
 
@@ -2857,7 +2787,7 @@ function showCallOverlay(username, color, statusText) {
     document.getElementById('callOverlay').classList.add('show');
 
     const avatar = document.getElementById('callAvatar');
-    avatar.style.background = color;
+    avatar.style.background = color || '#5b8def';
     avatar.innerHTML = username[0].toUpperCase();
 
     if (isFounder(username)) {
@@ -2887,11 +2817,9 @@ function toggleMute() {
 }
 
 function endCall() {
-    if (callState.callPartner && socket) {
-        socket.emit('call_ended', {
-            toUserId: callState.callPartner.id,
-            fromUserId: currentUser.userId
-        });
+    if (currentCall) {
+        try { currentCall.close(); } catch(e) {}
+        currentCall = null;
     }
 
     if (callState.startTime) {
@@ -2911,14 +2839,15 @@ function cleanupCall() {
     if (callState.timerInterval) clearInterval(callState.timerInterval);
     stopRingTone();
 
-    if (pc) { pc.close(); pc = null; }
+    if (currentCall) {
+        try { currentCall.close(); } catch(e) {}
+        currentCall = null;
+    }
 
     if (localStream) {
         localStream.getTracks().forEach(t => t.stop());
         localStream = null;
     }
-
-    remoteStream = null;
 
     const remoteAudio = document.getElementById('remoteAudio');
     if (remoteAudio) remoteAudio.remove();
@@ -2926,7 +2855,7 @@ function cleanupCall() {
     callState = {
         active: false, incoming: false, ringing: false, muted: false,
         callPartner: null, startTime: null, timerInterval: null,
-        ringToneNodes: [], pendingCandidates: []
+        ringToneNodes: []
     };
 
     document.getElementById('muteBtn').classList.remove('active');
