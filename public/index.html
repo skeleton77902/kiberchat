@@ -33,13 +33,7 @@ body {
     overflow: hidden;
 }
 
-/* ===== АНИМИРОВАННЫЙ ФОН ===== */
-.bg-canvas {
-    position: fixed;
-    inset: 0;
-    z-index: 0;
-    pointer-events: none;
-}
+.bg-canvas { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
 
 .bg-gradient {
     position: fixed;
@@ -75,7 +69,6 @@ body {
     100% { background-position: 40px 40px; }
 }
 
-/* ===== AUTH ===== */
 .auth-screen {
     position: fixed;
     inset: 0;
@@ -91,16 +84,12 @@ body {
 .auth-box {
     background: rgba(17, 17, 24, 0.85);
     backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
     border: 1px solid rgba(91, 141, 239, 0.3);
     border-radius: 16px;
     padding: 44px;
     width: 100%;
     max-width: 420px;
-    box-shadow: 
-        0 30px 80px rgba(0,0,0,0.6),
-        0 0 60px rgba(91, 141, 239, 0.1),
-        inset 0 1px 0 rgba(255,255,255,0.05);
+    box-shadow: 0 30px 80px rgba(0,0,0,0.6), 0 0 60px rgba(91, 141, 239, 0.1);
     position: relative;
     overflow: hidden;
 }
@@ -108,7 +97,7 @@ body {
 .auth-box::before {
     content: '';
     position: absolute;
-    top: -2px; left: -2px; right: -2px;
+    top: 0; left: 0; right: 0;
     height: 2px;
     background: linear-gradient(90deg, transparent, var(--accent), var(--accent2), transparent);
     animation: shineTop 3s linear infinite;
@@ -123,10 +112,8 @@ body {
     font-family: 'JetBrains Mono', monospace;
     font-size: 30px;
     font-weight: 700;
-    color: var(--text);
     text-align: center;
     margin-bottom: 8px;
-    letter-spacing: -1px;
 }
 
 .auth-logo .bracket { color: var(--accent); }
@@ -163,11 +150,7 @@ body {
     transition: all 0.2s;
 }
 
-.auth-tab.active {
-    background: var(--bg3);
-    color: var(--text);
-    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-}
+.auth-tab.active { background: var(--bg3); color: var(--text); }
 
 .auth-input {
     width: 100%;
@@ -206,28 +189,15 @@ body {
     box-shadow: 0 4px 20px rgba(91, 141, 239, 0.3);
 }
 
-.auth-btn:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 8px 30px rgba(91, 141, 239, 0.5);
-}
+.auth-btn:hover { transform: translateY(-1px); box-shadow: 0 8px 30px rgba(91, 141, 239, 0.5); }
 
-.auth-btn:active { transform: translateY(0); }
-
-/* ===== APP ===== */
-.app {
-    display: flex;
-    height: 100vh;
-    position: relative;
-    z-index: 1;
-}
-
+.app { display: flex; height: 100vh; position: relative; z-index: 1; }
 .app.hidden { display: none; }
 
 .sidebar {
     width: 280px;
     background: rgba(17, 17, 24, 0.85);
     backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
     border-right: 1px solid var(--border);
     display: flex;
     flex-direction: column;
@@ -242,13 +212,7 @@ body {
     justify-content: space-between;
 }
 
-.sb-logo {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 16px;
-    font-weight: 700;
-    color: var(--text);
-}
-
+.sb-logo { font-family: 'JetBrains Mono', monospace; font-size: 16px; font-weight: 700; }
 .sb-logo .bracket { color: var(--accent); }
 
 .user-chip {
@@ -258,6 +222,7 @@ body {
     align-items: center;
     gap: 10px;
     transition: background 0.15s;
+    cursor: pointer;
 }
 
 .user-chip:hover { background: var(--bg3); }
@@ -292,11 +257,7 @@ body {
     font-family: 'JetBrains Mono', monospace;
 }
 
-.channels, .friends-list {
-    overflow-y: auto;
-    padding: 0 8px 8px;
-}
-
+.channels, .friends-list { overflow-y: auto; padding: 0 8px 8px; }
 .channels { flex: 1; }
 
 .channel, .friend {
@@ -390,11 +351,7 @@ body {
     font-family: 'JetBrains Mono', monospace;
 }
 
-.add-friend-btn:hover {
-    border-color: var(--accent);
-    color: var(--accent);
-    background: rgba(91, 141, 239, 0.15);
-}
+.add-friend-btn:hover { border-color: var(--accent); color: var(--accent); background: rgba(91, 141, 239, 0.15); }
 
 .friend-requests { padding: 0 8px; }
 
@@ -407,11 +364,7 @@ body {
     font-size: 12px;
 }
 
-.request-item .req-actions {
-    display: flex;
-    gap: 6px;
-    margin-top: 8px;
-}
+.request-item .req-actions { display: flex; gap: 6px; margin-top: 8px; }
 
 .req-btn {
     flex: 1;
@@ -422,13 +375,11 @@ body {
     font-size: 11px;
     font-weight: 600;
     cursor: pointer;
-    transition: all 0.15s;
 }
 
 .req-accept { background: var(--green); color: #000; }
 .req-decline { background: var(--bg3); color: var(--text2); border: 1px solid var(--border); }
 
-/* MAIN */
 .main {
     flex: 1;
     display: flex;
@@ -448,14 +399,11 @@ body {
     min-height: 60px;
 }
 
-.topbar-info {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-}
-
+.topbar-info { display: flex; flex-direction: column; gap: 2px; }
 .topbar-title { font-size: 15px; font-weight: 600; }
 .topbar-sub { font-size: 12px; color: var(--text2); font-family: 'JetBrains Mono', monospace; }
+
+.topbar-left { display: flex; align-items: center; gap: 12px; }
 
 .tabs {
     display: flex;
@@ -479,25 +427,14 @@ body {
     transition: all 0.15s;
 }
 
-.tab.active {
-    background: var(--bg3);
-    color: var(--text);
-}
-
+.tab.active { background: var(--bg3); color: var(--text); }
 .tab:hover:not(.active) { color: var(--text); }
 
 .content { flex: 1; overflow: hidden; display: flex; }
 
-.view {
-    display: none;
-    flex-direction: column;
-    flex: 1;
-    overflow: hidden;
-}
-
+.view { display: none; flex-direction: column; flex: 1; overflow: hidden; }
 .view.active { display: flex; }
 
-/* CHAT */
 .chat-messages {
     flex: 1;
     overflow-y: auto;
@@ -507,11 +444,7 @@ body {
     gap: 16px;
 }
 
-.msg {
-    display: flex;
-    gap: 10px;
-    animation: msgIn 0.2s ease-out;
-}
+.msg { display: flex; gap: 10px; animation: msgIn 0.2s ease-out; }
 
 @keyframes msgIn {
     from { opacity: 0; transform: translateY(8px); }
@@ -567,17 +500,9 @@ body {
     50% { box-shadow: 0 0 20px rgba(255, 215, 0, 0.8), 0 0 30px rgba(255, 215, 0, 0.4); }
 }
 
-.msg-time {
-    font-size: 11px;
-    color: var(--text2);
-    font-family: 'JetBrains Mono', monospace;
-}
+.msg-time { font-size: 11px; color: var(--text2); font-family: 'JetBrains Mono', monospace; }
 
-.msg-text {
-    font-size: 14px;
-    line-height: 1.5;
-    word-wrap: break-word;
-}
+.msg-text { font-size: 14px; line-height: 1.5; word-wrap: break-word; }
 
 .msg-founder {
     background: linear-gradient(90deg, rgba(255,215,0,0.05), transparent);
@@ -606,11 +531,12 @@ body {
     padding: 16px 20px;
     border-top: 1px solid var(--border);
     background: rgba(17, 17, 24, 0.6);
+    position: relative;
 }
 
 .chat-input-wrap {
     display: flex;
-    gap: 10px;
+    gap: 8px;
     align-items: flex-end;
     background: rgba(10, 10, 15, 0.6);
     border: 1px solid var(--border);
@@ -668,7 +594,6 @@ body {
     transform: scale(1.05);
 }
 
-/* SECTIONS */
 .section { padding: 24px; overflow-y: auto; flex: 1; }
 .section-title { font-size: 20px; font-weight: 700; margin-bottom: 4px; }
 .section-sub { font-size: 13px; color: var(--text2); margin-bottom: 24px; }
@@ -688,10 +613,7 @@ body {
     transition: all 0.2s;
 }
 
-.stat-card:hover {
-    border-color: var(--accent);
-    transform: translateY(-2px);
-}
+.stat-card:hover { border-color: var(--accent); transform: translateY(-2px); }
 
 .stat-label {
     font-size: 11px;
@@ -702,12 +624,7 @@ body {
     font-family: 'JetBrains Mono', monospace;
 }
 
-.stat-value {
-    font-size: 26px;
-    font-weight: 700;
-    font-family: 'JetBrains Mono', monospace;
-}
-
+.stat-value { font-size: 26px; font-weight: 700; font-family: 'JetBrains Mono', monospace; }
 .stat-value.green { color: var(--green); }
 .stat-value.yellow { color: var(--yellow); }
 .stat-value.accent { color: var(--accent); }
@@ -747,7 +664,6 @@ body {
 }
 
 .btn.primary:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(91, 141, 239, 0.5); }
-
 .btn.danger { color: var(--red); border-color: rgba(248,113,113,0.3); }
 .btn.danger:hover { background: rgba(248,113,113,0.1); }
 
@@ -761,11 +677,7 @@ body {
     transition: all 0.2s;
 }
 
-.build-item:hover, .feedback-item:hover {
-    border-color: var(--accent);
-    transform: translateY(-1px);
-}
-
+.build-item:hover, .feedback-item:hover { border-color: var(--accent); transform: translateY(-1px); }
 .build-item { display: flex; align-items: center; gap: 16px; }
 
 .build-platform {
@@ -833,7 +745,6 @@ body {
 .feedback-votes:hover { background: var(--bg3); color: var(--accent); }
 .feedback-votes.voted { color: var(--accent); }
 
-/* MODAL */
 .modal-bg {
     position: fixed;
     inset: 0;
@@ -910,7 +821,6 @@ body {
     margin-top: 20px;
 }
 
-/* PROFILE */
 .profile-modal-user {
     display: flex;
     flex-direction: column;
@@ -964,7 +874,6 @@ body {
     font-family: 'JetBrains Mono', monospace;
 }
 
-/* TOAST */
 .toast {
     position: fixed;
     top: 20px;
@@ -987,13 +896,11 @@ body {
 .toast.success { border-left-color: var(--green); }
 .toast.error { border-left-color: var(--red); }
 
-/* EMPTY */
 .empty { text-align: center; padding: 60px 20px; color: var(--text2); }
 .empty-icon { font-size: 48px; margin-bottom: 16px; opacity: 0.3; }
 .empty-title { font-size: 15px; font-weight: 600; margin-bottom: 6px; color: var(--text); }
 .empty-sub { font-size: 13px; }
 
-/* MUSIC BUTTON */
 .music-btn {
     position: fixed;
     bottom: 20px;
@@ -1014,23 +921,259 @@ body {
     font-size: 16px;
 }
 
-.music-btn:hover {
-    border-color: var(--accent);
-    color: var(--accent);
-    transform: scale(1.1);
-}
-
-.music-btn.playing {
-    color: var(--accent);
-    border-color: var(--accent);
-    box-shadow: 0 0 20px rgba(91, 141, 239, 0.4);
-    animation: musicPulse 2s infinite;
-}
+.music-btn:hover { border-color: var(--accent); color: var(--accent); transform: scale(1.1); }
+.music-btn.playing { color: var(--accent); border-color: var(--accent); box-shadow: 0 0 20px rgba(91, 141, 239, 0.4); animation: musicPulse 2s infinite; }
 
 @keyframes musicPulse {
     0%, 100% { box-shadow: 0 0 20px rgba(91, 141, 239, 0.4); }
     50% { box-shadow: 0 0 30px rgba(91, 141, 239, 0.7); }
 }
+
+/* ===== СТИКЕРЫ / ЭМОДЗИ / GIF ===== */
+.emoji-picker {
+    position: absolute;
+    bottom: 80px;
+    left: 20px;
+    background: rgba(17, 17, 24, 0.98);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 12px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+    display: none;
+    z-index: 100;
+    max-width: 380px;
+}
+
+.emoji-picker.show { display: block; animation: modalIn 0.2s ease-out; }
+
+.emoji-picker-tabs {
+    display: flex;
+    gap: 4px;
+    margin-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 10px;
+}
+
+.emoji-picker-tab {
+    padding: 6px 12px;
+    background: transparent;
+    border: none;
+    color: var(--text2);
+    font-size: 12px;
+    font-family: inherit;
+    font-weight: 500;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: all 0.15s;
+}
+
+.emoji-picker-tab.active { background: var(--bg3); color: var(--accent); }
+
+.emoji-grid {
+    display: grid;
+    gap: 4px;
+    max-height: 240px;
+    overflow-y: auto;
+    padding-right: 4px;
+}
+
+.emoji-item {
+    width: 38px;
+    height: 38px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: all 0.15s;
+    user-select: none;
+}
+
+.emoji-item:hover { background: var(--bg3); transform: scale(1.15); }
+
+.sticker-item {
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 48px;
+    cursor: pointer;
+    border-radius: 8px;
+    transition: all 0.15s;
+    background: var(--bg3);
+    user-select: none;
+}
+
+.sticker-item:hover { transform: scale(1.05); background: rgba(91, 141, 239, 0.2); }
+
+.msg-sticker {
+    font-size: 72px;
+    line-height: 1;
+    padding: 4px 0;
+    animation: stickerPop 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+@keyframes stickerPop {
+    0% { transform: scale(0.3) rotate(-15deg); opacity: 0; }
+    60% { transform: scale(1.1) rotate(5deg); }
+    100% { transform: scale(1) rotate(0); opacity: 1; }
+}
+
+.msg-gif {
+    max-width: 240px;
+    border-radius: 10px;
+    margin-top: 4px;
+    cursor: pointer;
+    transition: transform 0.15s;
+}
+
+.msg-gif:hover { transform: scale(1.02); }
+
+/* ===== ЗВОНКИ ===== */
+.call-overlay {
+    position: fixed;
+    inset: 0;
+    background: linear-gradient(135deg, #0a0a15 0%, #1a0a2e 100%);
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 20px;
+}
+
+.call-overlay.show { display: flex; animation: modalIn 0.3s ease-out; }
+
+.call-avatar {
+    width: 140px;
+    height: 140px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 56px;
+    font-weight: 700;
+    color: white;
+    font-family: 'JetBrains Mono', monospace;
+    margin-bottom: 24px;
+    position: relative;
+    animation: callPulse 2s ease-in-out infinite;
+    box-shadow: 0 0 60px rgba(91, 141, 239, 0.6);
+}
+
+@keyframes callPulse {
+    0%, 100% { box-shadow: 0 0 40px rgba(91, 141, 239, 0.4); transform: scale(1); }
+    50% { box-shadow: 0 0 80px rgba(91, 141, 239, 0.8); transform: scale(1.02); }
+}
+
+.call-avatar .founder-crown { font-size: 36px; top: -20px; }
+
+.call-name { font-size: 28px; font-weight: 700; margin-bottom: 8px; }
+.call-status { font-size: 15px; color: var(--text2); margin-bottom: 30px; font-family: 'JetBrains Mono', monospace; letter-spacing: 1px; }
+.call-status.ringing { animation: blink 1.5s ease-in-out infinite; }
+
+@keyframes blink { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
+
+.call-timer { font-size: 18px; color: var(--text2); font-family: 'JetBrains Mono', monospace; margin-bottom: 30px; letter-spacing: 2px; }
+
+.call-actions { display: flex; gap: 24px; }
+
+.call-btn {
+    width: 68px;
+    height: 68px;
+    border-radius: 50%;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    cursor: pointer;
+    transition: all 0.2s;
+    color: white;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+}
+
+.call-btn:hover { transform: scale(1.1); box-shadow: 0 12px 32px rgba(0,0,0,0.5); }
+.call-btn-mute { background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); }
+.call-btn-mute.active { background: var(--yellow); color: #000; }
+.call-btn-end { background: var(--red); }
+
+.audio-wave { display: flex; align-items: center; gap: 3px; height: 30px; margin-bottom: 30px; }
+.audio-wave-bar { width: 3px; background: var(--accent); border-radius: 2px; animation: wave 1s ease-in-out infinite; }
+
+.audio-wave-bar:nth-child(1) { animation-delay: 0s; height: 10px; }
+.audio-wave-bar:nth-child(2) { animation-delay: 0.1s; height: 20px; }
+.audio-wave-bar:nth-child(3) { animation-delay: 0.2s; height: 30px; }
+.audio-wave-bar:nth-child(4) { animation-delay: 0.3s; height: 25px; }
+.audio-wave-bar:nth-child(5) { animation-delay: 0.4s; height: 15px; }
+.audio-wave-bar:nth-child(6) { animation-delay: 0.5s; height: 28px; }
+.audio-wave-bar:nth-child(7) { animation-delay: 0.6s; height: 20px; }
+.audio-wave-bar:nth-child(8) { animation-delay: 0.7s; height: 12px; }
+
+@keyframes wave { 0%, 100% { transform: scaleY(0.5); } 50% { transform: scaleY(1.5); } }
+
+.call-icon-btn {
+    width: 38px;
+    height: 38px;
+    border-radius: 9px;
+    background: rgba(74, 222, 128, 0.15);
+    border: 1px solid rgba(74, 222, 128, 0.3);
+    color: var(--green);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.call-icon-btn:hover { background: rgba(74, 222, 128, 0.25); transform: scale(1.05); }
+
+.incoming-call {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: rgba(17, 17, 24, 0.98);
+    backdrop-filter: blur(20px);
+    border: 1px solid var(--green);
+    border-radius: 14px;
+    padding: 18px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.6), 0 0 40px rgba(74, 222, 128, 0.3);
+    display: none;
+    align-items: center;
+    gap: 16px;
+    z-index: 800;
+    min-width: 300px;
+    animation: slideInRight 0.4s ease-out;
+}
+
+.incoming-call.show { display: flex; }
+
+@keyframes slideInRight { from { transform: translateX(400px); } to { transform: translateX(0); } }
+
+.incoming-call-info { flex: 1; }
+.incoming-call-name { font-size: 15px; font-weight: 600; margin-bottom: 2px; }
+.incoming-call-sub { font-size: 12px; color: var(--text2); font-family: 'JetBrains Mono', monospace; }
+.incoming-call-actions { display: flex; gap: 8px; }
+
+.incoming-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    color: white;
+    transition: all 0.2s;
+}
+
+.incoming-btn.accept { background: var(--green); color: #000; }
+.incoming-btn.decline { background: var(--red); }
+.incoming-btn:hover { transform: scale(1.1); }
 
 ::-webkit-scrollbar { width: 8px; height: 8px; }
 ::-webkit-scrollbar-track { background: transparent; }
@@ -1048,12 +1191,10 @@ body {
 </head>
 <body>
 
-<!-- ФОН -->
 <canvas class="bg-canvas" id="bgCanvas"></canvas>
 <div class="bg-gradient"></div>
 <div class="grid-overlay"></div>
 
-<!-- AUTH -->
 <div class="auth-screen" id="authScreen">
     <div class="auth-box">
         <div class="auth-logo"><span class="bracket">&lt;</span>DEVHUB<span class="bracket">/&gt;</span></div>
@@ -1078,7 +1219,6 @@ body {
     </div>
 </div>
 
-<!-- APP -->
 <div class="app hidden" id="app">
     <div class="sidebar">
         <div class="sb-header">
@@ -1088,7 +1228,7 @@ body {
             </button>
         </div>
 
-        <div class="user-chip" onclick="openMyProfile()" style="cursor:pointer;">
+        <div class="user-chip" onclick="openMyProfile()">
             <div class="avatar-wrap">
                 <div class="avatar" id="myAvatar"></div>
                 <span class="founder-crown" id="myCrown" style="display:none;">👑</span>
@@ -1114,9 +1254,14 @@ body {
 
     <div class="main">
         <div class="topbar">
-            <div class="topbar-info">
-                <div class="topbar-title" id="currentChannel">#general</div>
-                <div class="topbar-sub" id="currentChannelSub">общий чат</div>
+            <div class="topbar-left">
+                <div class="topbar-info">
+                    <div class="topbar-title" id="currentChannel">#general</div>
+                    <div class="topbar-sub" id="currentChannelSub">общий чат</div>
+                </div>
+                <button class="call-icon-btn" id="callBtn" onclick="startCall()" title="Позвонить" style="display:none;">
+                    <i class="fas fa-phone"></i>
+                </button>
             </div>
             <div class="tabs">
                 <button class="tab active" onclick="switchView('chat', this)">
@@ -1137,12 +1282,23 @@ body {
                 <div class="chat-input">
                     <div class="chat-input-wrap">
                         <textarea id="messageInput" placeholder="Написать сообщение..." rows="1" onkeydown="handleInputKey(event)" oninput="autoResize(this)"></textarea>
-                        <button class="input-btn" onclick="attachFile()" title="Прикрепить">
-                            <i class="fas fa-paperclip"></i>
+                        <button class="input-btn" onclick="toggleEmojiPicker(event)" title="Стикеры и эмодзи">
+                            <i class="fas fa-face-smile"></i>
+                        </button>
+                        <button class="input-btn" onclick="openGifPicker()" title="GIF">
+                            <i class="fas fa-images"></i>
                         </button>
                         <button class="input-btn send-btn" onclick="sendMessage()" title="Отправить">
                             <i class="fas fa-paper-plane"></i>
                         </button>
+                    </div>
+                    <div class="emoji-picker" id="emojiPicker">
+                        <div class="emoji-picker-tabs">
+                            <button class="emoji-picker-tab active" onclick="switchEmojiTab('emoji', this)">😀 Эмодзи</button>
+                            <button class="emoji-picker-tab" onclick="switchEmojiTab('stickers', this)">🎨 Стикеры</button>
+                            <button class="emoji-picker-tab" onclick="switchEmojiTab('gifs', this)">📺 GIF</button>
+                        </div>
+                        <div class="emoji-grid" id="emojiGrid"></div>
                     </div>
                 </div>
             </div>
@@ -1201,7 +1357,6 @@ body {
     </div>
 </div>
 
-<!-- MODAL: Upload Build -->
 <div class="modal-bg" id="uploadModal">
     <div class="modal">
         <div class="modal-title">📦 Загрузить билд</div>
@@ -1228,7 +1383,7 @@ body {
         </div>
         <div class="modal-field">
             <label class="modal-label">Changelog</label>
-            <textarea class="modal-textarea" id="buildChangelog" placeholder="Что нового в этой версии..."></textarea>
+            <textarea class="modal-textarea" id="buildChangelog" placeholder="Что нового..."></textarea>
         </div>
         <div class="modal-actions">
             <button class="btn" onclick="closeModal('uploadModal')">Отмена</button>
@@ -1239,7 +1394,6 @@ body {
     </div>
 </div>
 
-<!-- MODAL: New Feedback -->
 <div class="modal-bg" id="feedbackModal">
     <div class="modal">
         <div class="modal-title">🐛 Новый фидбек</div>
@@ -1270,7 +1424,7 @@ body {
         </div>
         <div class="modal-field">
             <label class="modal-label">Описание</label>
-            <textarea class="modal-textarea" id="fbContent" placeholder="Как воспроизвести, что ожидалось, что произошло..."></textarea>
+            <textarea class="modal-textarea" id="fbContent" placeholder="Как воспроизвести..."></textarea>
         </div>
         <div class="modal-actions">
             <button class="btn" onclick="closeModal('feedbackModal')">Отмена</button>
@@ -1281,7 +1435,6 @@ body {
     </div>
 </div>
 
-<!-- MODAL: Playtest -->
 <div class="modal-bg" id="playtestModal">
     <div class="modal">
         <div class="modal-title">🎮 Плейтест-сессия</div>
@@ -1315,7 +1468,6 @@ body {
     </div>
 </div>
 
-<!-- MODAL: Add Friend -->
 <div class="modal-bg" id="addFriendModal">
     <div class="modal">
         <div class="modal-title">👥 Добавить в друзья</div>
@@ -1327,13 +1479,12 @@ body {
         <div class="modal-actions">
             <button class="btn" onclick="closeModal('addFriendModal')">Отмена</button>
             <button class="btn primary" onclick="sendFriendRequest()">
-                <i class="fas fa-paper-plane"></i> Отправить заявку
+                <i class="fas fa-paper-plane"></i> Отправить
             </button>
         </div>
     </div>
 </div>
 
-<!-- MODAL: Profile -->
 <div class="modal-bg" id="profileModal">
     <div class="modal">
         <div class="profile-modal-user">
@@ -1356,6 +1507,50 @@ body {
     </div>
 </div>
 
+<div class="call-overlay" id="callOverlay">
+    <div class="call-avatar avatar-wrap" id="callAvatar"></div>
+    <div class="call-name" id="callName"></div>
+    <div class="call-status" id="callStatus">Звонок...</div>
+    
+    <div class="audio-wave" id="audioWave" style="display:none;">
+        <div class="audio-wave-bar"></div>
+        <div class="audio-wave-bar"></div>
+        <div class="audio-wave-bar"></div>
+        <div class="audio-wave-bar"></div>
+        <div class="audio-wave-bar"></div>
+        <div class="audio-wave-bar"></div>
+        <div class="audio-wave-bar"></div>
+        <div class="audio-wave-bar"></div>
+    </div>
+    
+    <div class="call-timer" id="callTimer" style="display:none;">00:00</div>
+
+    <div class="call-actions" id="callActions">
+        <button class="call-btn call-btn-mute" id="muteBtn" onclick="toggleMute()" title="Микрофон">
+            <i class="fas fa-microphone"></i>
+        </button>
+        <button class="call-btn call-btn-end" onclick="endCall()" title="Завершить">
+            <i class="fas fa-phone-slash"></i>
+        </button>
+    </div>
+</div>
+
+<div class="incoming-call" id="incomingCall">
+    <div class="friend-avatar avatar-wrap" id="incomingAvatar" style="width:44px;height:44px;font-size:18px;"></div>
+    <div class="incoming-call-info">
+        <div class="incoming-call-name" id="incomingName"></div>
+        <div class="incoming-call-sub">📞 Входящий звонок</div>
+    </div>
+    <div class="incoming-call-actions">
+        <button class="incoming-btn decline" onclick="declineCall()">
+            <i class="fas fa-phone-slash"></i>
+        </button>
+        <button class="incoming-btn accept" onclick="acceptCall()">
+            <i class="fas fa-phone"></i>
+        </button>
+    </div>
+</div>
+
 <button class="music-btn" id="musicBtn" onclick="toggleMusic()" title="Музыка">
     <i class="fas fa-music"></i>
 </button>
@@ -1363,29 +1558,19 @@ body {
 <div class="toast" id="toast"></div>
 
 <script>
-// ==================== ФОН С ЧАСТИЦАМИ ====================
+// ==================== ФОН ====================
 const canvas = document.getElementById('bgCanvas');
 const ctx = canvas.getContext('2d');
 let particles = [];
 let mouse = { x: 0, y: 0 };
 
-function resizeCanvas() {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-}
+function resizeCanvas() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
 resizeCanvas();
 window.addEventListener('resize', resizeCanvas);
-
-window.addEventListener('mousemove', (e) => {
-    mouse.x = e.clientX;
-    mouse.y = e.clientY;
-});
+window.addEventListener('mousemove', (e) => { mouse.x = e.clientX; mouse.y = e.clientY; });
 
 class Particle {
-    constructor() {
-        this.reset();
-        this.y = Math.random() * canvas.height;
-    }
+    constructor() { this.reset(); this.y = Math.random() * canvas.height; }
     reset() {
         this.x = Math.random() * canvas.width;
         this.y = canvas.height + 10;
@@ -1398,14 +1583,10 @@ class Particle {
     update() {
         this.y -= this.speedY;
         this.x += this.speedX;
-        // Притяжение к мыши
         const dx = mouse.x - this.x;
         const dy = mouse.y - this.y;
         const dist = Math.sqrt(dx * dx + dy * dy);
-        if (dist < 150) {
-            this.x += dx * 0.001;
-            this.y += dy * 0.001;
-        }
+        if (dist < 150) { this.x += dx * 0.001; this.y += dy * 0.001; }
         if (this.y < -10) this.reset();
     }
     draw() {
@@ -1424,7 +1605,6 @@ function animate() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.shadowBlur = 0;
     particles.forEach(p => { p.update(); p.draw(); });
-    // Соединения между частицами
     ctx.shadowBlur = 0;
     for (let i = 0; i < particles.length; i++) {
         for (let j = i + 1; j < particles.length; j++) {
@@ -1445,7 +1625,7 @@ function animate() {
 }
 animate();
 
-// ==================== МУЗЫКА (PS4-style ambient) ====================
+// ==================== МУЗЫКА ====================
 let audioCtx = null;
 let musicNodes = [];
 let musicPlaying = false;
@@ -1454,13 +1634,11 @@ function startMusic() {
     if (musicPlaying) return;
     audioCtx = audioCtx || new (window.AudioContext || window.webkitAudioContext)();
     
-    // Ambient pad — плавные синусоиды как в PS4 home screen
     const masterGain = audioCtx.createGain();
     masterGain.gain.value = 0.12;
     masterGain.connect(audioCtx.destination);
 
     const reverb = audioCtx.createConvolver();
-    // Генерируем импульс для реверба
     const length = audioCtx.sampleRate * 3;
     const impulse = audioCtx.createBuffer(2, length, audioCtx.sampleRate);
     for (let i = 0; i < 2; i++) {
@@ -1472,12 +1650,11 @@ function startMusic() {
     reverb.buffer = impulse;
     reverb.connect(masterGain);
 
-    // Аккорды для ambient — мягкие, плавные
     const chords = [
-        [261.63, 329.63, 392.00], // C major
-        [293.66, 349.23, 440.00], // D minor
-        [220.00, 261.63, 329.63], // A minor
-        [246.94, 311.13, 369.99]  // B major
+        [261.63, 329.63, 392.00],
+        [293.66, 349.23, 440.00],
+        [220.00, 261.63, 329.63],
+        [246.94, 311.13, 369.99]
     ];
 
     let chordIndex = 0;
@@ -1485,66 +1662,49 @@ function startMusic() {
     function playChord() {
         const now = audioCtx.currentTime;
         const chord = chords[chordIndex % chords.length];
-        
         chord.forEach((freq, i) => {
             const osc = audioCtx.createOscillator();
             const gain = audioCtx.createGain();
             const filter = audioCtx.createBiquadFilter();
-            
             osc.type = i === 0 ? 'sine' : 'triangle';
             osc.frequency.value = freq;
-            
             filter.type = 'lowpass';
             filter.frequency.value = 800;
             filter.Q.value = 1;
-            
             gain.gain.setValueAtTime(0, now);
             gain.gain.linearRampToValueAtTime(0.15, now + 2);
             gain.gain.linearRampToValueAtTime(0, now + 6);
-            
             osc.connect(filter);
             filter.connect(gain);
             gain.connect(masterGain);
             gain.connect(reverb);
-            
             osc.start(now);
             osc.stop(now + 6.5);
-            
             musicNodes.push(osc);
         });
-
         chordIndex++;
     }
 
     playChord();
     const interval = setInterval(() => {
-        if (!musicPlaying) {
-            clearInterval(interval);
-            return;
-        }
+        if (!musicPlaying) { clearInterval(interval); return; }
         playChord();
     }, 6000);
 
-    // Высокие мерцающие тона (как в PS4 UI)
     function sparkle() {
         if (!musicPlaying) return;
         const now = audioCtx.currentTime;
         const osc = audioCtx.createOscillator();
         const gain = audioCtx.createGain();
-        
         osc.type = 'sine';
         osc.frequency.value = 1200 + Math.random() * 1800;
-        
         gain.gain.setValueAtTime(0, now);
         gain.gain.linearRampToValueAtTime(0.02, now + 0.1);
         gain.gain.exponentialRampToValueAtTime(0.001, now + 1.5);
-        
         osc.connect(gain);
         gain.connect(reverb);
-        
         osc.start(now);
         osc.stop(now + 2);
-        
         setTimeout(sparkle, 1500 + Math.random() * 4000);
     }
     sparkle();
@@ -1562,23 +1722,16 @@ function stopMusic() {
 }
 
 function toggleMusic() {
-    if (musicPlaying) {
-        stopMusic();
-        toast('🔇 Музыка выключена');
-    } else {
-        if (audioCtx) audioCtx.resume();
-        startMusic();
-        toast('🎵 Ambient music ON');
-    }
+    if (musicPlaying) { stopMusic(); toast('🔇 Музыка выключена'); }
+    else { if (audioCtx) audioCtx.resume(); startMusic(); toast('🎵 Ambient music ON'); }
 }
 
-// Автозапуск музыки при первом клике
 document.addEventListener('click', function startOnClick() {
     if (!musicPlaying) startMusic();
     document.removeEventListener('click', startOnClick);
 }, { once: true });
 
-// ==================== STATE ====================
+// ==================== БАЗА ====================
 const DB = {
     get(key, def) {
         try { return JSON.parse(localStorage.getItem('devhub_' + key)) || def; }
@@ -1598,16 +1751,11 @@ function isFounder(username) {
     return username && username.toLowerCase() === FOUNDER_USERNAME.toLowerCase();
 }
 
-// ==================== INIT ====================
 function initApp() {
     const saved = DB.get('user', null);
-    if (saved) {
-        currentUser = saved;
-        showApp();
-    }
+    if (saved) { currentUser = saved; showApp(); }
 }
 
-// ==================== AUTH ====================
 function switchAuth(mode) {
     document.querySelectorAll('.auth-tab').forEach((t, i) => {
         t.classList.toggle('active', (mode === 'login' && i === 0) || (mode === 'register' && i === 1));
@@ -1619,15 +1767,11 @@ function switchAuth(mode) {
 function login() {
     const username = document.getElementById('loginUsername').value.trim();
     const password = document.getElementById('loginPassword').value.trim();
-
     if (!username || !password) return toast('Заполни все поля', 'error');
 
     const users = DB.get('users', {});
     const user = users[username];
-
-    if (!user || user.password !== password) {
-        return toast('Неверный логин или пароль', 'error');
-    }
+    if (!user || user.password !== password) return toast('Неверный логин или пароль', 'error');
 
     currentUser = { username, color: user.color };
     DB.set('user', currentUser);
@@ -1637,18 +1781,17 @@ function login() {
 function register() {
     const username = document.getElementById('regUsername').value.trim();
     const password = document.getElementById('regPassword').value.trim();
-
     if (!username || username.length < 3) return toast('Ник от 3 символов', 'error');
     if (password.length < 3) return toast('Пароль от 3 символов', 'error');
 
     const users = DB.get('users', {});
-    if (users[username]) return toast('Такой ник уже занят', 'error');
+    if (users[username]) return toast('Такой ник занят', 'error');
 
     const colors = ['#5b8def', '#a855f7', '#4ade80', '#fbbf24', '#f472b6', '#f87171'];
     const color = colors[Math.floor(Math.random() * colors.length)];
     const finalColor = isFounder(username) ? '#ffd700' : color;
 
-    users[username] = { password, color: finalColor, engine: 'GameDev' };
+    users[username] = { password, color: finalColor };
     DB.set('users', users);
 
     const channels = DB.get('channels', ['general', 'unity', 'unreal', 'godot', 'assets', 'help']);
@@ -1659,12 +1802,7 @@ function register() {
         ? `👑 Добро пожаловать, ОСНОВАТЕЛЬ ${username}! Ты — создатель DEVHUB.`
         : `👋 Добро пожаловать в DEVHUB, ${username}!`;
 
-    messages.general.push({
-        author: 'System',
-        text: welcomeText,
-        time: Date.now(),
-        isSystem: true
-    });
+    messages.general.push({ author: 'System', text: welcomeText, time: Date.now(), isSystem: true });
     DB.set('messages', messages);
 
     currentUser = { username, color: finalColor };
@@ -1673,7 +1811,7 @@ function register() {
 }
 
 function logout() {
-    if (!confirm('Выйти из аккаунта?')) return;
+    if (!confirm('Выйти?')) return;
     localStorage.removeItem('devhub_user');
     location.reload();
 }
@@ -1684,7 +1822,6 @@ function showApp() {
     initUI();
 }
 
-// ==================== UI ====================
 function initUI() {
     document.getElementById('myAvatar').textContent = currentUser.username[0].toUpperCase();
     document.getElementById('myAvatar').style.background = isFounder(currentUser.username) ? '#ffd700' : currentUser.color;
@@ -1710,29 +1847,18 @@ function renderChannels() {
     const channels = DB.get('channels', ['general', 'unity', 'unreal', 'godot', 'assets', 'help', 'jobs']);
     const container = document.getElementById('channelsList');
 
-    const icons = {
-        general: 'fa-hashtag',
-        unity: 'fa-cube',
-        unreal: 'fa-mountain',
-        godot: 'fa-robot',
-        assets: 'fa-palette',
-        help: 'fa-circle-question',
-        jobs: 'fa-briefcase'
-    };
+    const icons = { general: 'fa-hashtag', unity: 'fa-cube', unreal: 'fa-mountain', godot: 'fa-robot', assets: 'fa-palette', help: 'fa-circle-question', jobs: 'fa-briefcase' };
 
     container.innerHTML = channels.map(ch => {
         const isDM = ch.startsWith('dm_');
         let displayName = ch;
-
         if (isDM) {
             const parts = ch.substring(3).split('_');
             const other = parts.find(p => p !== currentUser.username) || parts[0];
             displayName = '@' + other;
         }
-
         const icon = isDM ? 'fa-user' : (icons[ch] || 'fa-hashtag');
         const isFounderDM = isDM && displayName.toLowerCase().includes(FOUNDER_USERNAME);
-
         return `
             <div class="channel ${currentChannel === ch ? 'active' : ''}" onclick="selectChannel('${ch}')">
                 <span class="channel-icon"><i class="fas ${icon}"></i></span>
@@ -1748,7 +1874,7 @@ function renderChannels() {
 }
 
 function addChannel() {
-    const name = prompt('Название канала (без #):');
+    const name = prompt('Название канала:');
     if (!name) return;
     const clean = name.toLowerCase().replace(/[^a-z0-9-]/g, '');
     if (!clean) return;
@@ -1767,25 +1893,20 @@ function selectChannel(name) {
     renderChannels();
     renderMessages();
 
-    const subs = {
-        general: 'общий чат',
-        unity: 'Unity разработчики',
-        unreal: 'Unreal Engine',
-        godot: 'Godot Engine',
-        assets: 'ассеты и ресурсы',
-        help: 'помощь новичкам',
-        jobs: 'вакансии'
-    };
+    const subs = { general: 'общий чат', unity: 'Unity', unreal: 'Unreal', godot: 'Godot', assets: 'ассеты', help: 'помощь', jobs: 'вакансии' };
+
+    const callBtn = document.getElementById('callBtn');
 
     if (name.startsWith('dm_')) {
         const parts = name.substring(3).split('_');
         const other = parts.find(p => p !== currentUser.username) || parts[0];
         document.getElementById('currentChannel').textContent = '💬 ' + other;
-        document.getElementById('currentChannelSub').textContent =
-            isFounder(other) ? '👑 ОСНОВАТЕЛЬ' : 'личные сообщения';
+        document.getElementById('currentChannelSub').textContent = isFounder(other) ? '👑 ОСНОВАТЕЛЬ' : 'личные сообщения';
+        callBtn.style.display = 'flex';
     } else {
         document.getElementById('currentChannel').textContent = '#' + name;
         document.getElementById('currentChannelSub').textContent = subs[name] || 'канал';
+        callBtn.style.display = 'none';
     }
 }
 
@@ -1795,12 +1916,11 @@ function switchView(view, btn) {
     btn.classList.add('active');
     document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
     document.getElementById('view-' + view).classList.add('active');
-
     if (view === 'playtests') { refreshStats(); renderBuilds(); }
     if (view === 'feedback') renderFeedback();
 }
 
-// ==================== CHAT ====================
+// ==================== ЧАТ ====================
 function renderMessages() {
     const messages = DB.get('messages', {});
     const msgs = messages[currentChannel] || [];
@@ -1823,6 +1943,15 @@ function renderMessages() {
         const color = m.isSystem ? '#8080a0' : (users[m.author]?.color || (isFound ? '#ffd700' : '#5b8def'));
         const time = new Date(m.time).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
 
+        let content;
+        if (m.type === 'sticker') {
+            content = `<div class="msg-sticker">${m.text}</div>`;
+        } else if (m.type === 'gif') {
+            content = `<img src="${m.text}" class="msg-gif" alt="gif" onerror="this.style.display='none'">`;
+        } else {
+            content = `<div class="msg-text">${escapeHtml(m.text)}</div>`;
+        }
+
         return `
             <div class="msg ${isFound && !m.isSystem ? 'msg-founder' : ''}">
                 <div class="msg-avatar avatar-wrap" style="background:${color}">
@@ -1835,7 +1964,7 @@ function renderMessages() {
                         ${isFound && !m.isSystem ? '<span class="msg-badge badge-founder">ОСНОВАТЕЛЬ</span>' : ''}
                         <span class="msg-time">${time}</span>
                     </div>
-                    <div class="msg-text">${escapeHtml(m.text)}</div>
+                    ${content}
                 </div>
             </div>
         `;
@@ -1851,11 +1980,7 @@ function sendMessage() {
 
     const messages = DB.get('messages', {});
     if (!messages[currentChannel]) messages[currentChannel] = [];
-    messages[currentChannel].push({
-        author: currentUser.username,
-        text,
-        time: Date.now()
-    });
+    messages[currentChannel].push({ author: currentUser.username, text, time: Date.now() });
     DB.set('messages', messages);
 
     input.value = '';
@@ -1864,10 +1989,7 @@ function sendMessage() {
 }
 
 function handleInputKey(e) {
-    if (e.key === 'Enter' && !e.shiftKey) {
-        e.preventDefault();
-        sendMessage();
-    }
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
 }
 
 function autoResize(el) {
@@ -1875,41 +1997,106 @@ function autoResize(el) {
     el.style.height = Math.min(el.scrollHeight, 120) + 'px';
 }
 
-function attachFile() {
-    const input = document.createElement('input');
-    input.type = 'file';
-    input.onchange = () => {
-        const file = input.files[0];
-        if (!file) return;
-        toast(`📎 ${file.name} (${(file.size/1024).toFixed(1)} KB)`, 'success');
-    };
-    input.click();
+// ==================== СТИКЕРЫ / ЭМОДЗИ / GIF ====================
+const EMOJIS = ['😀','😃','😄','😁','😆','😅','🤣','😂','🙂','🙃','😉','😊','😇','🥰','😍','🤩','😘','😗','😚','😙','🥲','😋','😛','😜','🤪','😝','🤑','🤗','🤭','🤫','🤔','🤐','🤨','😐','😑','😶','😏','😒','🙄','😬','🤥','😌','😔','😪','🤤','😴','😷','🤒','🤕','🤢','🤮','🤧','🥵','🥶','🥴','😵','🤯','🤠','🥳','😎','🤓','🧐','😕','😟','🙁','😮','😯','😲','😳','🥺','😦','😧','😨','😰','😥','😢','😭','😱','😖','😣','😞','😓','😩','😫','🥱','😤','😡','😠','🤬','😈','👿','💀','☠️','💩','🤡','👹','👺','👻','👽','👾','🤖','😺','😸','😹','😻','😼','😽','🙀','😿','😾','💋','💌','❤️','🧡','💛','💚','💙','💜','🖤','🤍','💔','❣️','💕','💞','💓','💗','💖','💘','👍','👎','👌','✌️','🤞','🤟','🤘','🤙','👈','👉','👆','👇','☝️','✋','🤚','🖐','🖖','👋','🤝','🙏','💪','🦾','🦿','🦵','🦶','👂','🦻','👃','🧠','🦷','👀','👁'];
+
+const STICKERS = ['🐱','🐶','🐭','🐹','🐰','🦊','🐻','🐼','🐨','🐯','🦁','🐮','🐷','🐸','🐵','🙈','🙉','🙊','🐒','🐔','🐧','🐦','🐤','🐣','🐥','🦆','🦅','🦉','🦇','🐺','🐗','🐴','🦄','🐝','🐛','🦋','🐌','🐞','🐜','🦟','🦗','🕷','🦂','🐢','🐍','🦎','🦖','🦕','🐙','🦑','🦐','🦞','🦀','🐡','🐠','🐟','🐬','🐳','🐋','🦈','🐊','🐅','🐆','🦓','🎮','🎯','🎲','🎰','🎳','🕹','🎪','🎨','🎭','🎬','📷','📸','🎤','🎧','🎼','🎵','👾','💻','⌨️','🖥️','🖱️','💾','💿','📀','🃏','🀄','🎴'];
+
+const GIFS = [
+    'https://media.giphy.com/media/JIX9t2j0ZTN9S/giphy.gif',
+    'https://media.giphy.com/media/xT0xeJpnrWC4XWblEk/giphy.gif',
+    'https://media.giphy.com/media/111ebonMs90YLu/giphy.gif',
+    'https://media.giphy.com/media/blSTtZehjAZ8I/giphy.gif',
+    'https://media.giphy.com/media/XsUtdIeJ0MWMo/giphy.gif',
+    'https://media.giphy.com/media/g9582DNuQppxC/giphy.gif',
+    'https://media.giphy.com/media/3o7btPCcdNniyf0ArS/giphy.gif',
+    'https://media.giphy.com/media/3o7abGQa0aRJUurpII/giphy.gif',
+    'https://media.giphy.com/media/7rj2ZgttvgomY/giphy.gif',
+    'https://media.giphy.com/media/10JhviFuU2gWD6/giphy.gif',
+    'https://media.giphy.com/media/12KQ4fW5s4ZQtW/giphy.gif',
+    'https://media.giphy.com/media/5GoVLqeAOo6PK/giphy.gif'
+];
+
+let currentEmojiTab = 'emoji';
+
+function toggleEmojiPicker(e) {
+    e.stopPropagation();
+    const picker = document.getElementById('emojiPicker');
+    picker.classList.toggle('show');
+    if (picker.classList.contains('show')) renderEmojiGrid();
 }
+
+function switchEmojiTab(tab, btn) {
+    currentEmojiTab = tab;
+    document.querySelectorAll('.emoji-picker-tab').forEach(t => t.classList.remove('active'));
+    btn.classList.add('active');
+    renderEmojiGrid();
+}
+
+function renderEmojiGrid() {
+    const grid = document.getElementById('emojiGrid');
+
+    if (currentEmojiTab === 'emoji') {
+        grid.style.gridTemplateColumns = 'repeat(8, 1fr)';
+        grid.innerHTML = EMOJIS.map(e => `<div class="emoji-item" onclick="insertEmoji('${e}')">${e}</div>`).join('');
+    } else if (currentEmojiTab === 'stickers') {
+        grid.style.gridTemplateColumns = 'repeat(4, 1fr)';
+        grid.innerHTML = STICKERS.map(s => `<div class="sticker-item" onclick="sendSticker('${s}')">${s}</div>`).join('');
+    } else {
+        grid.style.gridTemplateColumns = 'repeat(3, 1fr)';
+        grid.innerHTML = GIFS.map((g, i) => 
+            `<div class="sticker-item" onclick="sendGif(${i})" style="background-image:url('${g}');background-size:cover;background-position:center;"></div>`
+        ).join('');
+    }
+}
+
+function insertEmoji(emoji) {
+    const input = document.getElementById('messageInput');
+    input.value += emoji;
+    input.focus();
+}
+
+function sendSticker(sticker) {
+    if (!currentChannel) return;
+    const messages = DB.get('messages', {});
+    if (!messages[currentChannel]) messages[currentChannel] = [];
+    messages[currentChannel].push({ author: currentUser.username, text: sticker, time: Date.now(), type: 'sticker' });
+    DB.set('messages', messages);
+    document.getElementById('emojiPicker').classList.remove('show');
+    renderMessages();
+    toast('🎨 Стикер отправлен', 'success');
+}
+
+function sendGif(index) {
+    if (!currentChannel) return;
+    const messages = DB.get('messages', {});
+    if (!messages[currentChannel]) messages[currentChannel] = [];
+    messages[currentChannel].push({ author: currentUser.username, text: GIFS[index], time: Date.now(), type: 'gif' });
+    DB.set('messages', messages);
+    document.getElementById('emojiPicker').classList.remove('show');
+    renderMessages();
+    toast('📺 GIF отправлен', 'success');
+}
+
+function openGifPicker() {
+    const picker = document.getElementById('emojiPicker');
+    picker.classList.add('show');
+    switchEmojiTab('gifs', document.querySelectorAll('.emoji-picker-tab')[2]);
+}
+
+document.addEventListener('click', (e) => {
+    const picker = document.getElementById('emojiPicker');
+    if (picker && picker.classList.contains('show') && !picker.contains(e.target) && !e.target.closest('button[onclick*="toggleEmojiPicker"]') && !e.target.closest('button[onclick*="openGifPicker"]')) {
+        picker.classList.remove('show');
+    }
+});
 
 // ==================== ДРУЗЬЯ ====================
-function getFriends(username) {
-    return DB.get('friends', {})[username] || [];
-}
-
-function setFriends(username, list) {
-    const all = DB.get('friends', {});
-    all[username] = list;
-    DB.set('friends', all);
-}
-
-function getFriendRequests(username) {
-    return DB.get('friendRequests', {})[username] || [];
-}
-
-function setFriendRequests(username, list) {
-    const all = DB.get('friendRequests', {});
-    all[username] = list;
-    DB.set('friendRequests', all);
-}
-
-function areFriends(a, b) {
-    return getFriends(a).includes(b);
-}
+function getFriends(username) { return DB.get('friends', {})[username] || []; }
+function setFriends(username, list) { const all = DB.get('friends', {}); all[username] = list; DB.set('friends', all); }
+function getFriendRequests(username) { return DB.get('friendRequests', {})[username] || []; }
+function setFriendRequests(username, list) { const all = DB.get('friendRequests', {}); all[username] = list; DB.set('friendRequests', all); }
+function areFriends(a, b) { return getFriends(a).includes(b); }
 
 function renderFriends() {
     const container = document.getElementById('friendsList');
@@ -1940,11 +2127,9 @@ function renderFriends() {
 function renderFriendRequests() {
     const requests = getFriendRequests(currentUser.username);
     const container = document.getElementById('friendRequestsWrap');
-
     if (requests.length === 0) { container.innerHTML = ''; return; }
 
     const users = DB.get('users', {});
-
     container.innerHTML = `
         <div class="sb-section" style="color: var(--yellow);">Заявки (${requests.length})</div>
         <div class="friend-requests">
@@ -1979,36 +2164,16 @@ function sendFriendRequest() {
     const target = document.getElementById('friendUsernameInput').value.trim();
     const result = document.getElementById('addFriendResult');
 
-    if (!target) {
-        result.textContent = '❌ Введи ник';
-        result.style.color = 'var(--red)';
-        return;
-    }
-
-    if (target === currentUser.username) {
-        result.textContent = '❌ Нельзя добавить себя';
-        result.style.color = 'var(--red)';
-        return;
-    }
+    if (!target) { result.textContent = '❌ Введи ник'; result.style.color = 'var(--red)'; return; }
+    if (target === currentUser.username) { result.textContent = '❌ Нельзя добавить себя'; result.style.color = 'var(--red)'; return; }
 
     const users = DB.get('users', {});
-    if (!users[target]) {
-        result.textContent = `❌ "${target}" не найден`;
-        result.style.color = 'var(--red)';
-        return;
-    }
-
-    if (areFriends(currentUser.username, target)) {
-        result.textContent = '✅ Вы уже друзья';
-        result.style.color = 'var(--green)';
-        return;
-    }
+    if (!users[target]) { result.textContent = `❌ "${target}" не найден`; result.style.color = 'var(--red)'; return; }
+    if (areFriends(currentUser.username, target)) { result.textContent = '✅ Вы уже друзья'; result.style.color = 'var(--green)'; return; }
 
     const theirRequests = getFriendRequests(target);
     if (theirRequests.some(r => r.from === currentUser.username)) {
-        result.textContent = '⏳ Заявка уже отправлена';
-        result.style.color = 'var(--yellow)';
-        return;
+        result.textContent = '⏳ Заявка уже отправлена'; result.style.color = 'var(--yellow)'; return;
     }
 
     const myRequests = getFriendRequests(currentUser.username);
@@ -2023,7 +2188,7 @@ function sendFriendRequest() {
     theirRequests.push({ from: currentUser.username, time: Date.now() });
     setFriendRequests(target, theirRequests);
 
-    result.textContent = isFounder(target) ? '✅ Заявка отправлена 👑 ОСНОВАТЕЛЮ' : '✅ Заявка отправлена';
+    result.textContent = isFounder(target) ? '✅ Заявка → 👑 ОСНОВАТЕЛЮ' : '✅ Заявка отправлена';
     result.style.color = 'var(--green)';
 
     toast(`📩 Заявка → ${target}`, 'success');
@@ -2096,11 +2261,7 @@ function openProfile(username) {
     }
 
     const badgeEl = document.getElementById('profileStatusBadge');
-    if (isFounder(username)) {
-        badgeEl.innerHTML = '<div class="profile-status-founder">👑 ОСНОВАТЕЛЬ</div>';
-    } else {
-        badgeEl.innerHTML = '';
-    }
+    badgeEl.innerHTML = isFounder(username) ? '<div class="profile-status-founder">👑 ОСНОВАТЕЛЬ</div>' : '';
 
     const actions = document.getElementById('profileActions');
     if (username === currentUser.username) {
@@ -2130,9 +2291,7 @@ function sendFriendRequestFromProfile() {
     if (areFriends(currentUser.username, target)) return toast('Уже друзья');
 
     const theirRequests = getFriendRequests(target);
-    if (theirRequests.some(r => r.from === currentUser.username)) {
-        return toast('Заявка уже отправлена', 'error');
-    }
+    if (theirRequests.some(r => r.from === currentUser.username)) return toast('Заявка уже отправлена', 'error');
 
     theirRequests.push({ from: currentUser.username, time: Date.now() });
     setFriendRequests(target, theirRequests);
@@ -2147,11 +2306,7 @@ function openChatWithProfile() {
     closeModal('profileModal');
     const dmName = 'dm_' + [currentUser.username, viewingProfile].sort().join('_');
     const channels = DB.get('channels', []);
-    if (!channels.includes(dmName)) {
-        channels.push(dmName);
-        DB.set('channels', channels);
-        renderChannels();
-    }
+    if (!channels.includes(dmName)) { channels.push(dmName); DB.set('channels', channels); renderChannels(); }
     selectChannel(dmName);
     toast(`💬 Чат с ${viewingProfile}`, 'success');
 }
@@ -2166,9 +2321,7 @@ function refreshStats() {
     document.getElementById('statRuns').textContent = runs.length;
     document.getElementById('statBugs').textContent = feedback.filter(f => f.type === 'BUG').length;
 
-    const avgTime = runs.length > 0
-        ? Math.round(runs.reduce((s, r) => s + (r.duration || 0), 0) / runs.length)
-        : 0;
+    const avgTime = runs.length > 0 ? Math.round(runs.reduce((s, r) => s + (r.duration || 0), 0) / runs.length) : 0;
     document.getElementById('statAvgTime').textContent = avgTime + 'м';
 }
 
@@ -2178,12 +2331,7 @@ function renderBuilds() {
     const runs = DB.get('playtestRuns', []);
 
     if (builds.length === 0) {
-        container.innerHTML = `
-            <div class="empty">
-                <div class="empty-icon"><i class="fas fa-box-open"></i></div>
-                <div class="empty-title">Нет билдов</div>
-                <div class="empty-sub">Загрузи первый билд</div>
-            </div>`;
+        container.innerHTML = `<div class="empty"><div class="empty-icon"><i class="fas fa-box-open"></i></div><div class="empty-title">Нет билдов</div><div class="empty-sub">Загрузи первый билд</div></div>`;
         return;
     }
 
@@ -2208,12 +2356,8 @@ function renderBuilds() {
                     </div>
                 </div>
                 <div class="build-actions">
-                    <button class="btn" onclick="startPlaytest(${i})">
-                        <i class="fas fa-play"></i> Тест
-                    </button>
-                    <button class="btn danger" onclick="deleteBuild(${i})">
-                        <i class="fas fa-trash"></i>
-                    </button>
+                    <button class="btn" onclick="startPlaytest(${i})"><i class="fas fa-play"></i> Тест</button>
+                    <button class="btn danger" onclick="deleteBuild(${i})"><i class="fas fa-trash"></i></button>
                 </div>
             </div>
         `;
@@ -2280,12 +2424,7 @@ function renderFeedback() {
     const users = DB.get('users', {});
 
     if (feedback.length === 0) {
-        container.innerHTML = `
-            <div class="empty">
-                <div class="empty-icon"><i class="fas fa-bug"></i></div>
-                <div class="empty-title">Нет фидбека</div>
-                <div class="empty-sub">Оставь первый репорт</div>
-            </div>`;
+        container.innerHTML = `<div class="empty"><div class="empty-icon"><i class="fas fa-bug"></i></div><div class="empty-title">Нет фидбека</div><div class="empty-sub">Оставь первый репорт</div></div>`;
         return;
     }
 
@@ -2293,7 +2432,6 @@ function renderFeedback() {
     const statusLabels = { OPEN: 'OPEN', IN_PROGRESS: 'IN PROGRESS', FIXED: 'FIXED' };
 
     container.innerHTML = feedback.map((f, i) => {
-        const color = users[f.author]?.color || '#5b8def';
         const isFound = isFounder(f.author);
         const date = new Date(f.time).toLocaleDateString('ru-RU');
 
@@ -2335,13 +2473,7 @@ function submitFeedback() {
     if (title.length < 5) return toast('Заголовок от 5 символов', 'error');
 
     const feedback = DB.get('feedback', []);
-    feedback.unshift({
-        type, priority, title, content,
-        author: currentUser.username,
-        status: 'OPEN',
-        votes: [],
-        time: Date.now()
-    });
+    feedback.unshift({ type, priority, title, content, author: currentUser.username, status: 'OPEN', votes: [], time: Date.now() });
     DB.set('feedback', feedback);
 
     closeModal('feedbackModal');
@@ -2372,6 +2504,203 @@ function deleteFeedback(i) {
     refreshStats();
 }
 
+// ==================== ЗВОНКИ ====================
+let callState = {
+    active: false,
+    incoming: false,
+    ringing: false,
+    muted: false,
+    callPartner: null,
+    startTime: null,
+    timerInterval: null,
+    ringToneNodes: []
+};
+
+function startCall() {
+    if (!currentChannel || !currentChannel.startsWith('dm_')) {
+        return toast('📞 Только в личных чатах', 'error');
+    }
+
+    const parts = currentChannel.substring(3).split('_');
+    const partner = parts.find(p => p !== currentUser.username);
+    if (!partner) return toast('Не удалось определить', 'error');
+
+    if (!isUserOnline(partner)) return toast(`📴 ${partner} не в сети`, 'error');
+
+    initiateCall(partner, true);
+}
+
+function initiateCall(partner, outgoing) {
+    callState.active = true;
+    callState.ringing = true;
+    callState.callPartner = partner;
+    callState.incoming = !outgoing;
+
+    const users = DB.get('users', {});
+    const u = users[partner] || { color: '#5b8def' };
+
+    const overlay = document.getElementById('callOverlay');
+    overlay.classList.add('show');
+
+    const avatar = document.getElementById('callAvatar');
+    avatar.style.background = u.color;
+    avatar.innerHTML = partner[0].toUpperCase();
+    if (isFounder(partner)) {
+        const crown = document.createElement('span');
+        crown.className = 'founder-crown';
+        crown.textContent = '👑';
+        avatar.appendChild(crown);
+    }
+
+    document.getElementById('callName').textContent = partner;
+    document.getElementById('callStatus').textContent = outgoing ? '📞 Вызов...' : '📞 Соединение...';
+    document.getElementById('callStatus').classList.add('ringing');
+    document.getElementById('callTimer').style.display = 'none';
+    document.getElementById('audioWave').style.display = 'none';
+
+    playRingTone();
+
+    setTimeout(() => {
+        if (callState.ringing && callState.active) connectCall();
+    }, 3000);
+}
+
+function connectCall() {
+    callState.ringing = false;
+    callState.startTime = Date.now();
+
+    document.getElementById('callStatus').textContent = '🎙 Соединение установлено';
+    document.getElementById('callStatus').classList.remove('ringing');
+    document.getElementById('callTimer').style.display = 'block';
+    document.getElementById('audioWave').style.display = 'flex';
+
+    stopRingTone();
+
+    callState.timerInterval = setInterval(() => {
+        const elapsed = Math.floor((Date.now() - callState.startTime) / 1000);
+        const mm = String(Math.floor(elapsed / 60)).padStart(2, '0');
+        const ss = String(elapsed % 60).padStart(2, '0');
+        document.getElementById('callTimer').textContent = `${mm}:${ss}`;
+    }, 1000);
+
+    toast('🎙 Звонок активен', 'success');
+}
+
+function toggleMute() {
+    callState.muted = !callState.muted;
+    const btn = document.getElementById('muteBtn');
+    btn.classList.toggle('active');
+    btn.innerHTML = callState.muted ? '<i class="fas fa-microphone-slash"></i>' : '<i class="fas fa-microphone"></i>';
+    toast(callState.muted ? '🔇 Микрофон выключен' : '🎙 Микрофон включён');
+}
+
+function endCall() {
+    callState.active = false;
+    callState.ringing = false;
+    callState.muted = false;
+
+    document.getElementById('callOverlay').classList.remove('show');
+    document.getElementById('callStatus').classList.remove('ringing');
+    document.getElementById('muteBtn').classList.remove('active');
+    document.getElementById('muteBtn').innerHTML = '<i class="fas fa-microphone"></i>';
+
+    clearInterval(callState.timerInterval);
+    stopRingTone();
+
+    if (callState.startTime) {
+        const duration = Math.floor((Date.now() - callState.startTime) / 1000);
+        const mm = String(Math.floor(duration / 60)).padStart(2, '0');
+        const ss = String(duration % 60).padStart(2, '0');
+        toast(`📞 Звонок завершён · ${mm}:${ss}`);
+    }
+
+    callState.startTime = null;
+    callState.callPartner = null;
+    document.getElementById('callTimer').style.display = 'none';
+    document.getElementById('audioWave').style.display = 'none';
+}
+
+function simulateIncomingCall(fromUser) {
+    callState.incoming = true;
+    callState.callPartner = fromUser;
+
+    const users = DB.get('users', {});
+    const u = users[fromUser] || { color: '#5b8def' };
+
+    const el = document.getElementById('incomingCall');
+    el.classList.add('show');
+
+    const avatar = document.getElementById('incomingAvatar');
+    avatar.style.background = u.color;
+    avatar.innerHTML = fromUser[0].toUpperCase();
+
+    document.getElementById('incomingName').textContent = fromUser;
+
+    playRingTone();
+
+    setTimeout(() => { if (callState.incoming) declineCall(); }, 30000);
+}
+
+function acceptCall() {
+    document.getElementById('incomingCall').classList.remove('show');
+    stopRingTone();
+    initiateCall(callState.callPartner, false);
+    setTimeout(() => connectCall(), 500);
+}
+
+function declineCall() {
+    document.getElementById('incomingCall').classList.remove('show');
+    stopRingTone();
+    callState.incoming = false;
+    toast('📞 Звонок отклонён');
+}
+
+function playRingTone() {
+    if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+
+    const now = audioCtx.currentTime;
+    const masterGain = audioCtx.createGain();
+    masterGain.gain.value = 0.08;
+    masterGain.connect(audioCtx.destination);
+
+    function beep(start, freq1, freq2) {
+        const osc1 = audioCtx.createOscillator();
+        const osc2 = audioCtx.createOscillator();
+        const g1 = audioCtx.createGain();
+        const g2 = audioCtx.createGain();
+        osc1.frequency.value = freq1;
+        osc2.frequency.value = freq2;
+        osc1.type = 'sine';
+        osc2.type = 'sine';
+        g1.gain.setValueAtTime(0, start);
+        g1.gain.linearRampToValueAtTime(1, start + 0.05);
+        g1.gain.linearRampToValueAtTime(0, start + 0.3);
+        g2.gain.setValueAtTime(0, start);
+        g2.gain.linearRampToValueAtTime(1, start + 0.05);
+        g2.gain.linearRampToValueAtTime(0, start + 0.3);
+        osc1.connect(g1); g1.connect(masterGain);
+        osc2.connect(g2); g2.connect(masterGain);
+        osc1.start(start); osc1.stop(start + 0.35);
+        osc2.start(start); osc2.stop(start + 0.35);
+        callState.ringToneNodes.push(osc1, osc2);
+    }
+
+    function ringPattern() {
+        if (!callState.ringing && !callState.incoming) return;
+        const t = audioCtx.currentTime;
+        beep(t, 440, 480);
+        beep(t + 0.5, 440, 480);
+        setTimeout(ringPattern, 2000);
+    }
+    ringPattern();
+}
+
+function stopRingTone() {
+    callState.ringToneNodes.forEach(n => { try { n.stop(); } catch(e) {} });
+    callState.ringToneNodes = [];
+}
+
 // ==================== UTILS ====================
 function closeModal(id) { document.getElementById(id).classList.remove('show'); }
 
@@ -2394,7 +2723,6 @@ document.querySelectorAll('.modal-bg').forEach(bg => {
     bg.addEventListener('click', (e) => { if (e.target === bg) bg.classList.remove('show'); });
 });
 
-// ==================== START ====================
 initApp();
 </script>
 </body>
