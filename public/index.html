@@ -4,11 +4,14 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Rick & Morty Messenger</title>
-<meta name="description" content="Мессенджер для фанатов Рика и Морти">
+<meta name="description" content="Мессенджер в стиле Rick and Morty">
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
 <style>
+/* ============================================
+   ПЕРЕМЕННЫЕ ЦВЕТОВ
+   ============================================ */
 :root {
     --bg: #0a1a0a;
     --bg2: #0f2410;
@@ -18,32 +21,46 @@
     --text2: #7ab87e;
     --portal-green: #97ce4c;
     --portal-cyan: #00c9ff;
-    --portal-dark: #1a4a1f;
-    --rick-blue: #4a90e2;
     --morty-yellow: #f5d547;
     --accent: #97ce4c;
     --accent2: #00c9ff;
     --green: #97ce4c;
     --yellow: #f5d547;
     --red: #e74c3c;
-    --pink: #ff6ec7;
     --gold: #f5d547;
+    --overlay-bg: rgba(15, 36, 16, 0.95);
+    --overlay-bg2: rgba(10, 26, 10, 0.8);
 }
 
-* { margin: 0; padding: 0; box-sizing: border-box; }
+/* ============================================
+   СБРОС СТИЛЕЙ
+   ============================================ */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    height: 100%;
+    overflow: hidden;
+}
 
 body {
-    font-family: 'Inter', sans-serif;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
     background: var(--bg);
     color: var(--text);
-    height: 100vh;
-    overflow: hidden;
-    background-image: 
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    background-image:
         radial-gradient(circle at 20% 30%, rgba(151, 206, 76, 0.08) 0%, transparent 40%),
         radial-gradient(circle at 80% 70%, rgba(0, 201, 255, 0.08) 0%, transparent 40%);
 }
 
-/* Портал-анимация на фоне */
+/* ============================================
+   ФОНОВЫЕ ЭЛЕМЕНТЫ
+   ============================================ */
 .portal-bg {
     position: fixed;
     top: 50%;
@@ -52,10 +69,12 @@ body {
     height: 800px;
     transform: translate(-50%, -50%);
     border-radius: 50%;
-    background: radial-gradient(circle, 
-        rgba(151, 206, 76, 0.15) 0%, 
-        rgba(0, 201, 255, 0.08) 30%, 
-        transparent 60%);
+    background: radial-gradient(
+        circle,
+        rgba(151, 206, 76, 0.15) 0%,
+        rgba(0, 201, 255, 0.08) 30%,
+        transparent 60%
+    );
     z-index: 0;
     pointer-events: none;
     animation: portalSpin 20s linear infinite;
@@ -87,9 +106,11 @@ body {
     animation: gridMove 30s linear infinite;
 }
 
-@keyframes gridMove { 0% { background-position: 0 0; } 100% { background-position: 40px 40px; } }
+@keyframes gridMove {
+    0% { background-position: 0 0; }
+    100% { background-position: 40px 40px; }
+}
 
-/* Летающие звёздочки/частицы */
 .stars {
     position: fixed;
     inset: 0;
@@ -103,19 +124,25 @@ body {
     width: 3px;
     height: 3px;
     border-radius: 50%;
-    background: var(--portal-green);
-    box-shadow: 0 0 10px var(--portal-green);
     animation: floatStar linear infinite;
 }
 
 @keyframes floatStar {
-    0% { transform: translateY(100vh) scale(0); opacity: 0; }
+    0% {
+        transform: translateY(100vh) scale(0);
+        opacity: 0;
+    }
     10% { opacity: 1; }
     90% { opacity: 1; }
-    100% { transform: translateY(-100px) scale(1); opacity: 0; }
+    100% {
+        transform: translateY(-100px) scale(1);
+        opacity: 0;
+    }
 }
 
-/* ===== AUTH ===== */
+/* ============================================
+   ЭКРАН АВТОРИЗАЦИИ
+   ============================================ */
 .auth-screen {
     position: fixed;
     inset: 0;
@@ -127,17 +154,22 @@ body {
     overflow-y: auto;
 }
 
-.auth-screen.hidden { display: none; }
+.auth-screen.hidden {
+    display: none;
+}
 
 .auth-card {
-    background: rgba(15, 36, 16, 0.95);
+    background: var(--overlay-bg);
     backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
     border: 2px solid rgba(151, 206, 76, 0.4);
     border-radius: 24px;
     padding: 44px;
     width: 100%;
     max-width: 500px;
-    box-shadow: 0 30px 80px rgba(0,0,0,0.7), 0 0 100px rgba(151, 206, 76, 0.2);
+    box-shadow:
+        0 30px 80px rgba(0, 0, 0, 0.7),
+        0 0 100px rgba(151, 206, 76, 0.2);
     position: relative;
     overflow: hidden;
     margin: auto;
@@ -146,16 +178,25 @@ body {
 .auth-card::before {
     content: '';
     position: absolute;
-    top: 0; left: 0; right: 0;
+    top: 0;
+    left: 0;
+    right: 0;
     height: 3px;
-    background: linear-gradient(90deg, var(--portal-green), var(--portal-cyan), var(--portal-green));
+    background: linear-gradient(
+        90deg,
+        var(--portal-green),
+        var(--portal-cyan),
+        var(--portal-green)
+    );
     animation: shineTop 3s linear infinite;
 }
 
-@keyframes shineTop { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
+@keyframes shineTop {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(100%); }
+}
 
 .auth-logo {
-    font-family: 'Inter', sans-serif;
     font-size: 34px;
     font-weight: 900;
     text-align: center;
@@ -177,12 +218,27 @@ body {
     font-style: italic;
 }
 
-.auth-step { display: none; animation: stepIn 0.3s ease-out; }
-.auth-step.active { display: block; }
+/* ============================================
+   ШАГИ АВТОРИЗАЦИИ
+   ============================================ */
+.auth-step {
+    display: none;
+    animation: stepIn 0.3s ease-out;
+}
+
+.auth-step.active {
+    display: block;
+}
 
 @keyframes stepIn {
-    from { opacity: 0; transform: translateX(10px); }
-    to { opacity: 1; transform: translateX(0); }
+    from {
+        opacity: 0;
+        transform: translateX(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
 }
 
 .step-header {
@@ -207,10 +263,24 @@ body {
     box-shadow: 0 0 20px rgba(151, 206, 76, 0.6);
 }
 
-.step-title { font-size: 18px; font-weight: 800; }
-.step-desc { font-size: 12px; color: var(--text2); margin-top: 2px; font-style: italic; }
+.step-title {
+    font-size: 18px;
+    font-weight: 800;
+}
 
-.field { margin-bottom: 16px; }
+.step-desc {
+    font-size: 12px;
+    color: var(--text2);
+    margin-top: 2px;
+    font-style: italic;
+}
+
+/* ============================================
+   ПОЛЯ ВВОДА
+   ============================================ */
+.field {
+    margin-bottom: 16px;
+}
 
 .field-label {
     display: block;
@@ -240,22 +310,26 @@ body {
 .input {
     width: 100%;
     padding: 12px 14px 12px 42px;
-    background: rgba(10, 26, 10, 0.8);
+    background: var(--overlay-bg2);
     border: 2px solid var(--border);
     border-radius: 12px;
     color: var(--text);
     font-family: inherit;
     font-size: 14px;
     outline: none;
-    transition: all 0.2s;
+    transition: all 0.2s ease;
 }
 
 .input:focus {
     border-color: var(--portal-green);
-    box-shadow: 0 0 0 3px rgba(151, 206, 76, 0.2), 0 0 20px rgba(151, 206, 76, 0.3);
+    box-shadow:
+        0 0 0 3px rgba(151, 206, 76, 0.2),
+        0 0 20px rgba(151, 206, 76, 0.3);
 }
 
-.input::placeholder { color: var(--text2); }
+.input::placeholder {
+    color: var(--text2);
+}
 
 .input-toggle {
     position: absolute;
@@ -266,9 +340,12 @@ body {
     background: transparent;
     border: none;
     padding: 4px;
+    transition: color 0.2s;
 }
 
-.input-toggle:hover { color: var(--portal-green); }
+.input-toggle:hover {
+    color: var(--portal-green);
+}
 
 .field-hint {
     font-size: 11px;
@@ -277,7 +354,12 @@ body {
     font-family: 'JetBrains Mono', monospace;
 }
 
-.password-strength { margin-top: 8px; }
+/* ============================================
+   ИНДИКАТОР ПАРОЛЯ
+   ============================================ */
+.password-strength {
+    margin-top: 8px;
+}
 
 .strength-bar {
     height: 5px;
@@ -294,10 +376,25 @@ body {
     border-radius: 3px;
 }
 
-.strength-fill.weak { width: 25%; background: var(--red); }
-.strength-fill.fair { width: 50%; background: var(--yellow); }
-.strength-fill.good { width: 75%; background: var(--portal-cyan); }
-.strength-fill.strong { width: 100%; background: var(--portal-green); }
+.strength-fill.weak {
+    width: 25%;
+    background: var(--red);
+}
+
+.strength-fill.fair {
+    width: 50%;
+    background: var(--morty-yellow);
+}
+
+.strength-fill.good {
+    width: 75%;
+    background: var(--portal-cyan);
+}
+
+.strength-fill.strong {
+    width: 100%;
+    background: var(--portal-green);
+}
 
 .strength-text {
     font-size: 11px;
@@ -306,7 +403,7 @@ body {
 }
 
 .strength-text.weak { color: var(--red); }
-.strength-text.fair { color: var(--yellow); }
+.strength-text.fair { color: var(--morty-yellow); }
 .strength-text.good { color: var(--portal-cyan); }
 .strength-text.strong { color: var(--portal-green); }
 
@@ -326,9 +423,18 @@ body {
     font-family: 'JetBrains Mono', monospace;
 }
 
-.pw-req.ok { color: var(--portal-green); }
-.pw-req i { font-size: 10px; width: 12px; }
+.pw-req.ok {
+    color: var(--portal-green);
+}
 
+.pw-req i {
+    font-size: 10px;
+    width: 12px;
+}
+
+/* ============================================
+   КНОПКИ
+   ============================================ */
 .btn {
     width: 100%;
     padding: 13px;
@@ -338,7 +444,7 @@ body {
     font-size: 14px;
     font-weight: 700;
     cursor: pointer;
-    transition: all 0.2s;
+    transition: all 0.2s ease;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -357,7 +463,10 @@ body {
     box-shadow: 0 8px 30px rgba(151, 206, 76, 0.6);
 }
 
-.btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+.btn-primary:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
 
 .btn-secondary {
     background: rgba(151, 206, 76, 0.1);
@@ -366,7 +475,9 @@ body {
     margin-top: 8px;
 }
 
-.btn-secondary:hover { background: rgba(151, 206, 76, 0.2); }
+.btn-secondary:hover {
+    background: rgba(151, 206, 76, 0.2);
+}
 
 .btn-ghost {
     background: transparent;
@@ -375,9 +486,20 @@ body {
     margin-top: 8px;
 }
 
-.btn-ghost:hover { color: var(--text); border-color: var(--text2); }
-.btn-danger { background: rgba(231, 76, 60, 0.15); color: var(--red); border: 2px solid rgba(231, 76, 60, 0.4); }
-.btn-danger:hover { background: rgba(231, 76, 60, 0.25); }
+.btn-ghost:hover {
+    color: var(--text);
+    border-color: var(--text2);
+}
+
+.btn-danger {
+    background: rgba(231, 76, 60, 0.15);
+    color: var(--red);
+    border: 2px solid rgba(231, 76, 60, 0.4);
+}
+
+.btn-danger:hover {
+    background: rgba(231, 76, 60, 0.25);
+}
 
 .btn-row {
     display: grid;
@@ -386,8 +508,13 @@ body {
     margin-top: 8px;
 }
 
-.btn-row .btn { margin-top: 0; }
+.btn-row .btn {
+    margin-top: 0;
+}
 
+/* ============================================
+   ССЫЛКИ
+   ============================================ */
 .link-row {
     text-align: center;
     margin-top: 16px;
@@ -400,10 +527,17 @@ body {
     cursor: pointer;
     text-decoration: none;
     font-weight: 600;
+    transition: color 0.2s;
 }
 
-.link:hover { color: var(--portal-green); text-decoration: underline; }
+.link:hover {
+    color: var(--portal-green);
+    text-decoration: underline;
+}
 
+/* ============================================
+   OTP ИНПУТЫ
+   ============================================ */
 .otp-inputs {
     display: flex;
     gap: 8px;
@@ -418,22 +552,31 @@ body {
     font-size: 22px;
     font-weight: 900;
     font-family: 'JetBrains Mono', monospace;
-    background: rgba(10, 26, 10, 0.8);
+    background: var(--overlay-bg2);
     border: 2px solid var(--border);
     border-radius: 12px;
     color: var(--portal-green);
     outline: none;
-    transition: all 0.2s;
+    transition: all 0.2s ease;
 }
 
 .otp-input:focus {
     border-color: var(--portal-green);
-    box-shadow: 0 0 0 3px rgba(151, 206, 76, 0.2), 0 0 20px rgba(151, 206, 76, 0.4);
+    box-shadow:
+        0 0 0 3px rgba(151, 206, 76, 0.2),
+        0 0 20px rgba(151, 206, 76, 0.4);
     transform: scale(1.05);
 }
 
-.otp-input.filled { border-color: var(--portal-cyan); background: rgba(0, 201, 255, 0.05); }
-.otp-input.error { border-color: var(--red); animation: shake 0.3s; }
+.otp-input.filled {
+    border-color: var(--portal-cyan);
+    background: rgba(0, 201, 255, 0.05);
+}
+
+.otp-input.error {
+    border-color: var(--red);
+    animation: shake 0.3s;
+}
 
 @keyframes shake {
     0%, 100% { transform: translateX(0); }
@@ -441,6 +584,9 @@ body {
     75% { transform: translateX(8px); }
 }
 
+/* ============================================
+   QR КОД
+   ============================================ */
 .qr-container {
     background: white;
     padding: 16px;
@@ -454,10 +600,13 @@ body {
     box-shadow: 0 0 30px rgba(151, 206, 76, 0.4);
 }
 
-.qr-code { width: 160px; height: 160px; }
+.qr-code {
+    width: 160px;
+    height: 160px;
+}
 
 .secret-key {
-    background: rgba(10, 26, 10, 0.8);
+    background: var(--overlay-bg2);
     border: 2px solid var(--border);
     border-radius: 12px;
     padding: 12px;
@@ -470,6 +619,11 @@ body {
     margin: 10px 0;
     cursor: pointer;
     position: relative;
+    transition: all 0.2s;
+}
+
+.secret-key:hover {
+    background: rgba(151, 206, 76, 0.05);
 }
 
 .copy-btn {
@@ -484,10 +638,19 @@ body {
     border-radius: 6px;
     font-size: 10px;
     cursor: pointer;
+    font-family: inherit;
 }
 
+.copy-btn:hover {
+    color: var(--portal-green);
+    border-color: var(--portal-green);
+}
+
+/* ============================================
+   РЕЗЕРВНЫЕ КОДЫ
+   ============================================ */
 .backup-codes {
-    background: rgba(10, 26, 10, 0.8);
+    background: var(--overlay-bg2);
     border: 2px solid var(--border);
     border-radius: 12px;
     padding: 14px;
@@ -505,9 +668,18 @@ body {
     justify-content: space-between;
 }
 
-.backup-code:last-child { border-bottom: none; }
-.backup-code span { color: var(--text2); font-size: 11px; }
+.backup-code:last-child {
+    border-bottom: none;
+}
 
+.backup-code span {
+    color: var(--text2);
+    font-size: 11px;
+}
+
+/* ============================================
+   ИНФО-БОКСЫ
+   ============================================ */
 .info-box {
     background: rgba(151, 206, 76, 0.06);
     border: 2px solid rgba(151, 206, 76, 0.25);
@@ -520,36 +692,75 @@ body {
     line-height: 1.5;
 }
 
-.info-box i { color: var(--portal-green); font-size: 16px; flex-shrink: 0; margin-top: 2px; }
-.info-box.warning { background: rgba(245, 213, 71, 0.06); border-color: rgba(245, 213, 71, 0.3); }
-.info-box.warning i { color: var(--morty-yellow); }
-.info-box.success { background: rgba(151, 206, 76, 0.1); border-color: var(--portal-green); }
-.info-box.success i { color: var(--portal-green); }
+.info-box i {
+    color: var(--portal-green);
+    font-size: 16px;
+    flex-shrink: 0;
+    margin-top: 2px;
+}
 
+.info-box.warning {
+    background: rgba(245, 213, 71, 0.06);
+    border-color: rgba(245, 213, 71, 0.3);
+}
+
+.info-box.warning i {
+    color: var(--morty-yellow);
+}
+
+.info-box.success {
+    background: rgba(151, 206, 76, 0.1);
+    border-color: var(--portal-green);
+}
+
+.info-box.success i {
+    color: var(--portal-green);
+}
+
+/* ============================================
+   СПИННЕР
+   ============================================ */
 .spinner {
     display: inline-block;
     width: 16px;
     height: 16px;
-    border: 2px solid rgba(255,255,255,0.3);
+    border: 2px solid rgba(255, 255, 255, 0.3);
     border-top-color: white;
     border-radius: 50%;
     animation: spin 0.7s linear infinite;
 }
 
-@keyframes spin { to { transform: rotate(360deg); } }
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
 
-/* ===== APP ===== */
-.app { display: flex; height: 100vh; position: relative; z-index: 1; }
-.app.hidden { display: none; }
+/* ============================================
+   ОСНОВНОЕ ПРИЛОЖЕНИЕ
+   ============================================ */
+.app {
+    display: flex;
+    height: 100vh;
+    position: relative;
+    z-index: 1;
+}
 
+.app.hidden {
+    display: none;
+}
+
+/* ============================================
+   БОКОВАЯ ПАНЕЛЬ
+   ============================================ */
 .sidebar {
     width: 280px;
     background: rgba(15, 36, 16, 0.9);
     backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
     border-right: 2px solid rgba(151, 206, 76, 0.2);
     display: flex;
     flex-direction: column;
     flex-shrink: 0;
+    transition: width 0.3s ease;
 }
 
 .sb-header {
@@ -578,9 +789,12 @@ body {
     align-items: center;
     gap: 10px;
     cursor: pointer;
+    transition: background 0.15s;
 }
 
-.user-chip:hover { background: rgba(151, 206, 76, 0.05); }
+.user-chip:hover {
+    background: rgba(151, 206, 76, 0.05);
+}
 
 .avatar {
     width: 38px;
@@ -596,12 +810,31 @@ body {
     border: 2px solid rgba(151, 206, 76, 0.4);
 }
 
-.avatar-wrap { position: relative; flex-shrink: 0; }
+.avatar-wrap {
+    position: relative;
+    flex-shrink: 0;
+}
 
-.user-info { flex: 1; min-width: 0; }
-.user-name { font-size: 14px; font-weight: 700; }
-.user-engine { font-size: 11px; color: var(--portal-green); font-family: 'JetBrains Mono', monospace; }
+.user-info {
+    flex: 1;
+    min-width: 0;
+}
 
+.user-name {
+    font-size: 14px;
+    font-weight: 700;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.user-engine {
+    font-size: 11px;
+    color: var(--portal-green);
+    font-family: 'JetBrains Mono', monospace;
+}
+
+/* Секции в сайдбаре */
 .sb-section {
     padding: 16px 16px 8px;
     font-size: 11px;
@@ -612,10 +845,46 @@ body {
     font-family: 'JetBrains Mono', monospace;
 }
 
-.channels, .friends-list { overflow-y: auto; padding: 0 8px 8px; }
-.channels { flex: 1; }
+/* Каналы и друзья */
+.channels,
+.friends-list {
+    overflow-y: auto;
+    padding: 0 8px 8px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--portal-green) transparent;
+}
 
-.channel, .friend {
+.channels {
+    flex: 1;
+}
+
+.channels::-webkit-scrollbar,
+.friends-list::-webkit-scrollbar,
+.chat-messages::-webkit-scrollbar {
+    width: 6px;
+}
+
+.channels::-webkit-scrollbar-track,
+.friends-list::-webkit-scrollbar-track,
+.chat-messages::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.channels::-webkit-scrollbar-thumb,
+.friends-list::-webkit-scrollbar-thumb,
+.chat-messages::-webkit-scrollbar-thumb {
+    background: rgba(151, 206, 76, 0.3);
+    border-radius: 3px;
+}
+
+.channels::-webkit-scrollbar-thumb:hover,
+.friends-list::-webkit-scrollbar-thumb:hover,
+.chat-messages::-webkit-scrollbar-thumb:hover {
+    background: rgba(151, 206, 76, 0.5);
+}
+
+.channel,
+.friend {
     padding: 8px 12px;
     margin: 2px 0;
     border-radius: 10px;
@@ -629,7 +898,10 @@ body {
     font-weight: 500;
 }
 
-.channel:hover, .friend:hover { background: rgba(151, 206, 76, 0.1); }
+.channel:hover,
+.friend:hover {
+    background: rgba(151, 206, 76, 0.1);
+}
 
 .channel.active {
     background: linear-gradient(90deg, rgba(151, 206, 76, 0.15), rgba(0, 201, 255, 0.1));
@@ -638,8 +910,16 @@ body {
     border-left: 3px solid var(--portal-green);
 }
 
-.channel-icon { width: 20px; text-align: center; font-size: 13px; color: var(--text2); }
-.channel.active .channel-icon { color: var(--portal-green); }
+.channel-icon {
+    width: 20px;
+    text-align: center;
+    font-size: 13px;
+    color: var(--text2);
+}
+
+.channel.active .channel-icon {
+    color: var(--portal-green);
+}
 
 .friend-avatar {
     width: 28px;
@@ -687,6 +967,7 @@ body {
     filter: drop-shadow(0 0 4px gold);
 }
 
+/* Кнопка добавления друга */
 .add-friend-btn {
     display: flex;
     align-items: center;
@@ -701,19 +982,28 @@ body {
     cursor: pointer;
     font-family: 'JetBrains Mono', monospace;
     font-weight: 600;
+    transition: all 0.15s;
 }
 
-.add-friend-btn:hover { border-color: var(--portal-green); background: rgba(151, 206, 76, 0.15); }
+.add-friend-btn:hover {
+    border-color: var(--portal-green);
+    background: rgba(151, 206, 76, 0.15);
+}
 
+/* ============================================
+   ОСНОВНАЯ ОБЛАСТЬ
+   ============================================ */
 .main {
     flex: 1;
     display: flex;
     flex-direction: column;
     background: rgba(10, 26, 10, 0.5);
     backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
     min-width: 0;
 }
 
+/* Топбар */
 .topbar {
     padding: 12px 20px;
     border-bottom: 2px solid rgba(151, 206, 76, 0.2);
@@ -724,11 +1014,30 @@ body {
     min-height: 60px;
 }
 
-.topbar-left { display: flex; align-items: center; gap: 12px; }
-.topbar-info { display: flex; flex-direction: column; gap: 2px; }
-.topbar-title { font-size: 15px; font-weight: 800; }
-.topbar-sub { font-size: 12px; color: var(--portal-green); font-family: 'JetBrains Mono', monospace; }
+.topbar-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
 
+.topbar-info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.topbar-title {
+    font-size: 15px;
+    font-weight: 800;
+}
+
+.topbar-sub {
+    font-size: 12px;
+    color: var(--portal-green);
+    font-family: 'JetBrains Mono', monospace;
+}
+
+/* Табы */
 .tabs {
     display: flex;
     gap: 4px;
@@ -748,19 +1057,39 @@ body {
     font-weight: 700;
     cursor: pointer;
     border-radius: 8px;
+    transition: all 0.15s;
 }
 
-.tab.active { 
+.tab.active {
     background: linear-gradient(135deg, var(--portal-green), var(--portal-cyan));
     color: #0a1a0a;
 }
-.tab:hover:not(.active) { color: var(--portal-green); }
 
-.content { flex: 1; overflow: hidden; display: flex; }
+.tab:hover:not(.active) {
+    color: var(--portal-green);
+}
 
-.view { display: none; flex-direction: column; flex: 1; overflow: hidden; }
-.view.active { display: flex; }
+/* Контент */
+.content {
+    flex: 1;
+    overflow: hidden;
+    display: flex;
+}
 
+.view {
+    display: none;
+    flex-direction: column;
+    flex: 1;
+    overflow: hidden;
+}
+
+.view.active {
+    display: flex;
+}
+
+/* ============================================
+   ЧАТ
+   ============================================ */
 .chat-messages {
     flex: 1;
     overflow-y: auto;
@@ -768,13 +1097,24 @@ body {
     display: flex;
     flex-direction: column;
     gap: 16px;
+    scroll-behavior: smooth;
 }
 
-.msg { display: flex; gap: 10px; animation: msgIn 0.2s ease-out; }
+.msg {
+    display: flex;
+    gap: 10px;
+    animation: msgIn 0.2s ease-out;
+}
 
 @keyframes msgIn {
-    from { opacity: 0; transform: translateY(8px); }
-    to { opacity: 1; transform: translateY(0); }
+    from {
+        opacity: 0;
+        transform: translateY(8px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .msg-avatar {
@@ -792,7 +1132,10 @@ body {
     position: relative;
 }
 
-.msg-body { flex: 1; min-width: 0; }
+.msg-body {
+    flex: 1;
+    min-width: 0;
+}
 
 .msg-header {
     display: flex;
@@ -801,7 +1144,10 @@ body {
     margin-bottom: 4px;
 }
 
-.msg-author { font-size: 14px; font-weight: 700; }
+.msg-author {
+    font-size: 14px;
+    font-weight: 700;
+}
 
 .msg-badge {
     font-size: 10px;
@@ -822,12 +1168,28 @@ body {
 }
 
 @keyframes founderGlow {
-    0%, 100% { box-shadow: 0 0 10px rgba(245, 213, 71, 0.5); }
-    50% { box-shadow: 0 0 25px rgba(245, 213, 71, 0.9), 0 0 40px rgba(245, 213, 71, 0.4); }
+    0%, 100% {
+        box-shadow: 0 0 10px rgba(245, 213, 71, 0.5);
+    }
+    50% {
+        box-shadow:
+            0 0 25px rgba(245, 213, 71, 0.9),
+            0 0 40px rgba(245, 213, 71, 0.4);
+    }
 }
 
-.msg-time { font-size: 11px; color: var(--text2); font-family: 'JetBrains Mono', monospace; }
-.msg-text { font-size: 14px; line-height: 1.5; word-wrap: break-word; }
+.msg-time {
+    font-size: 11px;
+    color: var(--text2);
+    font-family: 'JetBrains Mono', monospace;
+}
+
+.msg-text {
+    font-size: 14px;
+    line-height: 1.5;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+}
 
 .msg-founder {
     background: linear-gradient(90deg, rgba(245, 213, 71, 0.08), transparent);
@@ -852,6 +1214,9 @@ body {
     50% { transform: translateX(-50%) translateY(-4px); }
 }
 
+/* ============================================
+   ПОЛЕ ВВОДА СООБЩЕНИЯ
+   ============================================ */
 .chat-input {
     padding: 16px 20px;
     border-top: 2px solid rgba(151, 206, 76, 0.2);
@@ -867,11 +1232,14 @@ body {
     border: 2px solid rgba(151, 206, 76, 0.2);
     border-radius: 14px;
     padding: 6px 6px 6px 14px;
+    transition: all 0.2s;
 }
 
-.chat-input-wrap:focus-within { 
-    border-color: var(--portal-green); 
-    box-shadow: 0 0 0 3px rgba(151, 206, 76, 0.2), 0 0 20px rgba(151, 206, 76, 0.3); 
+.chat-input-wrap:focus-within {
+    border-color: var(--portal-green);
+    box-shadow:
+        0 0 0 3px rgba(151, 206, 76, 0.2),
+        0 0 20px rgba(151, 206, 76, 0.3);
 }
 
 .chat-input-wrap textarea {
@@ -886,9 +1254,12 @@ body {
     outline: none;
     max-height: 120px;
     line-height: 1.5;
+    scrollbar-width: thin;
 }
 
-.chat-input-wrap textarea::placeholder { color: var(--text2); }
+.chat-input-wrap textarea::placeholder {
+    color: var(--text2);
+}
 
 .input-btn {
     width: 36px;
@@ -905,16 +1276,43 @@ body {
     transition: all 0.15s;
 }
 
-.input-btn:hover { background: rgba(151, 206, 76, 0.15); color: var(--portal-green); }
+.input-btn:hover {
+    background: rgba(151, 206, 76, 0.15);
+    color: var(--portal-green);
+}
 
-.send-btn { 
+.send-btn {
     background: linear-gradient(135deg, var(--portal-green), var(--portal-cyan));
     color: #0a1a0a;
 }
 
-.section { padding: 24px; overflow-y: auto; flex: 1; }
-.section-title { font-size: 22px; font-weight: 900; margin-bottom: 4px; }
-.section-sub { font-size: 13px; color: var(--text2); margin-bottom: 24px; font-style: italic; }
+.send-btn:hover {
+    background: linear-gradient(135deg, var(--portal-green), var(--portal-cyan));
+    color: #0a1a0a;
+    transform: scale(1.05);
+}
+
+/* ============================================
+   СЕКЦИИ (ПЛЕЙТЕСТЫ, ФИДБЕК)
+   ============================================ */
+.section {
+    padding: 24px;
+    overflow-y: auto;
+    flex: 1;
+}
+
+.section-title {
+    font-size: 22px;
+    font-weight: 900;
+    margin-bottom: 4px;
+}
+
+.section-sub {
+    font-size: 13px;
+    color: var(--text2);
+    margin-bottom: 24px;
+    font-style: italic;
+}
 
 .stats-grid {
     display: grid;
@@ -928,6 +1326,12 @@ body {
     border: 2px solid rgba(151, 206, 76, 0.2);
     border-radius: 14px;
     padding: 16px;
+    transition: all 0.2s;
+}
+
+.stat-card:hover {
+    border-color: var(--portal-green);
+    transform: translateY(-2px);
 }
 
 .stat-label {
@@ -940,7 +1344,12 @@ body {
     letter-spacing: 1px;
 }
 
-.stat-value { font-size: 28px; font-weight: 900; font-family: 'JetBrains Mono', monospace; }
+.stat-value {
+    font-size: 28px;
+    font-weight: 900;
+    font-family: 'JetBrains Mono', monospace;
+}
+
 .stat-value.green { color: var(--portal-green); }
 .stat-value.yellow { color: var(--morty-yellow); }
 .stat-value.accent { color: var(--portal-cyan); }
@@ -952,7 +1361,10 @@ body {
     margin: 24px 0 16px;
 }
 
-.section-h2 { font-size: 16px; font-weight: 800; }
+.section-h2 {
+    font-size: 16px;
+    font-weight: 800;
+}
 
 .btn-small {
     padding: 8px 14px;
@@ -967,9 +1379,13 @@ body {
     display: inline-flex;
     align-items: center;
     gap: 6px;
+    transition: all 0.15s;
 }
 
-.btn-small:hover { background: var(--bg3); border-color: var(--portal-green); }
+.btn-small:hover {
+    background: var(--bg3);
+    border-color: var(--portal-green);
+}
 
 .btn-small.primary {
     background: linear-gradient(135deg, var(--portal-green), var(--portal-cyan));
@@ -977,18 +1393,38 @@ body {
     border-color: transparent;
 }
 
-.btn-small.danger { color: var(--red); border-color: rgba(231, 76, 60, 0.4); }
+.btn-small.danger {
+    color: var(--red);
+    border-color: rgba(231, 76, 60, 0.4);
+}
 
-.build-list, .feedback-list { display: flex; flex-direction: column; gap: 8px; }
+/* Списки билдов/фидбека */
+.build-list,
+.feedback-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
 
-.build-item, .feedback-item {
+.build-item,
+.feedback-item {
     background: rgba(15, 36, 16, 0.7);
     border: 2px solid rgba(151, 206, 76, 0.2);
     border-radius: 14px;
     padding: 16px;
+    transition: all 0.2s;
 }
 
-.build-item { display: flex; align-items: center; gap: 16px; }
+.build-item:hover,
+.feedback-item:hover {
+    border-color: var(--portal-green);
+}
+
+.build-item {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
 
 .build-platform {
     width: 44px;
@@ -1000,25 +1436,55 @@ body {
     justify-content: center;
     font-size: 20px;
     color: var(--portal-green);
+    flex-shrink: 0;
 }
 
-.build-info { flex: 1; }
-.build-version { font-family: 'JetBrains Mono', monospace; font-size: 14px; font-weight: 800; margin-bottom: 4px; color: var(--portal-green); }
-.build-meta { font-size: 12px; color: var(--text2); display: flex; gap: 12px; flex-wrap: wrap; }
+.build-info {
+    flex: 1;
+    min-width: 0;
+}
 
+.build-version {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    font-weight: 800;
+    margin-bottom: 4px;
+    color: var(--portal-green);
+}
+
+.build-meta {
+    font-size: 12px;
+    color: var(--text2);
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+/* ============================================
+   МОДАЛЬНЫЕ ОКНА
+   ============================================ */
 .modal-bg {
     position: fixed;
     inset: 0;
-    background: rgba(0,0,0,0.8);
+    background: rgba(0, 0, 0, 0.8);
     display: none;
     align-items: center;
     justify-content: center;
     z-index: 200;
     padding: 20px;
     backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
 }
 
-.modal-bg.show { display: flex; }
+.modal-bg.show {
+    display: flex;
+    animation: fadeIn 0.2s;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
 
 .modal {
     background: rgba(15, 36, 16, 0.98);
@@ -1030,16 +1496,31 @@ body {
     max-height: 90vh;
     overflow-y: auto;
     animation: modalIn 0.2s ease-out;
-    box-shadow: 0 30px 80px rgba(0,0,0,0.7), 0 0 60px rgba(151, 206, 76, 0.3);
+    box-shadow:
+        0 30px 80px rgba(0, 0, 0, 0.7),
+        0 0 60px rgba(151, 206, 76, 0.3);
 }
 
 @keyframes modalIn {
-    from { opacity: 0; transform: scale(0.95); }
-    to { opacity: 1; transform: scale(1); }
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
 }
 
-.modal-title { font-size: 18px; font-weight: 900; margin-bottom: 20px; }
-.modal-field { margin-bottom: 16px; }
+.modal-title {
+    font-size: 18px;
+    font-weight: 900;
+    margin-bottom: 20px;
+}
+
+.modal-field {
+    margin-bottom: 16px;
+}
 
 .modal-label {
     display: block;
@@ -1052,7 +1533,9 @@ body {
     letter-spacing: 1px;
 }
 
-.modal-input, .modal-textarea, .modal-select {
+.modal-input,
+.modal-textarea,
+.modal-select {
     width: 100%;
     padding: 10px 12px;
     background: rgba(10, 26, 10, 0.8);
@@ -1062,12 +1545,26 @@ body {
     font-family: inherit;
     font-size: 14px;
     outline: none;
+    transition: all 0.2s;
 }
 
-.modal-textarea { resize: vertical; min-height: 80px; }
-.modal-input:focus, .modal-textarea:focus, .modal-select:focus { border-color: var(--portal-green); }
+.modal-textarea {
+    resize: vertical;
+    min-height: 80px;
+}
 
-.modal-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.modal-input:focus,
+.modal-textarea:focus,
+.modal-select:focus {
+    border-color: var(--portal-green);
+    box-shadow: 0 0 0 3px rgba(151, 206, 76, 0.2);
+}
+
+.modal-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
 
 .modal-actions {
     display: flex;
@@ -1076,8 +1573,13 @@ body {
     margin-top: 20px;
 }
 
-.modal-actions .btn { width: auto; padding: 8px 16px; margin: 0; }
+.modal-actions .btn {
+    width: auto;
+    padding: 8px 16px;
+    margin: 0;
+}
 
+/* Профиль */
 .profile-modal-user {
     display: flex;
     flex-direction: column;
@@ -1103,7 +1605,11 @@ body {
     border: 3px solid rgba(151, 206, 76, 0.5);
 }
 
-.profile-name { font-size: 22px; font-weight: 900; margin-bottom: 4px; }
+.profile-name {
+    font-size: 22px;
+    font-weight: 900;
+    margin-bottom: 4px;
+}
 
 .profile-status-founder {
     background: linear-gradient(135deg, var(--morty-yellow), #e6a819);
@@ -1117,6 +1623,225 @@ body {
     box-shadow: 0 0 20px rgba(245, 213, 71, 0.6);
 }
 
+/* ============================================
+   ЗВОНКИ
+   ============================================ */
+.call-overlay {
+    position: fixed;
+    inset: 0;
+    background: radial-gradient(circle at center, #0f2410 0%, #0a1a0a 100%);
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 20px;
+}
+
+.call-overlay.show {
+    display: flex;
+    animation: fadeIn 0.3s;
+}
+
+/* Аватар звонка */
+.call-avatar {
+    width: 140px;
+    height: 140px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 56px;
+    font-weight: 900;
+    color: #0a1a0a;
+    margin-bottom: 24px;
+    position: relative;
+    animation: callPulse 2s infinite;
+    border: 4px solid var(--portal-green);
+}
+
+@keyframes callPulse {
+    0%, 100% {
+        box-shadow: 0 0 40px rgba(151, 206, 76, 0.5);
+    }
+    50% {
+        box-shadow:
+            0 0 80px rgba(151, 206, 76, 0.9),
+            0 0 120px rgba(0, 201, 255, 0.4);
+    }
+}
+
+.call-avatar .founder-crown {
+    font-size: 40px;
+    top: -22px;
+}
+
+/* Имя и статус */
+.call-name {
+    font-size: 28px;
+    font-weight: 900;
+    margin-bottom: 8px;
+    text-align: center;
+}
+
+.call-status {
+    font-size: 15px;
+    color: var(--portal-green);
+    margin-bottom: 30px;
+    font-family: 'JetBrains Mono', monospace;
+    font-style: italic;
+    text-align: center;
+}
+
+/* Таймер */
+.call-timer {
+    font-size: 20px;
+    color: var(--portal-cyan);
+    font-family: 'JetBrains Mono', monospace;
+    margin-bottom: 30px;
+    font-weight: 700;
+    letter-spacing: 2px;
+}
+
+/* Кнопки звонка */
+.call-actions {
+    display: flex;
+    gap: 24px;
+}
+
+.call-btn {
+    width: 68px;
+    height: 68px;
+    border-radius: 50%;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    cursor: pointer;
+    color: #0a1a0a;
+    font-weight: 900;
+    transition: all 0.2s;
+}
+
+.call-btn:hover {
+    transform: scale(1.1);
+}
+
+.call-btn-mute {
+    background: rgba(151, 206, 76, 0.3);
+    color: var(--portal-green);
+}
+
+.call-btn-mute.active {
+    background: var(--morty-yellow);
+    color: #0a1a0a;
+}
+
+.call-btn-end {
+    background: var(--red);
+    color: white;
+}
+
+/* Кнопка звонка в топбаре */
+.call-icon-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    background: rgba(151, 206, 76, 0.15);
+    border: 2px solid var(--portal-green);
+    color: var(--portal-green);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.call-icon-btn:hover {
+    background: rgba(151, 206, 76, 0.3);
+    transform: scale(1.05);
+}
+
+/* Входящий звонок */
+.incoming-call {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: rgba(15, 36, 16, 0.98);
+    border: 2px solid var(--portal-green);
+    border-radius: 16px;
+    padding: 16px;
+    display: none;
+    align-items: center;
+    gap: 14px;
+    z-index: 800;
+    min-width: 300px;
+    box-shadow:
+        0 20px 60px rgba(0, 0, 0, 0.6),
+        0 0 40px rgba(151, 206, 76, 0.4);
+    animation: slideIn 0.4s ease-out;
+}
+
+.incoming-call.show {
+    display: flex;
+}
+
+@keyframes slideIn {
+    from { transform: translateX(400px); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
+.incoming-call-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.incoming-call-name {
+    font-size: 15px;
+    font-weight: 800;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.incoming-call-sub {
+    font-size: 12px;
+    color: var(--portal-green);
+    font-style: italic;
+}
+
+.incoming-btn {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    color: #0a1a0a;
+    font-weight: 900;
+    transition: all 0.2s;
+}
+
+.incoming-btn:hover {
+    transform: scale(1.1);
+}
+
+.incoming-btn.accept {
+    background: var(--portal-green);
+}
+
+.incoming-btn.decline {
+    background: var(--red);
+    color: white;
+}
+
+/* ============================================
+   TOAST УВЕДОМЛЕНИЯ
+   ============================================ */
 .toast {
     position: fixed;
     top: 20px;
@@ -1128,18 +1853,37 @@ body {
     border-radius: 12px;
     font-size: 13px;
     font-weight: 600;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.5), 0 0 30px rgba(151, 206, 76, 0.3);
+    box-shadow:
+        0 10px 30px rgba(0, 0, 0, 0.5),
+        0 0 30px rgba(151, 206, 76, 0.3);
     transform: translateX(400px);
-    transition: transform 0.3s;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     z-index: 500;
     max-width: 340px;
 }
 
-.toast.show { transform: translateX(0); }
-.toast.success { border-color: var(--portal-green); }
-.toast.error { border-color: var(--red); border-left-color: var(--red); }
-.toast.warning { border-color: var(--morty-yellow); border-left-color: var(--morty-yellow); }
+.toast.show {
+    transform: translateX(0);
+}
 
+.toast.success {
+    border-color: var(--portal-green);
+    border-left-color: var(--portal-green);
+}
+
+.toast.error {
+    border-color: var(--red);
+    border-left-color: var(--red);
+}
+
+.toast.warning {
+    border-color: var(--morty-yellow);
+    border-left-color: var(--morty-yellow);
+}
+
+/* ============================================
+   ЭМОДЗИ/GIF ПИКЕР
+   ============================================ */
 .emoji-picker {
     position: absolute;
     bottom: 80px;
@@ -1154,7 +1898,10 @@ body {
     box-shadow: 0 0 40px rgba(151, 206, 76, 0.3);
 }
 
-.emoji-picker.show { display: block; }
+.emoji-picker.show {
+    display: block;
+    animation: modalIn 0.2s ease-out;
+}
 
 .emoji-picker-tabs {
     display: flex;
@@ -1173,15 +1920,20 @@ body {
     cursor: pointer;
     border-radius: 8px;
     font-weight: 700;
+    transition: all 0.15s;
 }
 
-.emoji-picker-tab.active { background: rgba(151, 206, 76, 0.15); color: var(--portal-green); }
+.emoji-picker-tab.active {
+    background: rgba(151, 206, 76, 0.15);
+    color: var(--portal-green);
+}
 
 .emoji-grid {
     display: grid;
     gap: 4px;
     max-height: 240px;
     overflow-y: auto;
+    padding-right: 4px;
 }
 
 .emoji-item {
@@ -1193,9 +1945,14 @@ body {
     font-size: 22px;
     cursor: pointer;
     border-radius: 8px;
+    transition: all 0.15s;
+    user-select: none;
 }
 
-.emoji-item:hover { background: rgba(151, 206, 76, 0.15); transform: scale(1.15); }
+.emoji-item:hover {
+    background: rgba(151, 206, 76, 0.15);
+    transform: scale(1.15);
+}
 
 .sticker-item {
     height: 80px;
@@ -1206,147 +1963,141 @@ body {
     cursor: pointer;
     border-radius: 10px;
     background: rgba(151, 206, 76, 0.08);
+    transition: all 0.15s;
+    user-select: none;
 }
 
-.msg-sticker { font-size: 72px; line-height: 1; padding: 4px 0; }
-.msg-gif { max-width: 240px; border-radius: 12px; margin-top: 4px; }
-
-/* Звонки */
-.call-overlay {
-    position: fixed;
-    inset: 0;
-    background: radial-gradient(circle at center, #0f2410 0%, #0a1a0a 100%);
-    display: none;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    z-index: 1000;
-    padding: 20px;
-}
-
-.call-overlay.show { display: flex; }
-
-.call-avatar {
-    width: 140px;
-    height: 140px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 56px;
-    font-weight: 900;
-    color: #0a1a0a;
-    margin-bottom: 24px;
-    position: relative;
-    animation: callPulse 2s infinite;
-    border: 4px solid var(--portal-green);
-}
-
-@keyframes callPulse {
-    0%, 100% { box-shadow: 0 0 40px rgba(151, 206, 76, 0.5); }
-    50% { box-shadow: 0 0 80px rgba(151, 206, 76, 0.9), 0 0 120px rgba(0, 201, 255, 0.4); }
-}
-
-.call-name { font-size: 28px; font-weight: 900; margin-bottom: 8px; }
-.call-status { font-size: 15px; color: var(--portal-green); margin-bottom: 30px; font-family: 'JetBrains Mono', monospace; font-style: italic; }
-.call-timer { font-size: 20px; color: var(--portal-cyan); font-family: 'JetBrains Mono', monospace; margin-bottom: 30px; font-weight: 700; }
-
-.call-actions { display: flex; gap: 24px; }
-
-.call-btn {
-    width: 68px;
-    height: 68px;
-    border-radius: 50%;
-    border: none;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 24px;
-    cursor: pointer;
-    color: #0a1a0a;
-    font-weight: 900;
-}
-
-.call-btn-mute { background: rgba(151, 206, 76, 0.3); color: var(--portal-green); }
-.call-btn-mute.active { background: var(--morty-yellow); color: #0a1a0a; }
-.call-btn-end { background: var(--red); color: white; }
-
-.call-icon-btn {
-    width: 40px;
-    height: 40px;
-    border-radius: 12px;
+.sticker-item:hover {
+    transform: scale(1.05);
     background: rgba(151, 206, 76, 0.15);
-    border: 2px solid var(--portal-green);
-    color: var(--portal-green);
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
 }
 
-.incoming-call {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    background: rgba(15, 36, 16, 0.98);
-    border: 2px solid var(--portal-green);
-    border-radius: 16px;
-    padding: 16px;
-    display: none;
-    align-items: center;
-    gap: 14px;
-    z-index: 800;
-    min-width: 300px;
-    box-shadow: 0 20px 60px rgba(0,0,0,0.6), 0 0 40px rgba(151, 206, 76, 0.4);
+/* Стикеры в сообщениях */
+.msg-sticker {
+    font-size: 72px;
+    line-height: 1;
+    padding: 4px 0;
+    animation: stickerPop 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
 }
 
-.incoming-call.show { display: flex; }
+@keyframes stickerPop {
+    0% {
+        transform: scale(0.3) rotate(-15deg);
+        opacity: 0;
+    }
+    60% {
+        transform: scale(1.1) rotate(5deg);
+    }
+    100% {
+        transform: scale(1) rotate(0);
+        opacity: 1;
+    }
+}
 
-.incoming-call-info { flex: 1; }
-.incoming-call-name { font-size: 15px; font-weight: 800; }
-.incoming-call-sub { font-size: 12px; color: var(--portal-green); font-style: italic; }
-
-.incoming-btn {
-    width: 44px;
-    height: 44px;
+.msg-gif {
+    max-width: 240px;
     border-radius: 12px;
-    border: none;
+    margin-top: 4px;
     cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 16px;
-    color: #0a1a0a;
-    font-weight: 900;
+    transition: transform 0.15s;
 }
 
-.incoming-btn.accept { background: var(--portal-green); }
-.incoming-btn.decline { background: var(--red); color: white; }
+.msg-gif:hover {
+    transform: scale(1.02);
+}
 
+/* ============================================
+   АДАПТИВ
+   ============================================ */
 @media (max-width: 768px) {
-    .sidebar { width: 60px; }
-    .user-info, .sb-section, .friend-name, .channel span:not(.channel-icon), .add-friend-btn span { display: none; }
-    .channel, .friend { justify-content: center; }
-    .otp-input { width: 42px; height: 54px; font-size: 20px; }
-    .auth-card { padding: 30px 24px; }
-    .pw-requirements { grid-template-columns: 1fr; }
-    .auth-logo { font-size: 26px; }
+    .sidebar {
+        width: 60px;
+    }
+
+    .user-info,
+    .sb-section,
+    .friend-name,
+    .channel span:not(.channel-icon),
+    .add-friend-btn span {
+        display: none;
+    }
+
+    .channel,
+    .friend {
+        justify-content: center;
+    }
+
+    .otp-input {
+        width: 42px;
+        height: 54px;
+        font-size: 20px;
+    }
+
+    .auth-card {
+        padding: 30px 24px;
+    }
+
+    .pw-requirements {
+        grid-template-columns: 1fr;
+    }
+
+    .auth-logo {
+        font-size: 26px;
+    }
+
+    .topbar {
+        padding: 10px 14px;
+    }
+
+    .tabs .tab {
+        padding: 6px 10px;
+        font-size: 11px;
+    }
+
+    .msg-gif {
+        max-width: 180px;
+    }
+
+    .chat-messages {
+        padding: 14px;
+    }
+}
+
+@media (max-width: 480px) {
+    .modal-row {
+        grid-template-columns: 1fr;
+    }
+
+    .call-avatar {
+        width: 110px;
+        height: 110px;
+        font-size: 44px;
+    }
+
+    .call-name {
+        font-size: 22px;
+    }
 }
 </style>
 </head>
 <body>
 
+<!-- ============================================
+     ФОНОВЫЕ ЭЛЕМЕНТЫ
+     ============================================ -->
 <div class="portal-bg"></div>
 <div class="grid-overlay"></div>
 <div class="stars" id="stars"></div>
 
-<!-- AUTH SCREEN -->
+<!-- ============================================
+     ЭКРАН АВТОРИЗАЦИИ
+     ============================================ -->
 <div class="auth-screen" id="authScreen">
     <div class="auth-card">
         <div class="auth-logo">Rick & Morty</div>
         <div class="auth-sub">"Wubba lubba dub dub!"</div>
 
-        <!-- WELCOME -->
+        <!-- Шаг 0: Приветствие -->
         <div class="auth-step active" id="step-welcome">
             <div class="btn-row">
                 <button class="btn btn-secondary" onclick="gotoStep('login')">
@@ -1360,12 +2111,12 @@ body {
                 <i class="fas fa-atom"></i>
                 <div>
                     <strong>Добро пожаловать в Цитадель!</strong><br>
-                    Пароли защищены хешированием. 2FA через портал — почти как у Рика.
+                    Пароли защищены хешированием. Двухфакторка через портал.
                 </div>
             </div>
         </div>
 
-        <!-- REGISTER -->
+        <!-- Шаг 1: Регистрация -->
         <div class="auth-step" id="step-register">
             <div class="step-header">
                 <div class="step-number">1</div>
@@ -1394,7 +2145,9 @@ body {
                     </button>
                 </div>
                 <div class="password-strength" id="pwStrength" style="display:none;">
-                    <div class="strength-bar"><div class="strength-fill" id="strengthFill"></div></div>
+                    <div class="strength-bar">
+                        <div class="strength-fill" id="strengthFill"></div>
+                    </div>
                     <div class="strength-text" id="strengthText"></div>
                 </div>
                 <div class="pw-requirements" id="pwReqs" style="display:none;">
@@ -1423,7 +2176,7 @@ body {
             </div>
         </div>
 
-        <!-- LOGIN -->
+        <!-- Шаг: Логин -->
         <div class="auth-step" id="step-login">
             <div class="step-header">
                 <div class="step-number"><i class="fas fa-sign-in-alt"></i></div>
@@ -1461,7 +2214,7 @@ body {
             </div>
         </div>
 
-        <!-- 2FA SETUP -->
+        <!-- Шаг: 2FA Setup -->
         <div class="auth-step" id="step-2fa-setup">
             <div class="step-header">
                 <div class="step-number">2</div>
@@ -1480,7 +2233,10 @@ body {
                 <img class="qr-code" id="qrImage" alt="QR">
             </div>
 
-            <div class="field-label" style="text-align: center;">Или введи вручную</div>
+            <div style="text-align:center;font-size:11px;color:var(--portal-green);font-family:'JetBrains Mono',monospace;margin:12px 0;">
+                ИЛИ ВВЕДИ ВРУЧНУЮ
+            </div>
+
             <div class="secret-key" onclick="copySecret()">
                 <span id="secretText">...</span>
                 <button class="copy-btn">Копировать</button>
@@ -1508,7 +2264,7 @@ body {
             </div>
         </div>
 
-        <!-- 2FA BACKUP -->
+        <!-- Шаг: Backup Codes -->
         <div class="auth-step" id="step-2fa-backup">
             <div class="step-header">
                 <div class="step-number">3</div>
@@ -1534,7 +2290,7 @@ body {
             </button>
         </div>
 
-        <!-- 2FA VERIFY -->
+        <!-- Шаг: 2FA Verify -->
         <div class="auth-step" id="step-2fa-verify">
             <div class="step-header">
                 <div class="step-number"><i class="fas fa-shield-alt"></i></div>
@@ -1562,7 +2318,7 @@ body {
             </div>
         </div>
 
-        <!-- BACKUP CODE -->
+        <!-- Шаг: Backup Code -->
         <div class="auth-step" id="step-backup-code">
             <div class="step-header">
                 <div class="step-number"><i class="fas fa-key"></i></div>
@@ -1591,8 +2347,14 @@ body {
     </div>
 </div>
 
-<!-- APP -->
+<!-- ============================================
+     ОСНОВНОЕ ПРИЛОЖЕНИЕ
+     ============================================ -->
 <div class="app hidden" id="app">
+
+    <!-- ============================================
+         SIDEBAR
+         ============================================ -->
     <div class="sidebar">
         <div class="sb-header">
             <div class="sb-logo">R&M Chat</div>
@@ -1601,6 +2363,7 @@ body {
             </button>
         </div>
 
+        <!-- Профиль пользователя -->
         <div class="user-chip" onclick="openMyProfile()">
             <div class="avatar-wrap">
                 <div class="avatar" id="myAvatar"></div>
@@ -1612,6 +2375,7 @@ body {
             </div>
         </div>
 
+        <!-- Друзья -->
         <div class="sb-section">Друзья</div>
         <div class="friends-list" id="friendsList"></div>
         <div class="add-friend-btn" onclick="openAddFriend()">
@@ -1619,11 +2383,19 @@ body {
             <span>Добавить друга</span>
         </div>
 
+        <!-- Каналы -->
         <div class="sb-section" style="margin-top: 8px;">Измерения</div>
         <div class="channels" id="channelsList"></div>
     </div>
 
+    <!-- ============================================
+         MAIN AREA
+         ============================================ -->
     <div class="main">
+
+        <!-- ============================================
+             TOPBAR
+             ============================================ -->
         <div class="topbar">
             <div class="topbar-left">
                 <div class="topbar-info">
@@ -1647,12 +2419,20 @@ body {
             </div>
         </div>
 
+        <!-- ============================================
+             CONTENT
+             ============================================ -->
         <div class="content">
+
+            <!-- ============================================
+                 VIEW: ЧАТ
+                 ============================================ -->
             <div class="view active" id="view-chat">
                 <div class="chat-messages" id="chatMessages"></div>
+
                 <div class="chat-input">
                     <div class="chat-input-wrap">
-                        <textarea id="messageInput" placeholder="Написать сообщение... Wubba lubba dub dub!" rows="1" onkeydown="handleInputKey(event)" oninput="autoResize(this)"></textarea>
+                        <textarea id="messageInput" placeholder="Wubba lubba dub dub!" rows="1" onkeydown="handleInputKey(event)" oninput="autoResize(this)"></textarea>
                         <button class="input-btn" onclick="toggleEmojiPicker(event)" title="Стикеры и эмодзи">
                             <i class="fas fa-face-smile"></i>
                         </button>
@@ -1663,6 +2443,8 @@ body {
                             <i class="fas fa-paper-plane"></i>
                         </button>
                     </div>
+
+                    <!-- Эмодзи пикер -->
                     <div class="emoji-picker" id="emojiPicker">
                         <div class="emoji-picker-tabs">
                             <button class="emoji-picker-tab active" onclick="switchEmojiTab('emoji', this)">😀 Эмодзи</button>
@@ -1674,6 +2456,9 @@ body {
                 </div>
             </div>
 
+            <!-- ============================================
+                 VIEW: ПЛЕЙТЕСТЫ
+                 ============================================ -->
             <div class="view" id="view-playtests">
                 <div class="section">
                     <div class="section-title">🧪 Эксперименты Рика</div>
@@ -1709,6 +2494,9 @@ body {
                 </div>
             </div>
 
+            <!-- ============================================
+                 VIEW: ФИДБЕК
+                 ============================================ -->
             <div class="view" id="view-feedback">
                 <div class="section">
                     <div class="section-title">🐛 Баги и глюки</div>
@@ -1724,18 +2512,22 @@ body {
                     <div class="feedback-list" id="feedbackList"></div>
                 </div>
             </div>
+
         </div>
     </div>
 </div>
-
-<!-- MODALS -->
+<!-- ============================================
+     МОДАЛКА: ЗАГРУЗКА БИЛДА
+     ============================================ -->
 <div class="modal-bg" id="uploadModal">
     <div class="modal">
         <div class="modal-title">📦 Загрузить билд</div>
+
         <div class="modal-field">
             <label class="modal-label">Версия</label>
             <input type="text" class="modal-input" id="buildVersion" placeholder="0.1.0">
         </div>
+
         <div class="modal-row">
             <div class="modal-field">
                 <label class="modal-label">Платформа</label>
@@ -1753,6 +2545,7 @@ body {
                 <input type="number" class="modal-input" id="buildSize" placeholder="120">
             </div>
         </div>
+
         <div class="modal-actions">
             <button class="btn btn-ghost" onclick="closeModal('uploadModal')">Отмена</button>
             <button class="btn btn-primary" onclick="uploadBuild()">
@@ -1762,9 +2555,13 @@ body {
     </div>
 </div>
 
+<!-- ============================================
+     МОДАЛКА: НОВЫЙ ФИДБЕК
+     ============================================ -->
 <div class="modal-bg" id="feedbackModal">
     <div class="modal">
         <div class="modal-title">🐛 Новый баг</div>
+
         <div class="modal-row">
             <div class="modal-field">
                 <label class="modal-label">Тип</label>
@@ -1785,14 +2582,17 @@ body {
                 </select>
             </div>
         </div>
+
         <div class="modal-field">
             <label class="modal-label">Заголовок</label>
             <input type="text" class="modal-input" id="fbTitle" placeholder="Кратко">
         </div>
+
         <div class="modal-field">
             <label class="modal-label">Описание</label>
             <textarea class="modal-textarea" id="fbContent" placeholder="Что произошло?"></textarea>
         </div>
+
         <div class="modal-actions">
             <button class="btn btn-ghost" onclick="closeModal('feedbackModal')">Отмена</button>
             <button class="btn btn-primary" onclick="submitFeedback()">
@@ -1802,14 +2602,23 @@ body {
     </div>
 </div>
 
+<!-- ============================================
+     МОДАЛКА: ДОБАВИТЬ ДРУГА
+     ============================================ -->
 <div class="modal-bg" id="addFriendModal">
     <div class="modal">
         <div class="modal-title">👥 Добавить друга</div>
+
         <div class="modal-field">
             <label class="modal-label">Никнейм</label>
-            <input type="text" class="modal-input" id="friendUsernameInput" placeholder="Введите ник">
+            <input type="text" class="modal-input" id="friendUsernameInput" placeholder="Введи ник друга">
+            <div style="font-size:11px;color:var(--text2);margin-top:8px;font-style:italic;">
+                💡 Друг должен быть онлайн на этом же сайте, чтобы синхронизация сработала мгновенно.
+            </div>
         </div>
-        <div id="addFriendResult" style="font-size: 13px; margin-bottom: 8px;"></div>
+
+        <div id="addFriendResult" style="font-size:13px;margin-bottom:8px;"></div>
+
         <div class="modal-actions">
             <button class="btn btn-ghost" onclick="closeModal('addFriendModal')">Отмена</button>
             <button class="btn btn-primary" onclick="addFriend()">
@@ -1819,6 +2628,9 @@ body {
     </div>
 </div>
 
+<!-- ============================================
+     МОДАЛКА: ПРОФИЛЬ
+     ============================================ -->
 <div class="modal-bg" id="profileModal">
     <div class="modal">
         <div class="profile-modal-user">
@@ -1826,6 +2638,7 @@ body {
             <div class="profile-name" id="profileName"></div>
             <div id="profileBadge"></div>
         </div>
+
         <div class="modal-actions">
             <button class="btn btn-ghost" onclick="closeModal('profileModal')">Закрыть</button>
             <button class="btn btn-primary" id="profileMessageBtn" onclick="openChatWithProfile()">
@@ -1835,69 +2648,312 @@ body {
     </div>
 </div>
 
+<!-- ============================================
+     ОВЕРЛЕЙ ЗВОНКА (исходящий / активный)
+     ============================================ -->
 <div class="call-overlay" id="callOverlay">
     <div class="call-avatar avatar-wrap" id="callAvatar"></div>
     <div class="call-name" id="callName"></div>
-    <div class="call-status" id="callStatus">Устанавливаю связь через портал...</div>
+    <div class="call-status" id="callStatus">Открываю портал...</div>
     <div class="call-timer" id="callTimer" style="display:none;">00:00</div>
+
     <div class="call-actions">
-        <button class="call-btn call-btn-mute" id="muteBtn" onclick="toggleMute()">
+        <button class="call-btn call-btn-mute" id="muteBtn" onclick="toggleMute()" title="Микрофон">
             <i class="fas fa-microphone"></i>
         </button>
-        <button class="call-btn call-btn-end" onclick="endCall()">
+        <button class="call-btn call-btn-end" onclick="endCall()" title="Завершить">
             <i class="fas fa-phone-slash"></i>
         </button>
     </div>
 </div>
 
+<!-- ============================================
+     ВХОДЯЩИЙ ЗВОНОК (уведомление)
+     ============================================ -->
 <div class="incoming-call" id="incomingCall">
     <div class="friend-avatar avatar-wrap" id="incomingAvatar" style="width:44px;height:44px;font-size:18px;"></div>
+
     <div class="incoming-call-info">
         <div class="incoming-call-name" id="incomingName"></div>
-        <div class="incoming-call-sub">📞 Входящий портал</div>
+        <div class="incoming-call-sub">🌀 Входящий портал</div>
     </div>
+
     <div style="display:flex;gap:8px;">
-        <button class="incoming-btn decline" onclick="declineCall()">
+        <button class="incoming-btn decline" onclick="declineCall()" title="Отклонить">
             <i class="fas fa-phone-slash"></i>
         </button>
-        <button class="incoming-btn accept" onclick="acceptCall()">
+        <button class="incoming-btn accept" onclick="acceptCall()" title="Принять">
             <i class="fas fa-phone"></i>
         </button>
     </div>
 </div>
 
+<!-- ============================================
+     TOAST УВЕДОМЛЕНИЕ
+     ============================================ -->
 <div class="toast" id="toast"></div>
+<!-- ============================================
+     МОДАЛКА: ЗАГРУЗКА БИЛДА
+     ============================================ -->
+<div class="modal-bg" id="uploadModal">
+    <div class="modal">
+        <div class="modal-title">📦 Загрузить билд</div>
 
+        <div class="modal-field">
+            <label class="modal-label">Версия</label>
+            <input 
+                type="text" 
+                class="modal-input" 
+                id="buildVersion" 
+                placeholder="0.1.0"
+            >
+        </div>
+
+        <div class="modal-row">
+            <div class="modal-field">
+                <label class="modal-label">Платформа</label>
+                <select class="modal-select" id="buildPlatform">
+                    <option value="Windows">Windows</option>
+                    <option value="macOS">macOS</option>
+                    <option value="Linux">Linux</option>
+                    <option value="WebGL">WebGL</option>
+                    <option value="Android">Android</option>
+                    <option value="iOS">iOS</option>
+                </select>
+            </div>
+            <div class="modal-field">
+                <label class="modal-label">Размер (МБ)</label>
+                <input 
+                    type="number" 
+                    class="modal-input" 
+                    id="buildSize" 
+                    placeholder="120"
+                    min="1"
+                >
+            </div>
+        </div>
+
+        <div class="modal-field">
+            <label class="modal-label">Changelog</label>
+            <textarea 
+                class="modal-textarea" 
+                id="buildChangelog" 
+                placeholder="Что нового в этой версии..."
+            ></textarea>
+        </div>
+
+        <div class="modal-actions">
+            <button class="btn btn-ghost" onclick="closeModal('uploadModal')">
+                <i class="fas fa-times"></i> Отмена
+            </button>
+            <button class="btn btn-primary" onclick="uploadBuild()">
+                <i class="fas fa-upload"></i> Загрузить
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- ============================================
+     МОДАЛКА: НОВЫЙ ФИДБЕК
+     ============================================ -->
+<div class="modal-bg" id="feedbackModal">
+    <div class="modal">
+        <div class="modal-title">🐛 Новый баг / идея</div>
+
+        <div class="modal-row">
+            <div class="modal-field">
+                <label class="modal-label">Тип</label>
+                <select class="modal-select" id="fbType">
+                    <option value="BUG">🐛 Баг</option>
+                    <option value="FEATURE">💡 Идея</option>
+                    <option value="BALANCE">⚖️ Баланс</option>
+                    <option value="UX">🎨 UX</option>
+                    <option value="PERFORMANCE">⚡ Производительность</option>
+                </select>
+            </div>
+            <div class="modal-field">
+                <label class="modal-label">Приоритет</label>
+                <select class="modal-select" id="fbPriority">
+                    <option value="LOW">Низкий</option>
+                    <option value="MEDIUM" selected>Средний</option>
+                    <option value="HIGH">Высокий</option>
+                    <option value="CRITICAL">Критический</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="modal-field">
+            <label class="modal-label">Заголовок</label>
+            <input 
+                type="text" 
+                class="modal-input" 
+                id="fbTitle" 
+                placeholder="Кратко о проблеме"
+                maxlength="100"
+            >
+        </div>
+
+        <div class="modal-field">
+            <label class="modal-label">Описание</label>
+            <textarea 
+                class="modal-textarea" 
+                id="fbContent" 
+                placeholder="Как воспроизвести, что ожидалось, что произошло..."
+            ></textarea>
+        </div>
+
+        <div class="modal-actions">
+            <button class="btn btn-ghost" onclick="closeModal('feedbackModal')">
+                <i class="fas fa-times"></i> Отмена
+            </button>
+            <button class="btn btn-primary" onclick="submitFeedback()">
+                <i class="fas fa-paper-plane"></i> Отправить
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- ============================================
+     МОДАЛКА: ДОБАВИТЬ ДРУГА
+     ============================================ -->
+<div class="modal-bg" id="addFriendModal">
+    <div class="modal">
+        <div class="modal-title">👥 Добавить друга</div>
+
+        <div class="modal-field">
+            <label class="modal-label">Никнейм друга</label>
+            <input 
+                type="text" 
+                class="modal-input" 
+                id="friendUsernameInput" 
+                placeholder="Введи ник друга"
+                maxlength="20"
+            >
+            <div style="
+                font-size: 11px; 
+                color: var(--text2); 
+                margin-top: 8px; 
+                font-style: italic;
+                line-height: 1.5;
+            ">
+                💡 Друг должен быть онлайн на этом же сайте, 
+                чтобы синхронизация сработала мгновенно.
+            </div>
+        </div>
+
+        <div 
+            id="addFriendResult" 
+            style="font-size:13px;margin-bottom:8px;min-height:20px;"
+        ></div>
+
+        <div class="modal-actions">
+            <button class="btn btn-ghost" onclick="closeModal('addFriendModal')">
+                <i class="fas fa-times"></i> Отмена
+            </button>
+            <button class="btn btn-primary" onclick="addFriend()">
+                <i class="fas fa-user-plus"></i> Добавить
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- ============================================
+     МОДАЛКА: ПРОФИЛЬ
+     ============================================ -->
+<div class="modal-bg" id="profileModal">
+    <div class="modal">
+        <!-- Шапка профиля -->
+        <div class="profile-modal-user">
+            <div class="profile-avatar-big avatar-wrap" id="profileAvatar"></div>
+            <div class="profile-name" id="profileName"></div>
+            <div class="profile-engine" id="profileEngine" style="font-size:12px;color:var(--text2);font-family:'JetBrains Mono',monospace;margin-bottom:10px;"></div>
+            <div id="profileBadge"></div>
+        </div>
+
+        <!-- Информация -->
+        <div class="modal-field">
+            <label class="modal-label">ID</label>
+            <div 
+                id="profileId" 
+                style="font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--text2);"
+            ></div>
+        </div>
+
+        <!-- Действия -->
+        <div class="modal-field" id="profileActions"></div>
+
+        <div class="modal-actions">
+            <button class="btn btn-ghost" onclick="closeModal('profileModal')">
+                <i class="fas fa-times"></i> Закрыть
+            </button>
+            <button 
+                class="btn btn-primary" 
+                id="profileMessageBtn" 
+                onclick="openChatWithProfile()"
+            >
+                <i class="fas fa-comment"></i> Написать
+            </button>
+        </div>
+    </div>
+</div>
 <script>
-// ==================== ЗВЁЗДЫ ФОН ====================
+// ============================================
+// СОЗДАНИЕ ЗВЁЗД НА ФОНЕ
+// ============================================
 (function createStars() {
     const container = document.getElementById('stars');
+    const colors = ['#97ce4c', '#00c9ff', '#f5d547'];
+    
     for (let i = 0; i < 50; i++) {
         const star = document.createElement('div');
         star.className = 'star';
         star.style.left = Math.random() * 100 + '%';
         star.style.animationDuration = (Math.random() * 8 + 8) + 's';
         star.style.animationDelay = Math.random() * 8 + 's';
-        const colors = ['#97ce4c', '#00c9ff', '#f5d547'];
-        star.style.background = colors[Math.floor(Math.random() * colors.length)];
-        star.style.boxShadow = `0 0 10px ${star.style.background}`;
+        
+        const color = colors[Math.floor(Math.random() * colors.length)];
+        star.style.background = color;
+        star.style.boxShadow = `0 0 10px ${color}`;
+        
         container.appendChild(star);
     }
 })();
 
-// ==================== БАЗА ====================
+// ============================================
+// БАЗА ДАННЫХ (localStorage)
+// ============================================
 const DB = {
     get(key, def) {
-        try { return JSON.parse(localStorage.getItem('rm_' + key)) || def; }
-        catch { return def; }
+        try {
+            return JSON.parse(localStorage.getItem('rm_' + key)) || def;
+        } catch {
+            return def;
+        }
     },
-    set(key, val) { localStorage.setItem('rm_' + key, JSON.stringify(val)); },
-    remove(key) { localStorage.removeItem('rm_' + key); }
+    set(key, val) {
+        localStorage.setItem('rm_' + key, JSON.stringify(val));
+    },
+    remove(key) {
+        localStorage.removeItem('rm_' + key);
+    },
+    clear() {
+        const keys = Object.keys(localStorage).filter(k => k.startsWith('rm_'));
+        keys.forEach(k => localStorage.removeItem(k));
+    }
 };
 
+// ============================================
+// КОНСТАНТЫ
+// ============================================
 const FOUNDER_USERNAME = 'rick';
-function isFounder(u) { return u && u.toLowerCase() === FOUNDER_USERNAME.toLowerCase(); }
 
+function isFounder(username) {
+    return username && username.toLowerCase() === FOUNDER_USERNAME.toLowerCase();
+}
+
+// ============================================
+// ГЛОБАЛЬНОЕ СОСТОЯНИЕ
+// ============================================
 let currentUser = null;
 let tempUser = null;
 let tempSecret = null;
@@ -1909,23 +2965,47 @@ let viewingProfile = null;
 let peer = null;
 let currentCall = null;
 let localStream = null;
-let callState = { active: false, incoming: false, ringing: false, muted: false, callPartner: null, startTime: null, timerInterval: null, ringToneNodes: [] };
+
+let callState = {
+    active: false,
+    incoming: false,
+    ringing: false,
+    muted: false,
+    callPartner: null,
+    startTime: null,
+    timerInterval: null,
+    ringToneNodes: []
+};
+
 const activeConnections = {};
 
-// ==================== НАВИГАЦИЯ ====================
-function gotoStep(step) {
-    document.querySelectorAll('.auth-step').forEach(s => s.classList.remove('active'));
-    document.getElementById('step-' + step).classList.add('active');
+// ============================================
+// НАВИГАЦИЯ ПО ШАГАМ АВТОРИЗАЦИИ
+// ============================================
+function gotoStep(stepName) {
+    document.querySelectorAll('.auth-step').forEach(step => {
+        step.classList.remove('active');
+    });
+
+    const targetStep = document.getElementById('step-' + stepName);
+    if (targetStep) {
+        targetStep.classList.add('active');
+    }
+
+    // Автофокус на первое OTP-поле
     setTimeout(() => {
-        const activeOtp = document.querySelector('.auth-step.active .otp-input');
-        if (activeOtp) activeOtp.focus();
+        const otpInput = document.querySelector('.auth-step.active .otp-input');
+        if (otpInput) otpInput.focus();
     }, 200);
 }
 
-// ==================== ПАРОЛЬ ====================
-function togglePassword(inputId, btn) {
+// ============================================
+// ПОКАЗ / СКРЫТИЕ ПАРОЛЯ
+// ============================================
+function togglePassword(inputId, button) {
     const input = document.getElementById(inputId);
-    const icon = btn.querySelector('i');
+    const icon = button.querySelector('i');
+
     if (input.type === 'password') {
         input.type = 'text';
         icon.className = 'fas fa-eye-slash';
@@ -1935,12 +3015,15 @@ function togglePassword(inputId, btn) {
     }
 }
 
+// ============================================
+// ПРОВЕРКА ПАРОЛЯ
+// ============================================
 function checkPassword() {
-    const pw = document.getElementById('regPassword').value;
+    const password = document.getElementById('regPassword').value;
     const strengthEl = document.getElementById('pwStrength');
     const reqsEl = document.getElementById('pwReqs');
 
-    if (pw.length === 0) {
+    if (password.length === 0) {
         strengthEl.style.display = 'none';
         reqsEl.style.display = 'none';
         updateRegisterBtn();
@@ -1950,147 +3033,247 @@ function checkPassword() {
     strengthEl.style.display = 'block';
     reqsEl.style.display = 'grid';
 
-    const reqs = {
-        length: pw.length >= 8,
-        upper: /[A-Z]/.test(pw),
-        lower: /[a-z]/.test(pw),
-        number: /[0-9]/.test(pw)
+    // Проверяем требования
+    const requirements = {
+        length: password.length >= 8,
+        upper: /[A-Z]/.test(password),
+        lower: /[a-z]/.test(password),
+        number: /[0-9]/.test(password)
     };
 
     let score = 0;
-    Object.entries(reqs).forEach(([key, ok]) => {
+    Object.entries(requirements).forEach(([key, isOk]) => {
         const el = document.querySelector(`.pw-req[data-req="${key}"]`);
-        el.classList.toggle('ok', ok);
-        el.querySelector('i').className = ok ? 'fas fa-check-circle' : 'fas fa-circle';
-        if (ok) score++;
+        el.classList.toggle('ok', isOk);
+        el.querySelector('i').className = isOk 
+            ? 'fas fa-check-circle' 
+            : 'fas fa-circle';
+        if (isOk) score++;
     });
 
-    if (/[^A-Za-z0-9]/.test(pw)) score += 0.5;
-    if (pw.length >= 12) score += 0.5;
+    // Бонусы за спецсимволы и длину
+    if (/[^A-Za-z0-9]/.test(password)) score += 0.5;
+    if (password.length >= 12) score += 0.5;
 
+    // Обновляем визуальный индикатор
     const fill = document.getElementById('strengthFill');
     const text = document.getElementById('strengthText');
+    
     fill.className = 'strength-fill';
     text.className = 'strength-text';
 
-    if (score <= 1.5) { fill.classList.add('weak'); text.classList.add('weak'); text.textContent = 'Слабый'; }
-    else if (score <= 2.5) { fill.classList.add('fair'); text.classList.add('fair'); text.textContent = 'Средний'; }
-    else if (score <= 3.5) { fill.classList.add('good'); text.classList.add('good'); text.textContent = 'Хороший'; }
-    else { fill.classList.add('strong'); text.classList.add('strong'); text.textContent = 'Отличный'; }
+    if (score <= 1.5) {
+        fill.classList.add('weak');
+        text.classList.add('weak');
+        text.textContent = 'Слабый пароль';
+    } else if (score <= 2.5) {
+        fill.classList.add('fair');
+        text.classList.add('fair');
+        text.textContent = 'Средний пароль';
+    } else if (score <= 3.5) {
+        fill.classList.add('good');
+        text.classList.add('good');
+        text.textContent = 'Хороший пароль';
+    } else {
+        fill.classList.add('strong');
+        text.classList.add('strong');
+        text.textContent = 'Отличный пароль!';
+    }
 
     checkPasswordMatch();
 }
 
+// ============================================
+// СОВПАДЕНИЕ ПАРОЛЕЙ
+// ============================================
 function checkPasswordMatch() {
     const pw1 = document.getElementById('regPassword').value;
     const pw2 = document.getElementById('regPassword2').value;
     const hint = document.getElementById('pwMatchHint');
 
-    if (pw2.length === 0) { hint.textContent = ''; updateRegisterBtn(); return; }
+    if (pw2.length === 0) {
+        hint.textContent = '';
+        updateRegisterBtn();
+        return;
+    }
 
-    if (pw1 === pw2) { hint.textContent = '✓ Пароли совпадают'; hint.style.color = 'var(--portal-green)'; }
-    else { hint.textContent = '✗ Не совпадают'; hint.style.color = 'var(--red)'; }
+    if (pw1 === pw2) {
+        hint.textContent = '✓ Пароли совпадают';
+        hint.style.color = 'var(--green)';
+    } else {
+        hint.textContent = '✗ Пароли не совпадают';
+        hint.style.color = 'var(--red)';
+    }
+
     updateRegisterBtn();
 }
 
+// ============================================
+// ПРОВЕРКА НИКА
+// ============================================
 function checkUsername() {
     const username = document.getElementById('regUsername').value.trim();
     const hint = document.getElementById('usernameHint');
 
-    if (!username) { hint.textContent = '3-20 символов, буквы и цифры'; hint.style.color = 'var(--text2)'; updateRegisterBtn(); return; }
-    if (username.length < 3) { hint.textContent = '✗ Минимум 3 символа'; hint.style.color = 'var(--red)'; updateRegisterBtn(); return; }
-    if (!/^[a-zA-Z0-9_]+$/.test(username)) { hint.textContent = '✗ Только буквы, цифры и _'; hint.style.color = 'var(--red)'; updateRegisterBtn(); return; }
+    if (!username) {
+        hint.textContent = '3-20 символов, буквы и цифры';
+        hint.style.color = 'var(--text2)';
+        updateRegisterBtn();
+        return;
+    }
+
+    if (username.length < 3) {
+        hint.textContent = '✗ Минимум 3 символа';
+        hint.style.color = 'var(--red)';
+        updateRegisterBtn();
+        return;
+    }
+
+    if (username.length > 20) {
+        hint.textContent = '✗ Максимум 20 символов';
+        hint.style.color = 'var(--red)';
+        updateRegisterBtn();
+        return;
+    }
+
+    if (!/^[a-zA-Z0-9_]+$/.test(username)) {
+        hint.textContent = '✗ Только буквы, цифры и _';
+        hint.style.color = 'var(--red)';
+        updateRegisterBtn();
+        return;
+    }
 
     const users = DB.get('users', {});
-    if (users[username]) { hint.textContent = '✗ Ник занят'; hint.style.color = 'var(--red)'; updateRegisterBtn(); return; }
+    if (users[username]) {
+        hint.textContent = '✗ Ник занят';
+        hint.style.color = 'var(--red)';
+        updateRegisterBtn();
+        return;
+    }
 
     hint.textContent = '✓ Ник доступен';
-    hint.style.color = 'var(--portal-green)';
+    hint.style.color = 'var(--green)';
     updateRegisterBtn();
 }
 
+// ============================================
+// АКТИВАЦИЯ КНОПКИ РЕГИСТРАЦИИ
+// ============================================
 function updateRegisterBtn() {
     const username = document.getElementById('regUsername').value.trim();
     const pw1 = document.getElementById('regPassword').value;
     const pw2 = document.getElementById('regPassword2').value;
     const users = DB.get('users', {});
 
-    const valid = username.length >= 3 && 
-                  /^[a-zA-Z0-9_]+$/.test(username) &&
-                  !users[username] &&
-                  pw1.length >= 8 &&
-                  /[A-Z]/.test(pw1) &&
-                  /[a-z]/.test(pw1) &&
-                  /[0-9]/.test(pw1) &&
-                  pw1 === pw2;
+    const isValid = 
+        username.length >= 3 &&
+        username.length <= 20 &&
+        /^[a-zA-Z0-9_]+$/.test(username) &&
+        !users[username] &&
+        pw1.length >= 8 &&
+        /[A-Z]/.test(pw1) &&
+        /[a-z]/.test(pw1) &&
+        /[0-9]/.test(pw1) &&
+        pw1 === pw2;
 
-    document.getElementById('regBtn').disabled = !valid;
+    document.getElementById('regBtn').disabled = !isValid;
 }
 
-// ==================== ХЕШИРОВАНИЕ ====================
+// ============================================
+// ХЕШИРОВАНИЕ ПАРОЛЯ (SHA-256)
+// ============================================
 async function hashPassword(password) {
     const encoder = new TextEncoder();
     const data = encoder.encode(password);
     const hashBuffer = await crypto.subtle.digest('SHA-256', data);
-    return Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
 }
 
+// ============================================
+// ГЕНЕРАЦИЯ СЛУЧАЙНОЙ СОЛИ
+// ============================================
 function generateSalt() {
     const array = new Uint8Array(16);
     crypto.getRandomValues(array);
-    return Array.from(array).map(b => b.toString(16).padStart(2, '0')).join('');
+    return Array.from(array)
+        .map(b => b.toString(16).padStart(2, '0'))
+        .join('');
 }
 
-// ==================== РЕГИСТРАЦИЯ ====================
+// ============================================
+// РЕГИСТРАЦИЯ
+// ============================================
 async function doRegister() {
     const username = document.getElementById('regUsername').value.trim();
     const password = document.getElementById('regPassword').value;
 
     const users = DB.get('users', {});
-    if (users[username]) return toast('Ник занят', 'error');
+    if (users[username]) {
+        return toast('❌ Ник уже занят', 'error');
+    }
 
     const btn = document.getElementById('regBtn');
+    const originalHTML = btn.innerHTML;
     btn.innerHTML = '<span class="spinner"></span> Готовлю зелье...';
     btn.disabled = true;
 
-    const salt = generateSalt();
-    const passwordHash = await hashPassword(password + salt);
+    try {
+        // Генерируем соль и хешируем пароль
+        const salt = generateSalt();
+        const passwordHash = await hashPassword(password + salt);
 
-    // Цвета как у персонажей
-    const colors = ['#97ce4c', '#00c9ff', '#f5d547', '#ff6ec7', '#e74c3c', '#4a90e2'];
-    const finalColor = isFounder(username) ? '#f5d547' : colors[Math.floor(Math.random() * colors.length)];
+        // Выбираем цвет
+        const colors = ['#97ce4c', '#00c9ff', '#f5d547', '#ff6ec7', '#e74c3c', '#4a90e2'];
+        const color = isFounder(username)
+            ? '#f5d547'
+            : colors[Math.floor(Math.random() * colors.length)];
 
-    const newUser = {
-        username,
-        salt,
-        passwordHash,
-        color: finalColor,
-        eternalStatus: isFounder(username) ? 'founder' : 'normis',
-        has2FA: false,
-        totpSecret: null,
-        backupCodes: [],
-        createdAt: Date.now()
-    };
+        // Формируем пользователя
+        const newUser = {
+            username: username,
+            salt: salt,
+            passwordHash: passwordHash,
+            color: color,
+            eternalStatus: isFounder(username) ? 'founder' : 'normis',
+            has2FA: false,
+            totpSecret: null,
+            backupCodes: [],
+            createdAt: Date.now()
+        };
 
-    tempUser = newUser;
+        tempUser = newUser;
 
-    setTimeout(() => {
-        btn.innerHTML = '<i class="fas fa-arrow-right"></i> Продолжить';
+        // Предлагаем настроить 2FA
+        setTimeout(() => {
+            btn.innerHTML = originalHTML;
+            btn.disabled = false;
+
+            if (confirm('🔒 Настроить двухфакторную аутентификацию?\n\nЭто защитит аккаунт даже если украдут пароль.')) {
+                start2FASetup();
+            } else {
+                saveUserAndLogin(newUser);
+            }
+        }, 300);
+
+    } catch (error) {
+        console.error('Register error:', error);
+        toast('❌ Ошибка регистрации', 'error');
+        btn.innerHTML = originalHTML;
         btn.disabled = false;
-        
-        if (confirm('🔒 Настроить 2FA?\n\nВ стиле Рика — двойная защита через портал.')) {
-            start2FASetup();
-        } else {
-            saveUserAndLogin(newUser);
-        }
-    }, 300);
+    }
 }
 
+// ============================================
+// СОХРАНЕНИЕ ПОЛЬЗОВАТЕЛЯ И ВХОД
+// ============================================
 function saveUserAndLogin(user) {
+    // Сохраняем в базу
     const users = DB.get('users', {});
     users[user.username] = user;
     DB.set('users', users);
 
+    // Запоминаем текущего пользователя
     currentUser = {
         username: user.username,
         color: user.color,
@@ -2099,25 +3282,34 @@ function saveUserAndLogin(user) {
     };
     DB.set('user', currentUser);
 
-    const channels = DB.get('channels', ['general']);
+    // Создаём приветственное сообщение
     const messages = DB.get('messages', {});
     if (!messages.general) messages.general = [];
 
-    const welcome = isFounder(user.username)
+    const welcomeText = isFounder(user.username)
         ? `🧪 ${user.username} вошёл в лабораторию! "Wubba lubba dub dub!"`
         : `👋 Добро пожаловать, ${user.username}! Присоединяйся к приключениям.`;
 
-    messages.general.push({ author: 'System', text: welcome, time: Date.now(), isSystem: true });
+    messages.general.push({
+        author: 'System',
+        text: welcomeText,
+        time: Date.now(),
+        isSystem: true
+    });
     DB.set('messages', messages);
 
     toast('✅ Аккаунт создан!', 'success');
     setTimeout(openApp, 400);
 }
 
-// ==================== TOTP ====================
+// ============================================
+// TOTP (Time-based One-Time Password)
+// Стандарт RFC 6238
+// ============================================
 function base32Encode(bytes) {
     const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
     let bits = 0, value = 0, output = '';
+    
     for (let i = 0; i < bytes.length; i++) {
         value = (value << 8) | bytes[i];
         bits += 8;
@@ -2126,25 +3318,34 @@ function base32Encode(bytes) {
             bits -= 5;
         }
     }
-    if (bits > 0) output += alphabet[(value << (5 - bits)) & 31];
+    
+    if (bits > 0) {
+        output += alphabet[(value << (5 - bits)) & 31];
+    }
+    
     return output;
 }
 
 function base32Decode(str) {
     const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
     str = str.toUpperCase().replace(/=+$/, '');
+    
     let bits = 0, value = 0;
     const bytes = [];
+    
     for (let i = 0; i < str.length; i++) {
         const idx = alphabet.indexOf(str[i]);
         if (idx === -1) continue;
+        
         value = (value << 5) | idx;
         bits += 5;
+        
         if (bits >= 8) {
             bytes.push((value >>> (bits - 8)) & 0xff);
             bits -= 8;
         }
     }
+    
     return new Uint8Array(bytes);
 }
 
@@ -2163,17 +3364,30 @@ async function generateTOTP(secret, timeOffset = 0) {
     const view = new DataView(buffer);
     view.setUint32(4, counter, false);
 
-    const cryptoKey = await crypto.subtle.importKey('raw', key, { name: 'HMAC', hash: 'SHA-1' }, false, ['sign']);
+    const cryptoKey = await crypto.subtle.importKey(
+        'raw',
+        key,
+        { name: 'HMAC', hash: 'SHA-1' },
+        false,
+        ['sign']
+    );
+
     const signature = await crypto.subtle.sign('HMAC', cryptoKey, buffer);
     const hash = new Uint8Array(signature);
 
     const offset = hash[hash.length - 1] & 0xf;
-    const code = ((hash[offset] & 0x7f) << 24 | (hash[offset + 1] & 0xff) << 16 | (hash[offset + 2] & 0xff) << 8 | (hash[offset + 3] & 0xff)) % 1000000;
+    const code = (
+        (hash[offset] & 0x7f) << 24 |
+        (hash[offset + 1] & 0xff) << 16 |
+        (hash[offset + 2] & 0xff) << 8 |
+        (hash[offset + 3] & 0xff)
+    ) % 1000000;
 
     return code.toString().padStart(6, '0');
 }
 
 async function verifyTOTP(secret, code) {
+    // Проверяем текущее, прошлое и будущее значение (для дрейфа часов)
     for (const offset of [0, -30, 30]) {
         const expected = await generateTOTP(secret, offset);
         if (expected === code) return true;
@@ -2181,39 +3395,74 @@ async function verifyTOTP(secret, code) {
     return false;
 }
 
-// ==================== 2FA SETUP ====================
+// ============================================
+// 2FA — НАСТРОЙКА
+// ============================================
 async function start2FASetup() {
     tempSecret = generateTOTPSecret();
     document.getElementById('secretText').textContent = tempSecret;
 
-    const otpauthUrl = `otpauth://totp/RickAndMorty:${tempUser.username}?secret=${tempSecret}&issuer=Rick%20and%20Morty&algorithm=SHA1&digits=6&period=30`;
-    document.getElementById('qrImage').src = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(otpauthUrl)}&bgcolor=ffffff&color=0a1a0a&margin=0`;
+    const otpauthUrl = 
+        `otpauth://totp/RickAndMorty:${tempUser.username}` +
+        `?secret=${tempSecret}` +
+        `&issuer=Rick%20and%20Morty` +
+        `&algorithm=SHA1` +
+        `&digits=6` +
+        `&period=30`;
+
+    document.getElementById('qrImage').src = 
+        `https://api.qrserver.com/v1/create-qr-code/` +
+        `?size=300x300` +
+        `&data=${encodeURIComponent(otpauthUrl)}` +
+        `&bgcolor=ffffff&color=0a1a0a&margin=0`;
 
     gotoStep('2fa-setup');
 }
 
 function copySecret() {
     if (!tempSecret) return;
-    navigator.clipboard.writeText(tempSecret).then(() => toast('📋 Скопировано', 'success'));
+    navigator.clipboard.writeText(tempSecret).then(() => {
+        toast('📋 Скопировано', 'success');
+    }).catch(() => {
+        toast('❌ Не удалось скопировать', 'error');
+    });
 }
 
+// ============================================
+// OTP ИНПУТЫ — ОБРАБОТКА ВВОДА
+// ============================================
 document.querySelectorAll('.otp-inputs').forEach(group => {
     const inputs = group.querySelectorAll('.otp-input');
+    
     inputs.forEach((input, idx) => {
+        // Ввод цифры
         input.addEventListener('input', (e) => {
             const val = e.target.value.replace(/[^0-9]/g, '');
             e.target.value = val;
             e.target.classList.toggle('filled', val.length > 0);
-            if (val && idx < inputs.length - 1) inputs[idx + 1].focus();
+            
+            if (val && idx < inputs.length - 1) {
+                inputs[idx + 1].focus();
+            }
+            
             if (val) input.classList.remove('error');
         });
+        
+        // Backspace и Enter
         input.addEventListener('keydown', (e) => {
-            if (e.key === 'Backspace' && !e.target.value && idx > 0) inputs[idx - 1].focus();
+            if (e.key === 'Backspace' && !e.target.value && idx > 0) {
+                inputs[idx - 1].focus();
+            }
             if (e.key === 'Enter') {
-                if (group.id === 'login2FAInputs') verifyLogin2FA();
-                else verifySetup2FA();
+                if (group.id === 'login2FAInputs') {
+                    verifyLogin2FA();
+                } else {
+                    verifySetup2FA();
+                }
             }
         });
+        
+        // Вставка кода
         input.addEventListener('paste', (e) => {
             e.preventDefault();
             const pasted = e.clipboardData.getData('text').replace(/[^0-9]/g, '');
@@ -2227,87 +3476,155 @@ document.querySelectorAll('.otp-inputs').forEach(group => {
 });
 
 function getOTPValue(groupId) {
-    const group = document.getElementById(groupId) || document.querySelector('.auth-step.active .otp-inputs');
+    const group = document.getElementById(groupId) || 
+                  document.querySelector('.auth-step.active .otp-inputs');
+    
     if (!group) return '';
-    return Array.from(group.querySelectorAll('.otp-input')).map(i => i.value).join('');
+    
+    return Array.from(group.querySelectorAll('.otp-input'))
+        .map(i => i.value)
+        .join('');
 }
 
+// ============================================
+// 2FA — ПОДТВЕРЖДЕНИЕ НАСТРОЙКИ
+// ============================================
 async function verifySetup2FA() {
     const code = getOTPValue('setup2FAInputs');
-    if (code.length !== 6) return toast('Введи 6 цифр', 'error');
+    
+    if (code.length !== 6) {
+        return toast('⚠️ Введи 6 цифр', 'warning');
+    }
 
-    const valid = await verifyTOTP(tempSecret, code);
-    if (!valid) {
-        document.querySelectorAll('#setup2FAInputs .otp-input').forEach(i => i.classList.add('error'));
-        setTimeout(() => document.querySelectorAll('#setup2FAInputs .otp-input').forEach(i => i.classList.remove('error')), 500);
+    const isValid = await verifyTOTP(tempSecret, code);
+    
+    if (!isValid) {
+        document.querySelectorAll('#setup2FAInputs .otp-input').forEach(input => {
+            input.classList.add('error');
+        });
+        setTimeout(() => {
+            document.querySelectorAll('#setup2FAInputs .otp-input').forEach(input => {
+                input.classList.remove('error');
+            });
+        }, 500);
+        
         return toast('❌ Неверный код', 'error');
     }
 
+    // Генерируем резервные коды
     const backupCodes = generateBackupCodes();
+    
     tempUser.has2FA = true;
     tempUser.totpSecret = tempSecret;
     tempUser.backupCodes = backupCodes;
 
-    document.getElementById('backupCodes').innerHTML = backupCodes.map((code, i) =>
-        `<div class="backup-code">${code}<span>#${i + 1}</span></div>`
-    ).join('');
+    // Отображаем их
+    document.getElementById('backupCodes').innerHTML = backupCodes
+        .map((code, i) => `
+            <div class="backup-code">
+                ${code}
+                <span>#${i + 1}</span>
+            </div>
+        `)
+        .join('');
 
     gotoStep('2fa-backup');
     toast('✅ 2FA активирована!', 'success');
 }
 
+// ============================================
+// ГЕНЕРАЦИЯ РЕЗЕРВНЫХ КОДОВ
+// ============================================
 function generateBackupCodes() {
     const codes = [];
+    
     for (let i = 0; i < 8; i++) {
         const bytes = new Uint8Array(6);
         crypto.getRandomValues(bytes);
-        const code = Array.from(bytes).map(b => b.toString(16).padStart(2, '0').toUpperCase()).join('');
+        
+        const code = Array.from(bytes)
+            .map(b => b.toString(16).padStart(2, '0').toUpperCase())
+            .join('');
+        
         codes.push(`${code.slice(0,4)}-${code.slice(4,8)}-${code.slice(8,12)}`);
     }
+    
     return codes;
 }
 
+// ============================================
+// СКАЧИВАНИЕ РЕЗЕРВНЫХ КОДОВ
+// ============================================
 function downloadBackupCodes() {
     const codes = tempUser.backupCodes;
-    const text = `Rick and Morty Messenger - Backup Codes\nUser: ${tempUser.username}\nGenerated: ${new Date().toLocaleString()}\n\n${codes.join('\n')}\n\nКаждый код работает один раз. Wubba lubba dub dub!`;
+    const text = 
+        `Rick and Morty Messenger - Backup Codes\n` +
+        `Пользователь: ${tempUser.username}\n` +
+        `Создано: ${new Date().toLocaleString('ru-RU')}\n\n` +
+        `${codes.join('\n')}\n\n` +
+        `⚠️ Каждый код работает только ОДИН раз.\n` +
+        `Храни в надёжном месте. Wubba lubba dub dub!`;
+
     const blob = new Blob([text], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
+    
     a.href = url;
     a.download = `rm-backup-${tempUser.username}.txt`;
     a.click();
+    
     URL.revokeObjectURL(url);
-    toast('📥 Скачано', 'success');
+    toast('📥 Файл скачан', 'success');
 }
 
+// ============================================
+// ЗАВЕРШЕНИЕ НАСТРОЙКИ 2FA
+// ============================================
 function complete2FA() {
     saveUserAndLogin(tempUser);
     tempUser = null;
     tempSecret = null;
 }
 
+// ============================================
+// ПРОПУСТИТЬ 2FA
+// ============================================
 function skip2FA() {
-    if (!confirm('⚠️ Пропустить 2FA? Аккаунт будет менее защищён.')) return;
+    if (!confirm('⚠️ Пропустить 2FA?\n\nАккаунт будет менее защищён.')) {
+        return;
+    }
+    
     saveUserAndLogin(tempUser);
     tempUser = null;
     tempSecret = null;
 }
 
-// ==================== ЛОГИН ====================
+// ============================================
+// ЛОГИН
+// ============================================
 async function doLogin() {
     const username = document.getElementById('loginUsername').value.trim();
     const password = document.getElementById('loginPassword').value;
 
-    if (!username || !password) return toast('Заполни поля', 'error');
+    if (!username || !password) {
+        return toast('⚠️ Заполни все поля', 'warning');
+    }
 
     const users = DB.get('users', {});
     const user = users[username];
 
-    if (!user) return toast('❌ Пользователь не найден', 'error');
+    if (!user) {
+        return toast('❌ Пользователь не найден', 'error');
+    }
 
+    // Проверяем пароль
     const hash = await hashPassword(password + user.salt);
-    if (hash !== user.passwordHash) return toast('❌ Неверный пароль', 'error');
+    
+    if (hash !== user.passwordHash) {
+        return toast('❌ Неверный пароль', 'error');
+    }
 
+    // Проверяем 2FA
     if (user.has2FA) {
         loginTargetUser = user;
         gotoStep('2fa-verify');
@@ -2318,8 +3635,12 @@ async function doLogin() {
     finishLogin(user);
 }
 
+// ============================================
+// ЗАВЕРШЕНИЕ ВХОДА
+// ============================================
 function finishLogin(user) {
     user.lastLogin = Date.now();
+    
     const users = DB.get('users', {});
     users[user.username] = user;
     DB.set('users', users);
@@ -2332,6 +3653,7 @@ function finishLogin(user) {
     };
     DB.set('user', currentUser);
 
+    // Обновляем активность
     const activity = DB.get('activity', {});
     activity[user.username] = Date.now();
     DB.set('activity', activity);
@@ -2340,15 +3662,30 @@ function finishLogin(user) {
     setTimeout(openApp, 300);
 }
 
+// ============================================
+// 2FA ПРИ ЛОГИНЕ
+// ============================================
 async function verifyLogin2FA() {
     if (!loginTargetUser) return;
+    
     const code = getOTPValue('login2FAInputs');
-    if (code.length !== 6) return toast('Введи 6 цифр', 'error');
+    
+    if (code.length !== 6) {
+        return toast('⚠️ Введи 6 цифр', 'warning');
+    }
 
-    const valid = await verifyTOTP(loginTargetUser.totpSecret, code);
-    if (!valid) {
-        document.querySelectorAll('#login2FAInputs .otp-input').forEach(i => i.classList.add('error'));
-        setTimeout(() => document.querySelectorAll('#login2FAInputs .otp-input').forEach(i => i.classList.remove('error')), 500);
+    const isValid = await verifyTOTP(loginTargetUser.totpSecret, code);
+    
+    if (!isValid) {
+        document.querySelectorAll('#login2FAInputs .otp-input').forEach(input => {
+            input.classList.add('error');
+        });
+        setTimeout(() => {
+            document.querySelectorAll('#login2FAInputs .otp-input').forEach(input => {
+                input.classList.remove('error');
+            });
+        }, 500);
+        
         return toast('❌ Неверный код', 'error');
     }
 
@@ -2356,17 +3693,30 @@ async function verifyLogin2FA() {
     loginTargetUser = null;
 }
 
+// ============================================
+// ВХОД ПО РЕЗЕРВНОМУ КОДУ
+// ============================================
 function verifyBackupCode() {
     const input = document.getElementById('backupCodeInput').value.trim().toUpperCase();
-    if (!input) return toast('Введи код', 'error');
+    
+    if (!input) {
+        return toast('⚠️ Введи код', 'warning');
+    }
 
     const user = loginTargetUser;
-    if (!user) return toast('❌ Сначала войди с паролем', 'error');
+    if (!user) {
+        return toast('❌ Сначала войди с паролем', 'error');
+    }
 
     const idx = user.backupCodes.indexOf(input);
-    if (idx === -1) return toast('❌ Неверный код', 'error');
+    
+    if (idx === -1) {
+        return toast('❌ Неверный или использованный код', 'error');
+    }
 
+    // Используем код — удаляем
     user.backupCodes.splice(idx, 1);
+    
     const users = DB.get('users', {});
     users[user.username] = user;
     DB.set('users', users);
@@ -2375,19 +3725,38 @@ function verifyBackupCode() {
     finishLogin(user);
     loginTargetUser = null;
 }
-
-// ==================== APP ====================
+</script>
+<script>
+// ============================================
+// ОТКРЫТИЕ ПРИЛОЖЕНИЯ
+// ============================================
 function openApp() {
     document.getElementById('authScreen').classList.add('hidden');
     document.getElementById('app').classList.remove('hidden');
     initUI();
 }
 
+function logout() {
+    if (!confirm('Покинуть портал?')) return;
+
+    if (peer) {
+        try { peer.destroy(); } catch (e) {}
+    }
+
+    DB.remove('user');
+    location.reload();
+}
+
 function initUI() {
+    // Обновляем данные текущего пользователя
     document.getElementById('myAvatar').textContent = currentUser.username[0].toUpperCase();
-    document.getElementById('myAvatar').style.background = isFounder(currentUser.username) ? '#f5d547' : currentUser.color;
+    document.getElementById('myAvatar').style.background = isFounder(currentUser.username)
+        ? '#f5d547'
+        : currentUser.color;
     document.getElementById('myName').textContent = currentUser.username;
-    document.getElementById('myEngine').textContent = isFounder(currentUser.username) ? '👑 ЛЕГЕНДА' : 'Путешественник';
+    document.getElementById('myEngine').textContent = isFounder(currentUser.username)
+        ? '👑 ЛЕГЕНДА'
+        : 'Путешественник';
 
     if (isFounder(currentUser.username)) {
         document.getElementById('myCrown').style.display = 'block';
@@ -2406,63 +3775,76 @@ function initUI() {
     initPeer();
 }
 
-function logout() {
-    if (!confirm('Покинуть портал?')) return;
-    if (peer) { try { peer.destroy(); } catch(e) {} }
-    DB.remove('user');
-    location.reload();
-}
-
-// ==================== КАНАЛЫ ====================
+// ============================================
+// КАНАЛЫ
+// ============================================
 function renderChannels() {
     const channels = DB.get('channels', ['general']);
     const container = document.getElementById('channelsList');
+
     const icons = { general: 'fa-hashtag' };
 
     container.innerHTML = channels.map(ch => {
         const isDM = ch.startsWith('dm_');
         let displayName = ch;
+
         if (isDM) {
             const parts = ch.substring(3).split('_');
             const other = parts.find(p => p !== currentUser.username) || parts[0];
             displayName = '@' + other;
         }
+
         const icon = isDM ? 'fa-user' : (icons[ch] || 'fa-hashtag');
         const isFounderDM = isDM && displayName.toLowerCase().includes(FOUNDER_USERNAME);
-        return `<div class="channel ${currentChannel === ch ? 'active' : ''}" onclick="selectChannel('${ch}')">
-            <span class="channel-icon"><i class="fas ${icon}"></i></span>
-            <span>${isFounderDM ? '👑 ' : ''}${displayName}</span>
-        </div>`;
+
+        return `
+            <div class="channel ${currentChannel === ch ? 'active' : ''}" onclick="selectChannel('${ch}')">
+                <span class="channel-icon"><i class="fas ${icon}"></i></span>
+                <span>${isFounderDM ? '👑 ' : ''}${displayName}</span>
+            </div>
+        `;
     }).join('') + `
         <div class="channel" onclick="addChannel()" style="color: var(--text2); font-size: 13px;">
             <span class="channel-icon"><i class="fas fa-plus"></i></span>
             <span>Новое измерение</span>
-        </div>`;
+        </div>
+    `;
 }
 
 function addChannel() {
     const name = prompt('Название измерения:');
     if (!name) return;
+
     const clean = name.toLowerCase().replace(/[^a-z0-9-]/g, '');
     if (!clean) return;
+
     const channels = DB.get('channels', []);
-    if (channels.includes(clean)) return toast('Уже существует', 'error');
+    if (channels.includes(clean)) {
+        return toast('Уже существует', 'error');
+    }
+
     channels.push(clean);
     DB.set('channels', channels);
     renderChannels();
-    toast(`Измерение #${clean} открыто`, 'success');
+    toast(`#${clean} создано`, 'success');
 }
 
 function selectChannel(name) {
     currentChannel = name;
     renderChannels();
     renderMessages();
+
     const callBtn = document.getElementById('callBtn');
+
     if (name.startsWith('dm_')) {
         const parts = name.substring(3).split('_');
         const other = parts.find(p => p !== currentUser.username) || parts[0];
+
         document.getElementById('currentChannel').textContent = '💬 ' + other;
-        document.getElementById('currentChannelSub').textContent = isFounder(other) ? '👑 Легенда' : 'частный канал';
+        document.getElementById('currentChannelSub').textContent = isFounder(other)
+            ? '👑 Легенда'
+            : 'частный канал';
+
         callBtn.style.display = 'flex';
     } else {
         document.getElementById('currentChannel').textContent = '#' + name;
@@ -2473,51 +3855,77 @@ function selectChannel(name) {
 
 function switchView(view, btn) {
     currentView = view;
+
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
     btn.classList.add('active');
+
     document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
     document.getElementById('view-' + view).classList.add('active');
-    if (view === 'playtests') { refreshStats(); renderBuilds(); }
-    if (view === 'feedback') renderFeedback();
+
+    if (view === 'playtests') {
+        refreshStats();
+        renderBuilds();
+    }
+    if (view === 'feedback') {
+        renderFeedback();
+    }
 }
 
-// ==================== ЧАТ ====================
+// ============================================
+// ЧАТ
+// ============================================
 function renderMessages() {
     const messages = DB.get('messages', {});
     const msgs = messages[currentChannel] || [];
     const container = document.getElementById('chatMessages');
 
     if (msgs.length === 0) {
-        container.innerHTML = `<div style="text-align:center;padding:60px 20px;color:var(--text2);font-style:italic;">Тут пусто, как в голове Джерри...</div>`;
+        container.innerHTML = `
+            <div style="text-align:center;padding:60px 20px;color:var(--text2);font-style:italic;">
+                Тут пусто, как в голове Джерри...
+            </div>`;
         return;
     }
 
     const users = DB.get('users', {});
+
     container.innerHTML = msgs.map(m => {
         const isFound = isFounder(m.author);
         const color = users[m.author]?.color || (isFound ? '#f5d547' : '#97ce4c');
-        const time = new Date(m.time).toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' });
+        const time = new Date(m.time).toLocaleTimeString('ru-RU', {
+            hour: '2-digit',
+            minute: '2-digit'
+        });
 
         let content;
-        if (m.type === 'sticker') content = `<div class="msg-sticker">${m.text}</div>`;
-        else if (m.type === 'gif') content = `<img src="${m.text}" class="msg-gif">`;
-        else content = `<div class="msg-text">${escapeHtml(m.text)}</div>`;
+        if (m.type === 'sticker') {
+            content = `<div class="msg-sticker">${m.text}</div>`;
+        } else if (m.type === 'gif') {
+            content = `<img src="${m.text}" class="msg-gif">`;
+        } else {
+            content = `<div class="msg-text">${escapeHtml(m.text)}</div>`;
+        }
 
-        return `<div class="msg ${isFound ? 'msg-founder' : ''}">
-            <div class="msg-avatar avatar-wrap" style="background:${color}">
-                ${m.author[0].toUpperCase()}
-                ${isFound ? '<span class="founder-crown">👑</span>' : ''}
-            </div>
-            <div class="msg-body">
-                <div class="msg-header">
-                    <span class="msg-author" style="color:${color}">${escapeHtml(m.author)}</span>
-                    ${isFound ? '<span class="msg-badge badge-founder">ЛЕГЕНДА</span>' : ''}
-                    <span class="msg-time">${time}</span>
+        return `
+            <div class="msg ${isFound ? 'msg-founder' : ''}">
+                <div class="msg-avatar avatar-wrap" style="background:${color}">
+                    ${m.author[0].toUpperCase()}
+                    ${isFound ? '<span class="founder-crown">👑</span>' : ''}
                 </div>
-                ${content}
+                <div class="msg-body">
+                    <div class="msg-header">
+                        <span class="msg-author" style="color:${color}">
+                            ${escapeHtml(m.author)}
+                        </span>
+                        ${isFound ? '<span class="msg-badge badge-founder">ЛЕГЕНДА</span>' : ''}
+                        <span class="msg-time">${time}</span>
+                    </div>
+                    ${content}
+                </div>
             </div>
-        </div>`;
+        `;
     }).join('');
+
     container.scrollTop = container.scrollHeight;
 }
 
@@ -2528,13 +3936,23 @@ function sendMessage() {
 
     const messages = DB.get('messages', {});
     if (!messages[currentChannel]) messages[currentChannel] = [];
-    messages[currentChannel].push({ author: currentUser.username, text, time: Date.now() });
+
+    messages[currentChannel].push({
+        author: currentUser.username,
+        text: text,
+        time: Date.now()
+    });
     DB.set('messages', messages);
 
+    // Отправляем через PeerJS если DM
     if (currentChannel.startsWith('dm_')) {
         const parts = currentChannel.substring(3).split('_');
         const other = parts.find(p => p !== currentUser.username);
-        sendDataToPeer(other, { type: 'message', text, author: currentUser.username });
+        sendDataToPeer(other, {
+            type: 'message',
+            text: text,
+            author: currentUser.username
+        });
     }
 
     input.value = '';
@@ -2543,7 +3961,10 @@ function sendMessage() {
 }
 
 function handleInputKey(e) {
-    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+    if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage();
+    }
 }
 
 function autoResize(el) {
@@ -2551,10 +3972,23 @@ function autoResize(el) {
     el.style.height = Math.min(el.scrollHeight, 120) + 'px';
 }
 
-// ==================== СТИКЕРЫ ====================
-const EMOJIS = ['😀','😃','😄','😁','😆','😅','🤣','😂','🙂','😉','😊','🥰','😍','🤩','😘','😋','😛','😜','🤪','😝','🤑','🤗','🤭','🤔','🤐','😐','😏','😒','🙄','😬','😴','😷','🤒','🥵','🥶','😵','🤯','🥳','😎','🤓','🧐','😕','😢','😭','😱','😡','🤬','😈','💀','💩','🤡','👻','👽','👾','🤖','❤️','🧡','💛','💚','💙','💜','🖤','💔','💕','💖','👍','👎','👌','✌️','🤞','🤟','🤘','🤙','👈','👉','👆','👇','✋','🤚','👋','🤝','🙏','💪','👀','🧪','⚗️','🧬','🔬','🛸','🚀','🪐','⭐','🌌','🌀'];
+// ============================================
+// СТИКЕРЫ / ЭМОДЗИ / GIF
+// ============================================
+const EMOJIS = [
+    '😀','😃','😄','😁','😆','😅','🤣','😂','🙂','😉','😊','🥰','😍','🤩','😘','😋',
+    '😛','😜','🤪','😝','🤑','🤗','🤭','🤔','🤐','😐','😏','😒','🙄','😬','😴','😷',
+    '🤒','🥵','🥶','😵','🤯','🥳','😎','🤓','🧐','😕','😢','😭','😱','😡','🤬','😈',
+    '💀','💩','🤡','👻','👽','👾','🤖','❤️','🧡','💛','💚','💙','💜','🖤','💔','💕',
+    '💖','👍','👎','👌','✌️','🤞','🤟','🤘','🤙','👈','👉','👆','👇','✋','🤚','👋',
+    '🤝','🙏','💪','👀','🧪','⚗️','🧬','🔬','🛸','🚀','🪐','⭐','🌌','🌀'
+];
 
-const STICKERS = ['🧪','⚗️','🧬','🔬','🛸','🚀','🪐','⭐','🌌','🌀','👽','🤖','👾','🎮','💀','👻','🐱','🐶','🐸','🦄','🐙','🦑','🐉','🦖','🦕','🌈','☄️','🔥','⚡','❄️','💎','👑','🎩','🍕','🍔','🌮','🍩','🧁','🍺','🥃','💊','🚬','🎸','🎤','🎧','💻','📱','📺','📡'];
+const STICKERS = [
+    '🧪','⚗️','🧬','🔬','🛸','🚀','🪐','⭐','🌌','🌀','👽','🤖','👾','🎮','💀','👻',
+    '🐱','🐶','🐸','🦄','🐙','🦑','🐉','🦖','🦕','🌈','☄️','🔥','⚡','❄️','💎','👑',
+    '🎩','🍕','🍔','🌮','🍩','🧁','🍺','🥃','💊','🚬','🎸','🎤','🎧','💻','📱','📺'
+];
 
 const GIFS = [
     'https://media.giphy.com/media/JIX9t2j0ZTN9S/giphy.gif',
@@ -2574,7 +4008,9 @@ function toggleEmojiPicker(e) {
     e.stopPropagation();
     const picker = document.getElementById('emojiPicker');
     picker.classList.toggle('show');
-    if (picker.classList.contains('show')) renderEmojiGrid();
+    if (picker.classList.contains('show')) {
+        renderEmojiGrid();
+    }
 }
 
 function switchEmojiTab(tab, btn) {
@@ -2586,15 +4022,26 @@ function switchEmojiTab(tab, btn) {
 
 function renderEmojiGrid() {
     const grid = document.getElementById('emojiGrid');
+
     if (currentEmojiTab === 'emoji') {
         grid.style.gridTemplateColumns = 'repeat(8, 1fr)';
-        grid.innerHTML = EMOJIS.map(e => `<div class="emoji-item" onclick="insertEmoji('${e}')">${e}</div>`).join('');
+        grid.innerHTML = EMOJIS.map(e =>
+            `<div class="emoji-item" onclick="insertEmoji('${e}')">${e}</div>`
+        ).join('');
     } else if (currentEmojiTab === 'stickers') {
         grid.style.gridTemplateColumns = 'repeat(4, 1fr)';
-        grid.innerHTML = STICKERS.map(s => `<div class="sticker-item" onclick="sendSticker('${s}')">${s}</div>`).join('');
+        grid.innerHTML = STICKERS.map(s =>
+            `<div class="sticker-item" onclick="sendSticker('${s}')">${s}</div>`
+        ).join('');
     } else {
         grid.style.gridTemplateColumns = 'repeat(3, 1fr)';
-        grid.innerHTML = GIFS.map((g, i) => `<div class="sticker-item" onclick="sendGif(${i})" style="background-image:url('${g}');background-size:cover;background-position:center;"></div>`).join('');
+        grid.innerHTML = GIFS.map((g, i) =>
+            `<div class="sticker-item" onclick="sendGif(${i})"
+                style="background-image:url('${g}');
+                background-size:cover;
+                background-position:center;">
+            </div>`
+        ).join('');
     }
 }
 
@@ -2605,28 +4052,58 @@ function insertEmoji(emoji) {
 
 function sendSticker(sticker) {
     if (!currentChannel) return;
+
     const messages = DB.get('messages', {});
     if (!messages[currentChannel]) messages[currentChannel] = [];
-    messages[currentChannel].push({ author: currentUser.username, text: sticker, time: Date.now(), type: 'sticker' });
+
+    messages[currentChannel].push({
+        author: currentUser.username,
+        text: sticker,
+        time: Date.now(),
+        type: 'sticker'
+    });
     DB.set('messages', messages);
+
     if (currentChannel.startsWith('dm_')) {
-        const other = currentChannel.substring(3).split('_').find(p => p !== currentUser.username);
-        sendDataToPeer(other, { type: 'message', text: sticker, author: currentUser.username, msgType: 'sticker' });
+        const other = currentChannel.substring(3).split('_')
+            .find(p => p !== currentUser.username);
+        sendDataToPeer(other, {
+            type: 'message',
+            text: sticker,
+            author: currentUser.username,
+            msgType: 'sticker'
+        });
     }
+
     document.getElementById('emojiPicker').classList.remove('show');
     renderMessages();
 }
 
 function sendGif(index) {
     if (!currentChannel) return;
+
     const messages = DB.get('messages', {});
     if (!messages[currentChannel]) messages[currentChannel] = [];
-    messages[currentChannel].push({ author: currentUser.username, text: GIFS[index], time: Date.now(), type: 'gif' });
+
+    messages[currentChannel].push({
+        author: currentUser.username,
+        text: GIFS[index],
+        time: Date.now(),
+        type: 'gif'
+    });
     DB.set('messages', messages);
+
     if (currentChannel.startsWith('dm_')) {
-        const other = currentChannel.substring(3).split('_').find(p => p !== currentUser.username);
-        sendDataToPeer(other, { type: 'message', text: GIFS[index], author: currentUser.username, msgType: 'gif' });
+        const other = currentChannel.substring(3).split('_')
+            .find(p => p !== currentUser.username);
+        sendDataToPeer(other, {
+            type: 'message',
+            text: GIFS[index],
+            author: currentUser.username,
+            msgType: 'gif'
+        });
     }
+
     document.getElementById('emojiPicker').classList.remove('show');
     renderMessages();
 }
@@ -2636,10 +4113,22 @@ function openGifPicker() {
     switchEmojiTab('gifs', document.querySelectorAll('.emoji-picker-tab')[2]);
 }
 
-// ==================== ДРУЗЬЯ ====================
-function getFriends(username) { return DB.get('friends', {})[username] || []; }
-function setFriends(username, list) { const all = DB.get('friends', {}); all[username] = list; DB.set('friends', all); }
-function areFriends(a, b) { return getFriends(a).includes(b); }
+// ============================================
+// ДРУЗЬЯ
+// ============================================
+function getFriends(username) {
+    return DB.get('friends', {})[username] || [];
+}
+
+function setFriends(username, list) {
+    const all = DB.get('friends', {});
+    all[username] = list;
+    DB.set('friends', all);
+}
+
+function areFriends(a, b) {
+    return getFriends(a).includes(b);
+}
 
 function renderFriends() {
     const container = document.getElementById('friendsList');
@@ -2647,7 +4136,10 @@ function renderFriends() {
     const users = DB.get('users', {});
 
     if (friends.length === 0) {
-        container.innerHTML = `<div style="padding: 8px 12px; font-size: 12px; color: var(--text2);">Нет друзей в этой вселенной</div>`;
+        container.innerHTML = `
+            <div style="padding: 8px 12px; font-size: 12px; color: var(--text2);">
+                Нет друзей в этой вселенной
+            </div>`;
         return;
     }
 
@@ -2655,13 +4147,16 @@ function renderFriends() {
         const u = users[f] || { color: '#97ce4c' };
         const online = isUserOnline(f);
         const crown = isFounder(f) ? '<span class="friend-crown">👑</span>' : '';
-        return `<div class="friend ${online ? 'online' : ''}" onclick="openProfile('${escapeHtml(f)}')">
-            <div class="friend-avatar avatar-wrap" style="background:${u.color}">
-                ${f[0].toUpperCase()}
-                ${crown}
+
+        return `
+            <div class="friend ${online ? 'online' : ''}" onclick="openProfile('${escapeHtml(f)}')">
+                <div class="friend-avatar avatar-wrap" style="background:${u.color || '#97ce4c'}">
+                    ${f[0].toUpperCase()}
+                    ${crown}
+                </div>
+                <div class="friend-name">${escapeHtml(f)}</div>
             </div>
-            <div class="friend-name">${escapeHtml(f)}</div>
-        </div>`;
+        `;
     }).join('');
 }
 
@@ -2677,6 +4172,9 @@ function updateActivity() {
     DB.set('activity', activity);
 }
 
+// ============================================
+// ДОБАВЛЕНИЕ В ДРУЗЬЯ (через PeerJS)
+// ============================================
 function openAddFriend() {
     document.getElementById('addFriendModal').classList.add('show');
     document.getElementById('addFriendResult').textContent = '';
@@ -2684,52 +4182,430 @@ function openAddFriend() {
     document.getElementById('friendUsernameInput').focus();
 }
 
-function addFriend() {
+async function addFriend() {
     const target = document.getElementById('friendUsernameInput').value.trim();
     const result = document.getElementById('addFriendResult');
 
-    if (!target) { result.textContent = '❌ Введи ник'; result.style.color = 'var(--red)'; return; }
-    if (target === currentUser.username) { result.textContent = '❌ Нельзя себя'; result.style.color = 'var(--red)'; return; }
+    if (!target) {
+        result.textContent = '❌ Введи ник';
+        result.style.color = 'var(--red)';
+        return;
+    }
 
-    const users = DB.get('users', {});
-    if (!users[target]) {
-        result.textContent = `❌ "${target}" не существует в этой вселенной`;
+    if (target === currentUser.username) {
+        result.textContent = '❌ Нельзя добавить себя';
         result.style.color = 'var(--red)';
         return;
     }
 
     if (areFriends(currentUser.username, target)) {
         result.textContent = '✅ Уже друзья';
-        result.style.color = 'var(--portal-green)';
+        result.style.color = 'var(--green)';
         return;
     }
 
-    const myFriends = getFriends(currentUser.username);
-    myFriends.push(target);
-    setFriends(currentUser.username, myFriends);
+    result.textContent = '⏳ Соединяюсь через портал...';
+    result.style.color = 'var(--cyan)';
 
-    const theirFriends = getFriends(target);
-    if (!theirFriends.includes(currentUser.username)) theirFriends.push(currentUser.username);
-    setFriends(target, theirFriends);
+    try {
+        const conn = await connectToPeer(target);
 
-    result.textContent = '✅ Друг добавлен!';
-    result.style.color = 'var(--portal-green)';
-    toast(`👥 ${target} теперь в друзьях`, 'success');
-    setTimeout(() => closeModal('addFriendModal'), 1200);
-    renderFriends();
+        // Регистрируем его данные
+        const users = DB.get('users', {});
+        if (!users[target]) {
+            users[target] = {
+                username: target,
+                color: '#97ce4c',
+                eternalStatus: 'normis',
+                external: true
+            };
+            DB.set('users', users);
+        }
+
+        // Отправляем запрос
+        conn.send({
+            type: 'friend-request',
+            from: currentUser.username,
+            fromColor: currentUser.color,
+            fromEternalStatus: currentUser.eternalStatus
+        });
+
+        // Ждём подтверждения
+        const confirmed = await new Promise((resolve) => {
+            const timeout = setTimeout(() => resolve(false), 3000);
+
+            const handler = (data) => {
+                if (data.type === 'friend-accept' && data.from === target) {
+                    clearTimeout(timeout);
+
+                    const us = DB.get('users', {});
+                    us[target] = {
+                        username: target,
+                        color: data.fromColor || '#97ce4c',
+                        eternalStatus: data.fromEternalStatus || 'normis'
+                    };
+                    DB.set('users', us);
+
+                    resolve(true);
+                }
+            };
+
+            conn.on('data', handler);
+        });
+
+        // Добавляем в свой список
+        const myFriends = getFriends(currentUser.username);
+        if (!myFriends.includes(target)) myFriends.push(target);
+        setFriends(currentUser.username, myFriends);
+
+        if (confirmed) {
+            result.textContent = '✅ Друг добавлен!';
+            result.style.color = 'var(--green)';
+            toast(`👥 ${target} теперь в друзьях!`, 'success');
+        } else {
+            result.textContent = '⚠️ Добавлен (ответ не получен)';
+            result.style.color = 'var(--yellow)';
+            toast(`👥 ${target} добавлен локально`, 'warning');
+        }
+
+        renderFriends();
+        setTimeout(() => closeModal('addFriendModal'), 1200);
+
+    } catch (err) {
+        // Друг офлайн — добавляем локально
+        const users = DB.get('users', {});
+        if (!users[target]) {
+            users[target] = {
+                username: target,
+                color: '#97ce4c',
+                eternalStatus: 'normis'
+            };
+            DB.set('users', users);
+        }
+
+        const myFriends = getFriends(currentUser.username);
+        if (!myFriends.includes(target)) myFriends.push(target);
+        setFriends(currentUser.username, myFriends);
+
+        result.textContent = '⚠️ Друг не в сети. Добавлен локально.';
+        result.style.color = 'var(--yellow)';
+        toast(`👥 ${target} добавлен (офлайн)`, 'warning');
+
+        renderFriends();
+        setTimeout(() => closeModal('addFriendModal'), 1500);
+    }
 }
 
-// ==================== ПРОФИЛЬ ====================
+// ============================================
+// PEERJS — ИНИЦИАЛИЗАЦИЯ
+// ============================================
+function getPeerId(username) {
+    return 'rm-' + username.toLowerCase().replace(/[^a-z0-9]/g, '');
+}
+
+function initPeer() {
+    if (typeof Peer === 'undefined') {
+        console.error('PeerJS не загружен');
+        return;
+    }
+
+    peer = new Peer(getPeerId(currentUser.username), {
+        debug: 0,
+        config: {
+            iceServers: [
+                { urls: 'stun:stun.l.google.com:19302' },
+                { urls: 'stun:stun1.l.google.com:19302' },
+                { urls: 'stun:stun2.l.google.com:19302' }
+            ]
+        }
+    });
+
+    peer.on('open', (id) => {
+        console.log('✅ Портал открыт:', id);
+        syncFriends();
+    });
+
+    peer.on('error', (err) => {
+        console.error('Peer error:', err);
+        if (err.type === 'unavailable-id') {
+            toast('❌ Ник занят в сети', 'error');
+        }
+    });
+
+    peer.on('call', (call) => handleIncomingCall(call));
+
+    peer.on('connection', (conn) => {
+        conn.on('data', (data) => handlePeerData(conn, data));
+        conn.on('open', () => {
+            activeConnections[conn.peer] = conn;
+            console.log('📡 Подключение:', conn.peer);
+        });
+    });
+}
+
+// ============================================
+// СИНХРОНИЗАЦИЯ ДРУЗЕЙ
+// ============================================
+async function syncFriends() {
+    const friends = getFriends(currentUser.username);
+
+    for (const friend of friends) {
+        try {
+            const conn = await connectToPeer(friend);
+            if (conn && conn.open) {
+                conn.send({
+                    type: 'profile-update',
+                    username: currentUser.username,
+                    color: currentUser.color,
+                    eternalStatus: currentUser.eternalStatus
+                });
+            }
+        } catch (e) {
+            // Друг офлайн — пропускаем
+        }
+    }
+}
+
+// ============================================
+// ПОДКЛЮЧЕНИЕ К ДРУГОМУ ПОЛЬЗОВАТЕЛЮ
+// ============================================
+function connectToPeer(username) {
+    return new Promise((resolve, reject) => {
+        const targetId = getPeerId(username);
+
+        // Если уже подключены — используем
+        if (activeConnections[targetId] && activeConnections[targetId].open) {
+            return resolve(activeConnections[targetId]);
+        }
+
+        const conn = peer.connect(targetId, {
+            reliable: true,
+            metadata: { username: currentUser.username }
+        });
+
+        const timeout = setTimeout(() => reject(new Error('Timeout')), 5000);
+
+        conn.on('open', () => {
+            clearTimeout(timeout);
+            activeConnections[targetId] = conn;
+            conn.on('data', (data) => handlePeerData(conn, data));
+            resolve(conn);
+        });
+
+        conn.on('error', (err) => {
+            clearTimeout(timeout);
+            reject(err);
+        });
+    });
+}
+
+// ============================================
+// ОТПРАВКА ДАННЫХ ДРУГОМУ
+// ============================================
+function sendDataToPeer(username, data) {
+    const conn = activeConnections[getPeerId(username)];
+
+    if (conn && conn.open) {
+        conn.send(data);
+    } else {
+        connectToPeer(username)
+            .then(c => c.send(data))
+            .catch(() => {});
+    }
+}
+
+// ============================================
+// ОБРАБОТКА ДАННЫХ ОТ ДРУГИХ ПОЛЬЗОВАТЕЛЕЙ
+// ============================================
+function handlePeerData(conn, data) {
+    const senderId = conn.peer;
+    const users = DB.get('users', {});
+
+    // Определяем реальный ник отправителя
+    let realSender = senderId.replace('rm-', '');
+    for (const u in users) {
+        if (getPeerId(u) === senderId) {
+            realSender = u;
+            break;
+        }
+    }
+
+    // === ЗАПРОС В ДРУЗЬЯ ===
+    if (data.type === 'friend-request') {
+        const fromUser = data.from;
+
+        const myFriends = getFriends(currentUser.username);
+        if (!myFriends.includes(fromUser)) myFriends.push(fromUser);
+        setFriends(currentUser.username, myFriends);
+
+        const us = DB.get('users', {});
+        us[fromUser] = {
+            username: fromUser,
+            color: data.fromColor || '#97ce4c',
+            eternalStatus: data.fromEternalStatus || 'normis'
+        };
+        DB.set('users', us);
+
+        renderFriends();
+        toast(`👥 ${fromUser} добавил тебя в друзья!`, 'success');
+
+        conn.send({
+            type: 'friend-accept',
+            from: currentUser.username,
+            fromColor: currentUser.color,
+            fromEternalStatus: currentUser.eternalStatus
+        });
+        return;
+    }
+
+    // === ПОДТВЕРЖДЕНИЕ ДРУЖБЫ ===
+    if (data.type === 'friend-accept') {
+        const fromUser = data.from;
+
+        const us = DB.get('users', {});
+        us[fromUser] = {
+            username: fromUser,
+            color: data.fromColor || '#97ce4c',
+            eternalStatus: data.fromEternalStatus || 'normis'
+        };
+        DB.set('users', us);
+
+        const myFriends = getFriends(currentUser.username);
+        if (!myFriends.includes(fromUser)) myFriends.push(fromUser);
+        setFriends(currentUser.username, myFriends);
+
+        renderFriends();
+        return;
+    }
+
+    // === СООБЩЕНИЕ ===
+    if (data.type === 'message') {
+        const dmName = 'dm_' + [currentUser.username, realSender].sort().join('_');
+
+        const messages = DB.get('messages', {});
+        if (!messages[dmName]) messages[dmName] = [];
+
+        messages[dmName].push({
+            author: realSender,
+            text: data.text,
+            time: Date.now(),
+            type: data.msgType || 'text'
+        });
+        DB.set('messages', messages);
+
+        // Автодобавление в друзья
+        if (!areFriends(currentUser.username, realSender)) {
+            const mf = getFriends(currentUser.username);
+            mf.push(realSender);
+            setFriends(currentUser.username, mf);
+
+            const us = DB.get('users', {});
+            if (!us[realSender]) {
+                us[realSender] = {
+                    username: realSender,
+                    color: '#97ce4c',
+                    eternalStatus: 'normis'
+                };
+                DB.set('users', us);
+            }
+            renderFriends();
+        }
+
+        if (currentChannel === dmName) {
+            renderMessages();
+        } else {
+            toast(`💬 Сообщение от ${realSender}`, 'info');
+        }
+        return;
+    }
+
+    // === ОБНОВЛЕНИЕ ПРОФИЛЯ ===
+    if (data.type === 'profile-update') {
+        const us = DB.get('users', {});
+        us[data.username] = {
+            username: data.username,
+            color: data.color || '#97ce4c',
+            eternalStatus: data.eternalStatus || 'normis'
+        };
+        DB.set('users', us);
+        renderFriends();
+        return;
+    }
+}
+
+// ============================================
+// УТИЛИТЫ
+// ============================================
+function closeModal(id) {
+    document.getElementById(id).classList.remove('show');
+}
+
+function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+}
+
+let toastTimer;
+function toast(message, type = 'info') {
+    const el = document.getElementById('toast');
+    el.textContent = message;
+    el.className = 'toast show ' + type;
+
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => el.classList.remove('show'), 3500);
+}
+
+// Закрытие модалок по клику вне
+document.querySelectorAll('.modal-bg').forEach(bg => {
+    bg.addEventListener('click', (e) => {
+        if (e.target === bg) bg.classList.remove('show');
+    });
+});
+
+// Закрытие emoji picker по клику вне
+document.addEventListener('click', (e) => {
+    const picker = document.getElementById('emojiPicker');
+    if (picker && picker.classList.contains('show') &&
+        !picker.contains(e.target) &&
+        !e.target.closest('button[onclick*="toggleEmojiPicker"]') &&
+        !e.target.closest('button[onclick*="openGifPicker"]')) {
+        picker.classList.remove('show');
+    }
+});
+
+// ============================================
+// ИНИЦИАЛИЗАЦИЯ
+// ============================================
+(function init() {
+    const saved = DB.get('user', null);
+    if (saved) {
+        currentUser = saved;
+        openApp();
+    } else {
+        gotoStep('welcome');
+    }
+})();
+</script>
+<script>
+// ============================================
+// ПРОФИЛЬ
+// ============================================
 function openProfile(username) {
     viewingProfile = username;
     const users = DB.get('users', {});
     const u = users[username] || { color: '#97ce4c' };
 
+    // Имя и ID
     document.getElementById('profileName').textContent = username;
+    document.getElementById('profileId').textContent = '@' + username;
+
+    // Аватар
     const avatarEl = document.getElementById('profileAvatar');
     avatarEl.style.background = u.color || '#97ce4c';
     avatarEl.innerHTML = username[0].toUpperCase();
 
+    // Корона для основателя
     if (isFounder(username)) {
         const crown = document.createElement('span');
         crown.className = 'founder-crown';
@@ -2737,27 +4613,78 @@ function openProfile(username) {
         crown.style.top = '-16px';
         crown.textContent = '👑';
         avatarEl.appendChild(crown);
-        document.getElementById('profileBadge').innerHTML = '<div class="profile-status-founder">👑 ЛЕГЕНДА</div>';
+        document.getElementById('profileBadge').innerHTML =
+            '<div class="profile-status-founder">👑 ЛЕГЕНДА</div>';
     } else {
         document.getElementById('profileBadge').innerHTML = '';
     }
 
-    document.getElementById('profileMessageBtn').style.display = username === currentUser.username ? 'none' : 'inline-flex';
+    // Действия
+    const actions = document.getElementById('profileActions');
+    if (username === currentUser.username) {
+        actions.innerHTML = '<div class="friend-badge">👤 Это вы</div>';
+        document.getElementById('profileMessageBtn').style.display = 'none';
+    } else if (areFriends(currentUser.username, username)) {
+        actions.innerHTML = '<div class="friend-badge">✓ В друзьях</div>';
+        document.getElementById('profileMessageBtn').style.display = 'inline-flex';
+    } else {
+        actions.innerHTML = `
+            <button class="btn btn-primary" style="width:100%;justify-content:center;"
+                onclick="sendFriendRequestFromProfile()">
+                <i class="fas fa-user-plus"></i> Добавить в друзья
+            </button>`;
+        document.getElementById('profileMessageBtn').style.display = 'inline-flex';
+    }
+
     document.getElementById('profileModal').classList.add('show');
 }
 
-function openMyProfile() { openProfile(currentUser.username); }
+function openMyProfile() {
+    openProfile(currentUser.username);
+}
+
+function sendFriendRequestFromProfile() {
+    if (!viewingProfile) return;
+    const target = viewingProfile;
+
+    const users = DB.get('users', {});
+    if (!users[target]) return toast('Пользователь не найден', 'error');
+    if (areFriends(currentUser.username, target)) return toast('Уже друзья');
+
+    sendDataToPeer(target, {
+        type: 'friend-request',
+        from: currentUser.username,
+        fromColor: currentUser.color,
+        fromEternalStatus: currentUser.eternalStatus
+    });
+
+    const mf = getFriends(currentUser.username);
+    if (!mf.includes(target)) mf.push(target);
+    setFriends(currentUser.username, mf);
+
+    toast(`📩 Заявка → ${target}`, 'success');
+    closeModal('profileModal');
+    renderFriends();
+}
 
 function openChatWithProfile() {
     if (!viewingProfile) return;
     closeModal('profileModal');
+
     const dmName = 'dm_' + [currentUser.username, viewingProfile].sort().join('_');
     const channels = DB.get('channels', []);
-    if (!channels.includes(dmName)) { channels.push(dmName); DB.set('channels', channels); renderChannels(); }
+    if (!channels.includes(dmName)) {
+        channels.push(dmName);
+        DB.set('channels', channels);
+        renderChannels();
+    }
+
     selectChannel(dmName);
 }
 
-// ==================== PLAYTEST ====================
+// ============================================
+// ПЛЕЙТЕСТЫ
+// ============================================
 function refreshStats() {
     const builds = DB.get('builds', []);
     const runs = DB.get('playtestRuns', []);
@@ -2765,9 +4692,12 @@ function refreshStats() {
 
     document.getElementById('statBuilds').textContent = builds.length;
     document.getElementById('statRuns').textContent = runs.length;
-    document.getElementById('statBugs').textContent = feedback.filter(f => f.type === 'BUG').length;
+    document.getElementById('statBugs').textContent =
+        feedback.filter(f => f.type === 'BUG').length;
 
-    const avgTime = runs.length > 0 ? Math.round(runs.reduce((s, r) => s + (r.duration || 0), 0) / runs.length) : 0;
+    const avgTime = runs.length > 0
+        ? Math.round(runs.reduce((s, r) => s + (r.duration || 0), 0) / runs.length)
+        : 0;
     document.getElementById('statAvgTime').textContent = avgTime + 'м';
 }
 
@@ -2776,30 +4706,48 @@ function renderBuilds() {
     const container = document.getElementById('buildsList');
 
     if (builds.length === 0) {
-        container.innerHTML = `<div style="text-align:center;padding:40px;color:var(--text2);font-style:italic;">Нет экспериментов</div>`;
+        container.innerHTML = `
+            <div style="text-align:center;padding:40px;color:var(--text2);font-style:italic;">
+                Нет экспериментов
+            </div>`;
         return;
     }
 
-    const icons = { Windows: 'fa-windows', macOS: 'fa-apple', Linux: 'fa-linux', WebGL: 'fa-globe', Android: 'fa-android', iOS: 'fa-mobile' };
+    const icons = {
+        Windows: 'fa-windows',
+        macOS: 'fa-apple',
+        Linux: 'fa-linux',
+        WebGL: 'fa-globe',
+        Android: 'fa-android',
+        iOS: 'fa-mobile'
+    };
 
     container.innerHTML = builds.map((b, i) => {
         const date = new Date(b.time).toLocaleDateString('ru-RU');
-        return `<div class="build-item">
-            <div class="build-platform"><i class="fab ${icons[b.platform] || 'fa-windows'}"></i></div>
-            <div class="build-info">
-                <div class="build-version">v${escapeHtml(b.version)}</div>
-                <div class="build-meta">
-                    <span><i class="fas fa-desktop"></i> ${b.platform}</span>
-                    <span><i class="fas fa-hdd"></i> ${b.size} MB</span>
-                    <span><i class="fas fa-calendar"></i> ${date}</span>
+        return `
+            <div class="build-item">
+                <div class="build-platform">
+                    <i class="fab ${icons[b.platform] || 'fa-windows'}"></i>
                 </div>
+                <div class="build-info">
+                    <div class="build-version">v${escapeHtml(b.version)}</div>
+                    <div class="build-meta">
+                        <span><i class="fas fa-desktop"></i> ${b.platform}</span>
+                        <span><i class="fas fa-hdd"></i> ${b.size} MB</span>
+                        <span><i class="fas fa-calendar"></i> ${date}</span>
+                    </div>
+                </div>
+                <button class="btn-small danger" onclick="deleteBuild(${i})">
+                    <i class="fas fa-trash"></i>
+                </button>
             </div>
-            <button class="btn-small danger" onclick="deleteBuild(${i})"><i class="fas fa-trash"></i></button>
-        </div>`;
+        `;
     }).join('');
 }
 
-function openUploadModal() { document.getElementById('uploadModal').classList.add('show'); }
+function openUploadModal() {
+    document.getElementById('uploadModal').classList.add('show');
+}
 
 function uploadBuild() {
     const version = document.getElementById('buildVersion').value.trim();
@@ -2807,9 +4755,10 @@ function uploadBuild() {
 
     const builds = DB.get('builds', []);
     builds.unshift({
-        version,
+        version: version,
         platform: document.getElementById('buildPlatform').value,
         size: parseInt(document.getElementById('buildSize').value) || 100,
+        changelog: document.getElementById('buildChangelog').value.trim(),
         time: Date.now(),
         author: currentUser.username
     });
@@ -2818,59 +4767,109 @@ function uploadBuild() {
     closeModal('uploadModal');
     document.getElementById('buildVersion').value = '';
     document.getElementById('buildSize').value = '';
-    toast(`✅ Билд v${version}`, 'success');
+    document.getElementById('buildChangelog').value = '';
+
+    toast(`✅ Билд v${version} загружен`, 'success');
     renderBuilds();
     refreshStats();
 }
 
 function deleteBuild(i) {
-    if (!confirm('Удалить?')) return;
+    if (!confirm('Удалить билд?')) return;
+
     const builds = DB.get('builds', []);
     builds.splice(i, 1);
     DB.set('builds', builds);
+
     renderBuilds();
     refreshStats();
+    toast('Билд удалён', 'success');
 }
 
-// ==================== FEEDBACK ====================
+// ============================================
+// ФИДБЕК
+// ============================================
 function renderFeedback() {
     const feedback = DB.get('feedback', []);
     const container = document.getElementById('feedbackList');
 
     if (feedback.length === 0) {
-        container.innerHTML = `<div style="text-align:center;padding:40px;color:var(--text2);font-style:italic;">Нет багов</div>`;
+        container.innerHTML = `
+            <div style="text-align:center;padding:40px;color:var(--text2);font-style:italic;">
+                Нет багов — отличная работа!
+            </div>`;
         return;
     }
 
-    const typeLabels = { BUG: '🐛 BUG', FEATURE: '💡 ИДЕЯ', BALANCE: '⚖️ БАЛАНС', UX: '🎨 UX' };
+    const typeLabels = {
+        BUG: '🐛 BUG',
+        FEATURE: '💡 ИДЕЯ',
+        BALANCE: '⚖️ БАЛАНС',
+        UX: '🎨 UX',
+        PERFORMANCE: '⚡ PERF'
+    };
+
+    const priorityColors = {
+        LOW: 'rgba(151,206,76,0.15)',
+        MEDIUM: 'rgba(0,201,255,0.15)',
+        HIGH: 'rgba(245,213,71,0.15)',
+        CRITICAL: 'rgba(231,76,60,0.15)'
+    };
 
     container.innerHTML = feedback.map(f => {
         const isFound = isFounder(f.author);
         const date = new Date(f.time).toLocaleDateString('ru-RU');
-        return `<div class="feedback-item">
-            <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
-                <span style="font-size:10px;padding:3px 8px;border-radius:6px;font-weight:700;background:rgba(231,76,60,0.15);color:var(--red);font-family:'JetBrains Mono',monospace;">${typeLabels[f.type] || f.type}</span>
-                <span style="font-size:10px;padding:3px 8px;border-radius:6px;font-weight:700;background:rgba(245,213,71,0.15);color:var(--morty-yellow);font-family:'JetBrains Mono',monospace;">${f.status}</span>
-                ${isFound ? '<span class="msg-badge badge-founder">👑</span>' : ''}
-                <span style="margin-left:auto;font-size:11px;color:var(--text2);">${date}</span>
+        const priorityColor = priorityColors[f.priority] || 'rgba(151,206,76,0.15)';
+
+        return `
+            <div class="feedback-item">
+                <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap;">
+                    <span style="font-size:10px;padding:3px 8px;border-radius:6px;
+                        font-weight:700;background:rgba(231,76,60,0.15);color:var(--red);
+                        font-family:'JetBrains Mono',monospace;">
+                        ${typeLabels[f.type] || f.type}
+                    </span>
+                    <span style="font-size:10px;padding:3px 8px;border-radius:6px;
+                        font-weight:700;background:${priorityColor};color:var(--yellow);
+                        font-family:'JetBrains Mono',monospace;">
+                        ${f.priority}
+                    </span>
+                    <span style="font-size:10px;padding:3px 8px;border-radius:6px;
+                        font-weight:700;background:rgba(245,213,71,0.15);color:var(--morty-yellow);
+                        font-family:'JetBrains Mono',monospace;">
+                        ${f.status}
+                    </span>
+                    ${isFound ? '<span class="msg-badge badge-founder">👑</span>' : ''}
+                    <span style="margin-left:auto;font-size:11px;color:var(--text2);">
+                        ${date}
+                    </span>
+                </div>
+                <div style="font-size:15px;font-weight:700;margin-bottom:6px;">
+                    ${escapeHtml(f.title)}
+                </div>
+                <div style="font-size:13px;color:var(--text2);line-height:1.5;">
+                    ${escapeHtml(f.content || '')}
+                </div>
             </div>
-            <div style="font-size:15px;font-weight:700;margin-bottom:6px;">${escapeHtml(f.title)}</div>
-            <div style="font-size:13px;color:var(--text2);">${escapeHtml(f.content || '')}</div>
-        </div>`;
+        `;
     }).join('');
 }
 
-function openFeedbackModal() { document.getElementById('feedbackModal').classList.add('show'); }
+function openFeedbackModal() {
+    document.getElementById('feedbackModal').classList.add('show');
+}
 
 function submitFeedback() {
     const title = document.getElementById('fbTitle').value.trim();
-    if (title.length < 5) return toast('Заголовок от 5 символов', 'error');
+    if (title.length < 5) {
+        return toast('Заголовок от 5 символов', 'error');
+    }
 
     const feedback = DB.get('feedback', []);
     feedback.unshift({
         type: document.getElementById('fbType').value,
         priority: document.getElementById('fbPriority').value,
-        title,
+        title: title,
         content: document.getElementById('fbContent').value.trim(),
         author: currentUser.username,
         status: 'OPEN',
@@ -2881,116 +4880,44 @@ function submitFeedback() {
     closeModal('feedbackModal');
     document.getElementById('fbTitle').value = '';
     document.getElementById('fbContent').value = '';
-    toast('✅ Отправлено', 'success');
+
+    toast('✅ Фидбек отправлен', 'success');
     renderFeedback();
     refreshStats();
 }
 
-// ==================== PEERJS ====================
-function getPeerId(username) {
-    return 'rm-' + username.toLowerCase().replace(/[^a-z0-9]/g, '');
-}
-
-function initPeer() {
-    if (typeof Peer === 'undefined') return;
-
-    peer = new Peer(getPeerId(currentUser.username), {
-        debug: 0,
-        config: {
-            iceServers: [
-                { urls: 'stun:stun.l.google.com:19302' },
-                { urls: 'stun:stun1.l.google.com:19302' }
-            ]
-        }
-    });
-
-    peer.on('open', (id) => console.log('✅ Portal ready:', id));
-    peer.on('error', (err) => {
-        if (err.type === 'unavailable-id') toast('❌ Ник занят в сети', 'error');
-        else if (err.type === 'peer-unavailable') toast('❌ Друг не в сети', 'error');
-    });
-
-    peer.on('call', (call) => handleIncomingCall(call));
-
-    peer.on('connection', (conn) => {
-        conn.on('data', (data) => handlePeerData(conn, data));
-        conn.on('open', () => { activeConnections[conn.peer] = conn; });
-    });
-}
-
-function connectToPeer(username) {
-    return new Promise((resolve, reject) => {
-        const targetId = getPeerId(username);
-        if (activeConnections[targetId] && activeConnections[targetId].open) return resolve(activeConnections[targetId]);
-
-        const conn = peer.connect(targetId, { reliable: true });
-        const timeout = setTimeout(() => reject(new Error('Timeout')), 5000);
-
-        conn.on('open', () => {
-            clearTimeout(timeout);
-            activeConnections[targetId] = conn;
-            conn.on('data', (data) => handlePeerData(conn, data));
-            resolve(conn);
-        });
-        conn.on('error', (err) => { clearTimeout(timeout); reject(err); });
-    });
-}
-
-function sendDataToPeer(username, data) {
-    const conn = activeConnections[getPeerId(username)];
-    if (conn && conn.open) conn.send(data);
-    else connectToPeer(username).then(c => c.send(data)).catch(() => {});
-}
-
-function handlePeerData(conn, data) {
-    const senderId = conn.peer;
-    const users = DB.get('users', {});
-    let realSender = senderId.replace('rm-', '');
-    for (const u in users) if (getPeerId(u) === senderId) { realSender = u; break; }
-
-    if (data.type === 'message') {
-        const dmName = 'dm_' + [currentUser.username, realSender].sort().join('_');
-        const messages = DB.get('messages', {});
-        if (!messages[dmName]) messages[dmName] = [];
-        messages[dmName].push({
-            author: realSender,
-            text: data.text,
-            time: Date.now(),
-            type: data.msgType || 'text'
-        });
-        DB.set('messages', messages);
-
-        if (!areFriends(currentUser.username, realSender)) {
-            const myFriends = getFriends(currentUser.username);
-            myFriends.push(realSender);
-            setFriends(currentUser.username, myFriends);
-            renderFriends();
-        }
-
-        if (currentChannel === dmName) renderMessages();
-        else toast(`💬 Сообщение из другого измерения`);
-    }
-}
-
-// ==================== ЗВОНКИ ====================
+// ============================================
+// ГОЛОСОВЫЕ ЗВОНКИ (WebRTC через PeerJS)
+// ============================================
 async function getMicrophone() {
     return navigator.mediaDevices.getUserMedia({
-        audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true },
+        audio: {
+            echoCancellation: true,
+            noiseSuppression: true,
+            autoGainControl: true
+        },
         video: false
     });
 }
 
 async function startCall() {
-    if (!currentChannel || !currentChannel.startsWith('dm_')) return toast('📞 Только в DM', 'error');
+    if (!currentChannel || !currentChannel.startsWith('dm_')) {
+        return toast('📞 Только в личных сообщениях', 'error');
+    }
 
-    const partner = currentChannel.substring(3).split('_').find(p => p !== currentUser.username);
+    const partner = currentChannel.substring(3).split('_')
+        .find(p => p !== currentUser.username);
     if (!partner) return toast('Не найдено', 'error');
 
     const users = DB.get('users', {});
-    if (!users[partner]) return toast('❌ Не найден', 'error');
+    if (!users[partner]) return toast('❌ Пользователь не найден', 'error');
 
-    try { localStream = await getMicrophone(); }
-    catch { return toast('❌ Разреши микрофон', 'error'); }
+    // Запрашиваем микрофон
+    try {
+        localStream = await getMicrophone();
+    } catch {
+        return toast('❌ Разреши доступ к микрофону', 'error');
+    }
 
     callState.active = true;
     callState.ringing = true;
@@ -3007,58 +4934,89 @@ async function startCall() {
             playRemoteStream(remoteStream);
             onCallConnected();
         });
-        currentCall.on('close', () => { toast('📞 Портал закрыт'); cleanupCall(); });
-        currentCall.on('error', () => cleanupCall());
 
+        currentCall.on('close', () => {
+            toast('📞 Портал закрыт', 'info');
+            cleanupCall();
+        });
+
+        currentCall.on('error', (err) => {
+            console.error('Call error:', err);
+            cleanupCall();
+        });
+
+        // Таймаут 30 секунд
         setTimeout(() => {
             if (callState.ringing && callState.active) {
                 toast('📴 Не отвечает', 'error');
                 cleanupCall();
             }
         }, 30000);
+
     } catch (err) {
+        console.error('Call error:', err);
         toast('❌ Ошибка портала', 'error');
         cleanupCall();
     }
 }
 
 function handleIncomingCall(call) {
-    if (callState.active) { call.close(); return; }
+    if (callState.active) {
+        call.close();
+        return;
+    }
 
     const users = DB.get('users', {});
     let callerName = call.peer.replace('rm-', '');
-    for (const u in users) if (getPeerId(u) === call.peer) { callerName = u; break; }
+
+    for (const u in users) {
+        if (getPeerId(u) === call.peer) {
+            callerName = u;
+            break;
+        }
+    }
 
     callState.incoming = true;
     callState.callPartner = callerName;
 
+    // Показываем уведомление
     const el = document.getElementById('incomingCall');
     el.classList.add('show');
 
     const avatar = document.getElementById('incomingAvatar');
     avatar.style.background = users[callerName]?.color || '#97ce4c';
     avatar.innerHTML = callerName[0].toUpperCase();
+
     document.getElementById('incomingName').textContent = callerName;
 
     playRingTone();
-    toast(`🌀 Звонок от ${callerName}`);
+    toast(`🌀 Звонок от ${callerName}`, 'info');
 
+    // Отвечаем
     call.answer();
     call.on('stream', (remoteStream) => playRemoteStream(remoteStream));
+
     currentCall = call;
 
-    setTimeout(() => { if (callState.incoming) declineCall(); }, 30000);
+    // Автоотклонение через 30 секунд
+    setTimeout(() => {
+        if (callState.incoming) declineCall();
+    }, 30000);
 }
 
 function playRemoteStream(stream) {
     let remoteAudio = document.getElementById('remoteAudio');
+
     if (!remoteAudio) {
         remoteAudio = document.createElement('audio');
         remoteAudio.id = 'remoteAudio';
         remoteAudio.autoplay = true;
+        remoteAudio.playsInline = true;
         document.body.appendChild(remoteAudio);
     }
+
     remoteAudio.srcObject = stream;
+
     remoteAudio.play().catch(() => {
         document.addEventListener('click', () => remoteAudio.play(), { once: true });
     });
@@ -3068,9 +5026,11 @@ function acceptCall() {
     document.getElementById('incomingCall').classList.remove('show');
     stopRingTone();
 
+    // Подключаем свой микрофон
     getMicrophone().then(stream => {
         localStream = stream;
-        if (currentCall) {
+
+        if (currentCall && currentCall.peerConnection) {
             const senders = currentCall.peerConnection.getSenders();
             stream.getTracks().forEach(track => {
                 const sender = senders.find(s => s.track && s.track.kind === track.kind);
@@ -3078,30 +5038,38 @@ function acceptCall() {
                 else currentCall.peerConnection.addTrack(track, stream);
             });
         }
-    }).catch(() => toast('❌ Нет микрофона', 'error'));
+    }).catch(() => toast('❌ Нет доступа к микрофону', 'error'));
 
     callState.active = true;
     callState.incoming = false;
     callState.ringing = false;
+
     showCallOverlay(callState.callPartner, '#97ce4c', '🌀 Портал открыт!');
 }
 
 function declineCall() {
     document.getElementById('incomingCall').classList.remove('show');
     stopRingTone();
-    if (currentCall) { try { currentCall.close(); } catch(e) {} currentCall = null; }
+
+    if (currentCall) {
+        try { currentCall.close(); } catch (e) {}
+        currentCall = null;
+    }
+
     callState.incoming = false;
-    toast('📞 Отклонено');
+    toast('📞 Отклонено', 'info');
     cleanupCall();
 }
 
 function onCallConnected() {
     if (callState.startTime) return;
+
     callState.ringing = false;
     callState.startTime = Date.now();
 
     document.getElementById('callStatus').textContent = '🎙 Связь установлена';
     document.getElementById('callTimer').style.display = 'block';
+
     stopRingTone();
 
     if (callState.timerInterval) clearInterval(callState.timerInterval);
@@ -3117,6 +5085,7 @@ function onCallConnected() {
 
 function showCallOverlay(username, color, statusText) {
     document.getElementById('callOverlay').classList.add('show');
+
     const avatar = document.getElementById('callAvatar');
     avatar.style.background = color || '#97ce4c';
     avatar.innerHTML = username[0].toUpperCase();
@@ -3135,36 +5104,78 @@ function showCallOverlay(username, color, statusText) {
 
 function toggleMute() {
     if (!localStream) return;
+
     callState.muted = !callState.muted;
-    localStream.getAudioTracks().forEach(t => t.enabled = !callState.muted);
+    localStream.getAudioTracks().forEach(t => {
+        t.enabled = !callState.muted;
+    });
+
     const btn = document.getElementById('muteBtn');
     btn.classList.toggle('active');
-    btn.innerHTML = callState.muted ? '<i class="fas fa-microphone-slash"></i>' : '<i class="fas fa-microphone"></i>';
+    btn.innerHTML = callState.muted
+        ? '<i class="fas fa-microphone-slash"></i>'
+        : '<i class="fas fa-microphone"></i>';
+
+    toast(callState.muted ? '🔇 Микрофон выключен' : '🎙 Микрофон включён');
 }
 
 function endCall() {
-    if (currentCall) { try { currentCall.close(); } catch(e) {} currentCall = null; }
+    if (currentCall) {
+        try { currentCall.close(); } catch (e) {}
+        currentCall = null;
+    }
+
     if (callState.startTime) {
         const duration = Math.floor((Date.now() - callState.startTime) / 1000);
-        toast(`📞 Портал закрыт · ${Math.floor(duration/60)}:${String(duration%60).padStart(2,'0')}`);
+        const mm = Math.floor(duration / 60);
+        const ss = String(duration % 60).padStart(2, '0');
+        toast(`📞 Портал закрыт · ${mm}:${ss}`, 'info');
     }
+
     cleanupCall();
 }
 
 function cleanupCall() {
     document.getElementById('callOverlay').classList.remove('show');
     document.getElementById('incomingCall').classList.remove('show');
-    if (callState.timerInterval) clearInterval(callState.timerInterval);
+
+    if (callState.timerInterval) {
+        clearInterval(callState.timerInterval);
+    }
+
     stopRingTone();
-    if (currentCall) { try { currentCall.close(); } catch(e) {} currentCall = null; }
-    if (localStream) { localStream.getTracks().forEach(t => t.stop()); localStream = null; }
+
+    if (currentCall) {
+        try { currentCall.close(); } catch (e) {}
+        currentCall = null;
+    }
+
+    if (localStream) {
+        localStream.getTracks().forEach(t => t.stop());
+        localStream = null;
+    }
+
     const remoteAudio = document.getElementById('remoteAudio');
     if (remoteAudio) remoteAudio.remove();
-    callState = { active: false, incoming: false, ringing: false, muted: false, callPartner: null, startTime: null, timerInterval: null, ringToneNodes: [] };
+
+    callState = {
+        active: false,
+        incoming: false,
+        ringing: false,
+        muted: false,
+        callPartner: null,
+        startTime: null,
+        timerInterval: null,
+        ringToneNodes: []
+    };
+
     document.getElementById('muteBtn').classList.remove('active');
     document.getElementById('muteBtn').innerHTML = '<i class="fas fa-microphone"></i>';
 }
 
+// ============================================
+// RING TONE (звук вызова)
+// ============================================
 function playRingTone() {
     const ctx = new (window.AudioContext || window.webkitAudioContext)();
     const masterGain = ctx.createGain();
@@ -3174,78 +5185,48 @@ function playRingTone() {
     function beep(start) {
         const osc1 = ctx.createOscillator();
         const osc2 = ctx.createOscillator();
-        const g1 = ctx.createGain();
-        const g2 = ctx.createGain();
+        const gain1 = ctx.createGain();
+        const gain2 = ctx.createGain();
+
         osc1.frequency.value = 440;
         osc2.frequency.value = 480;
-        g1.gain.setValueAtTime(0, start);
-        g1.gain.linearRampToValueAtTime(1, start + 0.05);
-        g1.gain.linearRampToValueAtTime(0, start + 0.3);
-        g2.gain.setValueAtTime(0, start);
-        g2.gain.linearRampToValueAtTime(1, start + 0.05);
-        g2.gain.linearRampToValueAtTime(0, start + 0.3);
-        osc1.connect(g1); g1.connect(masterGain);
-        osc2.connect(g2); g2.connect(masterGain);
+
+        gain1.gain.setValueAtTime(0, start);
+        gain1.gain.linearRampToValueAtTime(1, start + 0.05);
+        gain1.gain.linearRampToValueAtTime(0, start + 0.3);
+
+        gain2.gain.setValueAtTime(0, start);
+        gain2.gain.linearRampToValueAtTime(1, start + 0.05);
+        gain2.gain.linearRampToValueAtTime(0, start + 0.3);
+
+        osc1.connect(gain1); gain1.connect(masterGain);
+        osc2.connect(gain2); gain2.connect(masterGain);
+
         osc1.start(start); osc1.stop(start + 0.35);
         osc2.start(start); osc2.stop(start + 0.35);
+
         callState.ringToneNodes.push(osc1, osc2);
     }
 
-    function pattern() {
+    function ringPattern() {
         if (!callState.ringing && !callState.incoming) return;
-        const t = ctx.currentTime;
-        beep(t);
-        beep(t + 0.5);
-        setTimeout(pattern, 2000);
+
+        const now = ctx.currentTime;
+        beep(now);
+        beep(now + 0.5);
+
+        setTimeout(ringPattern, 2000);
     }
-    pattern();
+
+    ringPattern();
 }
 
 function stopRingTone() {
-    callState.ringToneNodes.forEach(n => { try { n.stop(); } catch(e) {} });
+    callState.ringToneNodes.forEach(node => {
+        try { node.stop(); } catch (e) {}
+    });
     callState.ringToneNodes = [];
 }
-
-// ==================== UTILS ====================
-function closeModal(id) { document.getElementById(id).classList.remove('show'); }
-function escapeHtml(str) {
-    const div = document.createElement('div');
-    div.textContent = str;
-    return div.innerHTML;
-}
-
-let toastTimer;
-function toast(message, type = 'info') {
-    const el = document.getElementById('toast');
-    el.textContent = message;
-    el.className = 'toast show ' + type;
-    clearTimeout(toastTimer);
-    toastTimer = setTimeout(() => el.classList.remove('show'), 3500);
-}
-
-document.querySelectorAll('.modal-bg').forEach(bg => {
-    bg.addEventListener('click', (e) => { if (e.target === bg) bg.classList.remove('show'); });
-});
-
-document.addEventListener('click', (e) => {
-    const picker = document.getElementById('emojiPicker');
-    if (picker && picker.classList.contains('show') && !picker.contains(e.target) &&
-        !e.target.closest('button[onclick*="toggleEmojiPicker"]') &&
-        !e.target.closest('button[onclick*="openGifPicker"]')) {
-        picker.classList.remove('show');
-    }
-});
-
-// ==================== INIT ====================
-(function init() {
-    const saved = DB.get('user', null);
-    if (saved) {
-        currentUser = saved;
-        openApp();
-    } else {
-        gotoStep('welcome');
-    }
-})();
 </script>
 </body>
 </html>
