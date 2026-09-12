@@ -20,10 +20,8 @@ const DB_PATH = 'dedsec_messenger.db';
 const onlineUsers = new Map();
 let db;
 
-// ==================== ИНИЦИАЛИЗАЦИЯ БАЗЫ ДАННЫХ ====================
 async function initDatabase() {
     const SQL = await initSqlJs();
-    
     if (fs.existsSync(DB_PATH)) {
         const buffer = fs.readFileSync(DB_PATH);
         db = new SQL.Database(buffer);
@@ -31,103 +29,61 @@ async function initDatabase() {
         db = new SQL.Database();
     }
 
-    db.run(`
-        CREATE TABLE IF NOT EXISTS users (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            username TEXT UNIQUE NOT NULL,
-            password TEXT NOT NULL,
-            dedsec_id TEXT UNIQUE NOT NULL,
-            status TEXT DEFAULT 'offline',
-            eternal_status TEXT DEFAULT 'normis',
-            last_seen DATETIME DEFAULT CURRENT_TIMESTAMP,
-            avatar_color TEXT,
-            bio TEXT DEFAULT ''
-        )
-    `);
+    db.run(`CREATE TABLE IF NOT EXISTS users (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        username TEXT UNIQUE NOT NULL,
+        password TEXT NOT NULL,
+        dedsec_id TEXT UNIQUE NOT NULL,
+        status TEXT DEFAULT 'offline',
+        eternal_status TEXT DEFAULT 'normis',
+        last_seen DATETIME DEFAULT CURRENT_TIMESTAMP,
+        avatar_color TEXT,
+        bio TEXT DEFAULT ''
+    )`);
 
-    db.run(`
-        CREATE TABLE IF NOT EXISTS contacts (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            user_id INTEGER NOT NULL,
-            contact_id INTEGER NOT NULL,
-            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
-            UNIQUE(user_id, contact_id)
-        )
-    `);
+    db.run(`CREATE TABLE IF NOT EXISTS contacts (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER NOT NULL,
+        contact_id INTEGER NOT NULL,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        UNIQUE(user_id, contact_id)
+    )`);
 
-    db.run(`
-        CREATE TABLE IF NOT EXISTS messages (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            sender_id INTEGER NOT NULL,
-            receiver_id INTEGER NOT NULL,
-            message TEXT NOT NULL,
-            message_type TEXT DEFAULT 'text',
-            is_read INTEGER DEFAULT 0,
-            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-        )
-    `);
+    db.run(`CREATE TABLE IF NOT EXISTS messages (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        sender_id INTEGER NOT NULL,
+        receiver_id INTEGER NOT NULL,
+        message TEXT NOT NULL,
+        is_read INTEGER DEFAULT 0,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )`);
 
-    db.run(`
-        CREATE TABLE IF NOT EXISTS locations (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            user_id INTEGER NOT NULL,
-            latitude REAL NOT NULL,
-            longitude REAL NOT NULL,
-            address TEXT,
-            is_active INTEGER DEFAULT 1,
-            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-        )
-    `);
+    db.run(`CREATE TABLE IF NOT EXISTS locations (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER NOT NULL,
+        latitude REAL NOT NULL,
+        longitude REAL NOT NULL,
+        address TEXT,
+        is_active INTEGER DEFAULT 1,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )`);
 
     saveDatabase();
 }
 
 function saveDatabase() {
     const data = db.export();
-    const buffer = Buffer.from(data);
-    fs.writeFileSync(DB_PATH, buffer);
-}
-
-// ==================== УТИЛИТЫ ====================
-function generateDedSecId() {
-    return 'DS-' + crypto.randomBytes(4).toString('hex').toUpperCase();
-}
-
-function getRandomColor() {
-    const colors = ['#9B59B6', '#00FF41', '#00D2FF', '#FF2D95', '#FFD700', '#E17055', '#6C5CE7', '#00B894'];
-    return colors[Math.floor(Math.random() * colors.length)];
-}
-
-function getEternalStatus(username) {
-    if (username.toLowerCase() === 'payk') {
-        return 'founder';
-    }
-    return 'normis';
-}
-
-function getStatusDisplay(eternalStatus) {
-    const statuses = {
-        'founder': { text: '👑 ОСНОВАТЕЛЬ', color: '#FFD700', class: 'founder' },
-        'normis': { text: '👤 НОРМИС', color: '#888', class: 'normis' }
-    };
-    return statuses[eternalStatus] || statuses['normis'];
+    fs.writeFileSync(DB_PATH, Buffer.from(data));
 }
 
 function dbGet(query, params = []) {
     try {
         const stmt = db.prepare(query);
         if (params.length > 0) stmt.bind(params);
-        if (stmt.step()) {
-            const result = stmt.getAsObject();
-            stmt.free();
-            return result;
-        }
+        if (stmt.step()) { const r = stmt.getAsObject(); stmt.free(); return r; }
         stmt.free();
         return null;
-    } catch (e) {
-        console.error('dbGet error:', e.message);
-        return null;
-    }
+    } catch (e) { return null; }
 }
 
 function dbAll(query, params = []) {
@@ -135,288 +91,225 @@ function dbAll(query, params = []) {
         const stmt = db.prepare(query);
         if (params.length > 0) stmt.bind(params);
         const results = [];
-        while (stmt.step()) {
-            results.push(stmt.getAsObject());
-        }
+        while (stmt.step()) results.push(stmt.getAsObject());
         stmt.free();
         return results;
-    } catch (e) {
-        console.error('dbAll error:', e.message);
-        return [];
-    }
+    } catch (e) { return []; }
 }
 
 function dbRun(query, params = []) {
-    try {
-        db.run(query, params);
-        saveDatabase();
-        return { changes: db.getRowsModified(), lastInsertRowid: db.exec("SELECT last_insert_rowid()")[0]?.values[0][0] || 0 };
-    } catch (e) {
-        console.error('dbRun error:', e.message);
-        return { changes: 0, lastInsertRowid: 0 };
-    }
+    try { db.run(query, params); saveDatabase(); } catch (e) { console.error(e); }
 }
 
-// ==================== API РОУТЫ ====================
-
-// Регистрация
+// ==== AUTH ====
 app.post('/api/register', async (req, res) => {
     try {
         const { username, password } = req.body;
-        
         if (!username || !password || username.length < 3 || password.length < 3) {
-            return res.status(400).json({ error: 'Username and password must be at least 3 characters' });
+            return res.status(400).json({ error: 'Min 3 characters' });
         }
-
-        const existing = dbGet('SELECT id FROM users WHERE username = ?', [username]);
-        if (existing) {
-            return res.status(400).json({ error: 'Username already taken' });
+        if (dbGet('SELECT id FROM users WHERE username = ?', [username])) {
+            return res.status(400).json({ error: 'Username taken' });
         }
-
         const hashedPassword = await bcrypt.hash(password, 10);
-        const dedsecId = generateDedSecId();
-        const avatarColor = getRandomColor();
-        const eternalStatus = getEternalStatus(username);
+        const dedsecId = 'DS-' + crypto.randomBytes(4).toString('hex').toUpperCase();
+        const colors = ['#5b8def', '#a855f7', '#4ade80', '#fbbf24', '#f472b6', '#f87171'];
+        const color = username.toLowerCase() === 'payk' ? '#ffd700' : colors[Math.floor(Math.random() * colors.length)];
+        const eternalStatus = username.toLowerCase() === 'payk' ? 'founder' : 'normis';
 
-        dbRun(
-            'INSERT INTO users (username, password, dedsec_id, avatar_color, eternal_status) VALUES (?, ?, ?, ?, ?)',
-            [username, hashedPassword, dedsecId, avatarColor, eternalStatus]
-        );
+        dbRun('INSERT INTO users (username, password, dedsec_id, avatar_color, eternal_status) VALUES (?, ?, ?, ?, ?)',
+            [username, hashedPassword, dedsecId, color, eternalStatus]);
 
         const newUser = dbGet('SELECT id FROM users WHERE username = ?', [username]);
-
-        res.json({
-            userId: newUser.id,
-            username,
-            dedsecId,
-            avatarColor,
-            eternalStatus,
-            statusDisplay: getStatusDisplay(eternalStatus)
-        });
-    } catch (error) {
-        console.error('Register error:', error);
-        res.status(500).json({ error: 'Server error' });
-    }
+        res.json({ userId: newUser.id, username, dedsecId, avatarColor: color, eternalStatus });
+    } catch (error) { res.status(500).json({ error: 'Server error' }); }
 });
 
-// Логин
 app.post('/api/login', async (req, res) => {
     try {
         const { username, password } = req.body;
-
         const user = dbGet('SELECT * FROM users WHERE username = ?', [username]);
-        if (!user) {
-            return res.status(401).json({ error: 'User not found' });
-        }
-
+        if (!user) return res.status(401).json({ error: 'User not found' });
         const valid = await bcrypt.compare(password, user.password);
-        if (!valid) {
-            return res.status(401).json({ error: 'Invalid password' });
-        }
-
-        dbRun('UPDATE users SET status = ?, last_seen = CURRENT_TIMESTAMP WHERE id = ?', ['online', user.id]);
-
+        if (!valid) return res.status(401).json({ error: 'Wrong password' });
+        dbRun('UPDATE users SET status = ? WHERE id = ?', ['online', user.id]);
         res.json({
-            userId: user.id,
-            username: user.username,
-            dedsecId: user.dedsec_id,
-            avatarColor: user.avatar_color,
-            bio: user.bio,
-            eternalStatus: user.eternal_status,
-            statusDisplay: getStatusDisplay(user.eternal_status)
+            userId: user.id, username: user.username, dedsecId: user.dedsec_id,
+            avatarColor: user.avatar_color, eternalStatus: user.eternal_status
         });
-    } catch (error) {
-        console.error('Login error:', error);
-        res.status(500).json({ error: 'Server error' });
-    }
+    } catch (error) { res.status(500).json({ error: 'Server error' }); }
 });
 
-// Поиск пользователя
-app.get('/api/users/search/:query', (req, res) => {
-    try {
-        const query = `%${req.params.query}%`;
-        const users = dbAll(
-            'SELECT id, username, dedsec_id, avatar_color, status, bio, eternal_status FROM users WHERE username LIKE ? OR dedsec_id LIKE ? LIMIT 10',
-            [query, query]
-        );
-        
-        const usersWithStatus = users.map(user => ({
-            ...user,
-            statusDisplay: getStatusDisplay(user.eternal_status)
-        }));
-        
-        res.json(usersWithStatus);
-    } catch (error) {
-        res.status(500).json({ error: 'Server error' });
-    }
-});
-
-// Получение контактов
 app.get('/api/contacts/:userId', (req, res) => {
-    try {
-        const userId = req.params.userId;
-        const contacts = dbAll(`
-            SELECT 
-                u.id, u.username, u.dedsec_id, u.avatar_color, u.status, u.bio, u.last_seen, u.eternal_status,
-                (SELECT COUNT(*) FROM messages WHERE sender_id = u.id AND receiver_id = ? AND is_read = 0) as unread_count
-            FROM contacts c
-            JOIN users u ON (c.contact_id = u.id)
-            WHERE c.user_id = ?
-            ORDER BY CASE WHEN u.eternal_status = 'founder' THEN 0 ELSE 1 END
-        `, [userId, userId]);
-
-        const contactsWithStatus = contacts.map(contact => ({
-            ...contact,
-            statusDisplay: getStatusDisplay(contact.eternal_status)
-        }));
-
-        res.json(contactsWithStatus);
-    } catch (error) {
-        res.status(500).json({ error: 'Server error' });
-    }
+    const contacts = dbAll(`SELECT u.id, u.username, u.dedsec_id, u.avatar_color, u.status, u.eternal_status
+        FROM contacts c JOIN users u ON c.contact_id = u.id
+        WHERE c.user_id = ?
+        ORDER BY CASE WHEN u.eternal_status = 'founder' THEN 0 ELSE 1 END`, [req.params.userId]);
+    res.json(contacts);
 });
 
-// Добавление контакта
 app.post('/api/contacts/add', (req, res) => {
-    try {
-        const { userId, contactUsername } = req.body;
-
-        const contact = dbGet('SELECT id, eternal_status FROM users WHERE username = ? OR dedsec_id = ?', [contactUsername, contactUsername]);
-        if (!contact) {
-            return res.status(404).json({ error: 'User not found' });
-        }
-
-        if (contact.id === userId) {
-            return res.status(400).json({ error: 'Cannot add yourself' });
-        }
-
-        const existing = dbGet('SELECT * FROM contacts WHERE user_id = ? AND contact_id = ?', [userId, contact.id]);
-        if (existing) {
-            return res.status(400).json({ error: 'Already in contacts' });
-        }
-
-        dbRun('INSERT INTO contacts (user_id, contact_id) VALUES (?, ?)', [userId, contact.id]);
-        dbRun('INSERT INTO contacts (user_id, contact_id) VALUES (?, ?)', [contact.id, userId]);
-
-        res.json({ success: true, contactId: contact.id });
-    } catch (error) {
-        res.status(500).json({ error: 'Server error' });
+    const { userId, contactUsername } = req.body;
+    const contact = dbGet('SELECT id FROM users WHERE username = ? OR dedsec_id = ?', [contactUsername, contactUsername]);
+    if (!contact) return res.status(404).json({ error: 'User not found' });
+    if (contact.id === userId) return res.status(400).json({ error: 'Cannot add yourself' });
+    if (dbGet('SELECT * FROM contacts WHERE user_id = ? AND contact_id = ?', [userId, contact.id])) {
+        return res.status(400).json({ error: 'Already in contacts' });
     }
+    dbRun('INSERT INTO contacts (user_id, contact_id) VALUES (?, ?)', [userId, contact.id]);
+    dbRun('INSERT INTO contacts (user_id, contact_id) VALUES (?, ?)', [contact.id, userId]);
+
+    const contactSocket = onlineUsers.get(contact.id);
+    if (contactSocket) {
+        const user = dbGet('SELECT username, avatar_color FROM users WHERE id = ?', [userId]);
+        io.to(contactSocket).emit('contact_added', { username: user.username });
+    }
+    res.json({ success: true });
 });
 
-// Получение сообщений
 app.get('/api/messages/:userId/:contactId', (req, res) => {
-    try {
-        const { userId, contactId } = req.params;
-
-        const messages = dbAll(`
-            SELECT * FROM messages 
-            WHERE (sender_id = ? AND receiver_id = ?) OR (sender_id = ? AND receiver_id = ?)
-            ORDER BY created_at ASC
-            LIMIT 50
-        `, [userId, contactId, contactId, userId]);
-
-        dbRun('UPDATE messages SET is_read = 1 WHERE sender_id = ? AND receiver_id = ? AND is_read = 0', [contactId, userId]);
-
-        res.json(messages);
-    } catch (error) {
-        res.status(500).json({ error: 'Server error' });
-    }
+    const { userId, contactId } = req.params;
+    const messages = dbAll(`SELECT * FROM messages 
+        WHERE (sender_id = ? AND receiver_id = ?) OR (sender_id = ? AND receiver_id = ?)
+        ORDER BY created_at ASC LIMIT 100`, [userId, contactId, contactId, userId]);
+    dbRun('UPDATE messages SET is_read = 1 WHERE sender_id = ? AND receiver_id = ? AND is_read = 0', [contactId, userId]);
+    res.json(messages);
 });
 
-// Обновление локации
-app.post('/api/location/update', (req, res) => {
-    try {
-        const { userId, latitude, longitude, address } = req.body;
-
-        dbRun('UPDATE locations SET is_active = 0 WHERE user_id = ?', [userId]);
-        dbRun('INSERT INTO locations (user_id, latitude, longitude, address) VALUES (?, ?, ?, ?)', 
-            [userId, latitude, longitude, address || '']);
-
-        res.json({ success: true });
-    } catch (error) {
-        res.status(500).json({ error: 'Server error' });
-    }
+app.get('/api/user/:userId', (req, res) => {
+    const user = dbGet('SELECT id, username, dedsec_id, avatar_color, eternal_status FROM users WHERE id = ?', [req.params.userId]);
+    res.json(user || null);
 });
 
-// Получение локации
-app.get('/api/location/:contactId', (req, res) => {
-    try {
-        const location = dbGet(
-            'SELECT * FROM locations WHERE user_id = ? AND is_active = 1 ORDER BY created_at DESC LIMIT 1',
-            [req.params.contactId]
-        );
-        res.json(location || null);
-    } catch (error) {
-        res.status(500).json({ error: 'Server error' });
-    }
+app.get('/api/user-by-name/:username', (req, res) => {
+    const user = dbGet('SELECT id, username, dedsec_id, avatar_color, eternal_status FROM users WHERE username = ?', [req.params.username]);
+    res.json(user || null);
 });
 
-// ==================== SOCKET.IO ====================
+// ==================== SOCKET.IO + WebRTC СИГНАЛИНГ ====================
 io.on('connection', (socket) => {
-    console.log('🔌 Connected:', socket.id);
+    console.log('Connected:', socket.id);
     let currentUserId = null;
 
     socket.on('authenticate', (userId) => {
         currentUserId = userId;
         onlineUsers.set(userId, socket.id);
         socket.join(`user_${userId}`);
-        
         dbRun('UPDATE users SET status = ? WHERE id = ?', ['online', userId]);
+
+        // Оповещаем контакты
+        const contacts = dbAll('SELECT contact_id FROM contacts WHERE user_id = ?', [userId]);
+        contacts.forEach(c => {
+            const cs = onlineUsers.get(c.contact_id);
+            if (cs) io.to(cs).emit('user_status_change', { userId, status: 'online' });
+        });
     });
 
+    // ===== СООБЩЕНИЯ =====
     socket.on('send_message', (data) => {
-        const { senderId, receiverId, message } = data;
-        
-        dbRun('INSERT INTO messages (sender_id, receiver_id, message) VALUES (?, ?, ?)', 
+        const { senderId, receiverId, message, type } = data;
+        dbRun('INSERT INTO messages (sender_id, receiver_id, message) VALUES (?, ?, ?)',
             [senderId, receiverId, message]);
 
         const msgData = {
-            sender_id: senderId,
-            receiver_id: receiverId,
-            message,
+            sender_id: senderId, receiver_id: receiverId,
+            message, type: type || 'text',
             created_at: new Date().toISOString()
         };
 
-        const receiverSocket = onlineUsers.get(receiverId);
-        if (receiverSocket) {
-            io.to(receiverSocket).emit('new_message', msgData);
-        }
+        const rs = onlineUsers.get(receiverId);
+        if (rs) io.to(rs).emit('new_message', msgData);
         socket.emit('message_sent', msgData);
     });
 
     socket.on('typing', (data) => {
-        const receiverSocket = onlineUsers.get(data.receiverId);
-        if (receiverSocket) {
-            io.to(receiverSocket).emit('user_typing', { userId: data.senderId, username: data.username });
-        }
+        const rs = onlineUsers.get(data.receiverId);
+        if (rs) io.to(rs).emit('user_typing', { userId: data.senderId, username: data.username });
     });
 
     socket.on('stop_typing', (data) => {
-        const receiverSocket = onlineUsers.get(data.receiverId);
-        if (receiverSocket) {
-            io.to(receiverSocket).emit('user_stop_typing', { userId: data.senderId });
-        }
+        const rs = onlineUsers.get(data.receiverId);
+        if (rs) io.to(rs).emit('user_stop_typing', { userId: data.senderId });
     });
 
-    socket.on('request_location', (data) => {
-        const receiverSocket = onlineUsers.get(data.toUserId);
-        if (receiverSocket) {
-            io.to(receiverSocket).emit('location_requested', {
-                fromUserId: data.fromUserId,
-                fromUsername: data.fromUsername
+    // ===== WEBRTC ЗВОНКИ =====
+    // 1. Инициатор звонит
+    socket.on('call_user', (data) => {
+        const { fromUserId, fromUsername, fromColor, fromEternalStatus, toUserId } = data;
+        console.log(`📞 Call from ${fromUsername} (${fromUserId}) to ${toUserId}`);
+
+        const targetSocket = onlineUsers.get(toUserId);
+        if (!targetSocket) {
+            socket.emit('call_failed', { reason: 'User is offline' });
+            return;
+        }
+
+        // Отправляем входящий звонок
+        io.to(targetSocket).emit('incoming_call', {
+            fromUserId, fromUsername, fromColor, fromEternalStatus,
+            callId: crypto.randomBytes(8).toString('hex')
+        });
+    });
+
+    // 2. Получатель принял — отправляем signal инициатору
+    socket.on('call_accepted', (data) => {
+        const { toUserId, fromUserId } = data;
+        const targetSocket = onlineUsers.get(toUserId);
+        if (targetSocket) {
+            io.to(targetSocket).emit('call_accepted', {
+                byUserId: fromUserId,
+                fromUserId
             });
         }
     });
 
-    socket.on('share_location', (data) => {
-        const requesterSocket = onlineUsers.get(data.toUserId);
-        if (requesterSocket) {
-            io.to(requesterSocket).emit('location_shared', {
-                latitude: data.latitude,
-                longitude: data.longitude,
-                address: data.address
+    // 3. Получатель отклонил
+    socket.on('call_declined', (data) => {
+        const { toUserId, fromUserId } = data;
+        const targetSocket = onlineUsers.get(toUserId);
+        if (targetSocket) {
+            io.to(targetSocket).emit('call_declined', { byUserId: fromUserId });
+        }
+    });
+
+    // 4. Обмен SDP offer/answer
+    socket.on('webrtc_offer', (data) => {
+        const { toUserId, fromUserId, sdp } = data;
+        const targetSocket = onlineUsers.get(toUserId);
+        if (targetSocket) {
+            io.to(targetSocket).emit('webrtc_offer', {
+                fromUserId, sdp
             });
+        }
+    });
+
+    socket.on('webrtc_answer', (data) => {
+        const { toUserId, fromUserId, sdp } = data;
+        const targetSocket = onlineUsers.get(toUserId);
+        if (targetSocket) {
+            io.to(targetSocket).emit('webrtc_answer', {
+                fromUserId, sdp
+            });
+        }
+    });
+
+    // 5. Обмен ICE candidates
+    socket.on('webrtc_ice', (data) => {
+        const { toUserId, fromUserId, candidate } = data;
+        const targetSocket = onlineUsers.get(toUserId);
+        if (targetSocket) {
+            io.to(targetSocket).emit('webrtc_ice', {
+                fromUserId, candidate
+            });
+        }
+    });
+
+    // 6. Завершение звонка
+    socket.on('call_ended', (data) => {
+        const { toUserId, fromUserId } = data;
+        const targetSocket = onlineUsers.get(toUserId);
+        if (targetSocket) {
+            io.to(targetSocket).emit('call_ended', { byUserId: fromUserId });
         }
     });
 
@@ -424,25 +317,18 @@ io.on('connection', (socket) => {
         if (currentUserId) {
             onlineUsers.delete(currentUserId);
             dbRun('UPDATE users SET status = ? WHERE id = ?', ['offline', currentUserId]);
+
+            const contacts = dbAll('SELECT contact_id FROM contacts WHERE user_id = ?', [currentUserId]);
+            contacts.forEach(c => {
+                const cs = onlineUsers.get(c.contact_id);
+                if (cs) io.to(cs).emit('user_status_change', { userId: currentUserId, status: 'offline' });
+            });
         }
-        console.log('🔌 Disconnected:', socket.id);
+        console.log('Disconnected:', socket.id);
     });
 });
 
-// ==================== ЗАПУСК ====================
 const PORT = process.env.PORT || 3000;
-
 initDatabase().then(() => {
-    server.listen(PORT, () => {
-        console.log(`
-╔═══════════════════════════════════════╗
-║   👑 DEDSEC MESSENGER ONLINE         ║
-║   Port: ${PORT}                         ║
-║   Founder: payk                       ║
-║   Others: normis                      ║
-╚═══════════════════════════════════════╝
-        `);
-    });
-}).catch(err => {
-    console.error('Failed to initialize database:', err);
-});
+    server.listen(PORT, () => console.log(`🚀 DEVHUB running on port ${PORT}`));
+}).catch(err => console.error('Failed:', err));
