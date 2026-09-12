@@ -976,35 +976,36 @@ body {
     top: -9px;
     left: 50%;
     transform: translateX(-50%);
-    font-size: 16px;
-    filter: drop-shadow(0 0 6px #8B4513);
+    font-size: 18px;
+    filter: drop-shadow(0 0 6px #e74c3c);
     animation: crownFloat 2s ease-in-out infinite;
 }
 
+
 /* Бейдж какашки в чате */
 .badge-poop {
-    background: linear-gradient(135deg, #8B4513, #654321);
+    background: linear-gradient(135deg, #e74c3c, #8B4513);
     color: #fff !important;
     font-weight: 900 !important;
-    box-shadow: 0 0 15px rgba(139, 69, 19, 0.6);
+    box-shadow: 0 0 15px rgba(231, 76, 60, 0.6);
     animation: poopGlow 2.5s ease-in-out infinite;
 }
 
 @keyframes poopGlow {
     0%, 100% {
-        box-shadow: 0 0 10px rgba(139, 69, 19, 0.5);
+        box-shadow: 0 0 10px rgba(231, 76, 60, 0.5);
     }
     50% {
         box-shadow:
-            0 0 25px rgba(139, 69, 19, 0.9),
-            0 0 40px rgba(139, 69, 19, 0.4);
+            0 0 25px rgba(231, 76, 60, 0.9),
+            0 0 40px rgba(231, 76, 60, 0.4);
     }
 }
 
 /* Сообщение от какашки */
 .msg-poop {
-    background: linear-gradient(90deg, rgba(139, 69, 19, 0.1), transparent);
-    border-left: 3px solid #8B4513;
+    background: linear-gradient(90deg, rgba(231, 76, 60, 0.1), transparent);
+    border-left: 3px solid #e74c3c;
     padding: 8px 12px;
     margin-left: -12px;
     border-radius: 8px;
