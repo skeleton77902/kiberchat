@@ -58,7 +58,7 @@ async function startCall() {
         return toast('❌ Портал не готов. Обнови страницу.', 'error');
     }
 
-    // Микрофон
+    // Запрашиваем микрофон
     try {
         console.log('🎤 Микрофон...');
         localStream = await getMicrophone();
@@ -262,7 +262,6 @@ function onCallConnected() {
 // ОВЕРЛЕЙ ЗВОНКА
 // ============================================
 function showCallOverlay(username, color, statusText) {
-    // Защита от пустого username
     if (!username) {
         console.error('showCallOverlay: нет username');
         return;
@@ -337,7 +336,7 @@ function endCall() {
 function cleanupCall() {
     const callOverlay = document.getElementById('callOverlay');
     const incomingCall = document.getElementById('incomingCall');
-    
+
     if (callOverlay) callOverlay.classList.remove('show');
     if (incomingCall) incomingCall.classList.remove('show');
 
@@ -358,8 +357,13 @@ function cleanupCall() {
     if (remoteAudio) remoteAudio.remove();
 
     callState = {
-        active: false, incoming: false, ringing: false, muted: false,
-        callPartner: null, startTime: null, timerInterval: null,
+        active: false,
+        incoming: false,
+        ringing: false,
+        muted: false,
+        callPartner: null,
+        startTime: null,
+        timerInterval: null,
         ringToneNodes: []
     };
 
