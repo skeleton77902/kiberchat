@@ -834,7 +834,6 @@ body {
     font-family: 'JetBrains Mono', monospace;
 }
 
-/* Секции в сайдбаре */
 .sb-section {
     padding: 16px 16px 8px;
     font-size: 11px;
@@ -845,7 +844,6 @@ body {
     font-family: 'JetBrains Mono', monospace;
 }
 
-/* Каналы и друзья */
 .channels,
 .friends-list {
     overflow-y: auto;
@@ -860,27 +858,27 @@ body {
 
 .channels::-webkit-scrollbar,
 .friends-list::-webkit-scrollbar,
-.chat-messages::-webkit-scrollbar {
+.chat-messages::-webkit-scrollbar,
+.emoji-grid::-webkit-scrollbar,
+.section::-webkit-scrollbar {
     width: 6px;
 }
 
 .channels::-webkit-scrollbar-track,
 .friends-list::-webkit-scrollbar-track,
-.chat-messages::-webkit-scrollbar-track {
+.chat-messages::-webkit-scrollbar-track,
+.emoji-grid::-webkit-scrollbar-track,
+.section::-webkit-scrollbar-track {
     background: transparent;
 }
 
 .channels::-webkit-scrollbar-thumb,
 .friends-list::-webkit-scrollbar-thumb,
-.chat-messages::-webkit-scrollbar-thumb {
+.chat-messages::-webkit-scrollbar-thumb,
+.emoji-grid::-webkit-scrollbar-thumb,
+.section::-webkit-scrollbar-thumb {
     background: rgba(151, 206, 76, 0.3);
     border-radius: 3px;
-}
-
-.channels::-webkit-scrollbar-thumb:hover,
-.friends-list::-webkit-scrollbar-thumb:hover,
-.chat-messages::-webkit-scrollbar-thumb:hover {
-    background: rgba(151, 206, 76, 0.5);
 }
 
 .channel,
@@ -967,7 +965,6 @@ body {
     filter: drop-shadow(0 0 4px gold);
 }
 
-/* Кнопка добавления друга */
 .add-friend-btn {
     display: flex;
     align-items: center;
@@ -1003,7 +1000,6 @@ body {
     min-width: 0;
 }
 
-/* Топбар */
 .topbar {
     padding: 12px 20px;
     border-bottom: 2px solid rgba(151, 206, 76, 0.2);
@@ -1037,7 +1033,6 @@ body {
     font-family: 'JetBrains Mono', monospace;
 }
 
-/* Табы */
 .tabs {
     display: flex;
     gap: 4px;
@@ -1069,7 +1064,6 @@ body {
     color: var(--portal-green);
 }
 
-/* Контент */
 .content {
     flex: 1;
     overflow: hidden;
@@ -1087,9 +1081,6 @@ body {
     display: flex;
 }
 
-/* ============================================
-   ЧАТ
-   ============================================ */
 .chat-messages {
     flex: 1;
     overflow-y: auto;
@@ -1142,6 +1133,7 @@ body {
     align-items: baseline;
     gap: 8px;
     margin-bottom: 4px;
+    flex-wrap: wrap;
 }
 
 .msg-author {
@@ -1214,9 +1206,6 @@ body {
     50% { transform: translateX(-50%) translateY(-4px); }
 }
 
-/* ============================================
-   ПОЛЕ ВВОДА СООБЩЕНИЯ
-   ============================================ */
 .chat-input {
     padding: 16px 20px;
     border-top: 2px solid rgba(151, 206, 76, 0.2);
@@ -1293,7 +1282,7 @@ body {
 }
 
 /* ============================================
-   СЕКЦИИ (ПЛЕЙТЕСТЫ, ФИДБЕК)
+   СЕКЦИИ
    ============================================ */
 .section {
     padding: 24px;
@@ -1398,7 +1387,6 @@ body {
     border-color: rgba(231, 76, 60, 0.4);
 }
 
-/* Списки билдов/фидбека */
 .build-list,
 .feedback-list {
     display: flex;
@@ -1579,7 +1567,6 @@ body {
     margin: 0;
 }
 
-/* Профиль */
 .profile-modal-user {
     display: flex;
     flex-direction: column;
@@ -1623,6 +1610,19 @@ body {
     box-shadow: 0 0 20px rgba(245, 213, 71, 0.6);
 }
 
+.friend-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 10px;
+    background: rgba(151, 206, 76, 0.15);
+    color: var(--portal-green);
+    font-weight: 600;
+    font-family: 'JetBrains Mono', monospace;
+}
+
 /* ============================================
    ЗВОНКИ
    ============================================ */
@@ -1643,7 +1643,6 @@ body {
     animation: fadeIn 0.3s;
 }
 
-/* Аватар звонка */
 .call-avatar {
     width: 140px;
     height: 140px;
@@ -1676,7 +1675,6 @@ body {
     top: -22px;
 }
 
-/* Имя и статус */
 .call-name {
     font-size: 28px;
     font-weight: 900;
@@ -1693,7 +1691,6 @@ body {
     text-align: center;
 }
 
-/* Таймер */
 .call-timer {
     font-size: 20px;
     color: var(--portal-cyan);
@@ -1703,7 +1700,6 @@ body {
     letter-spacing: 2px;
 }
 
-/* Кнопки звонка */
 .call-actions {
     display: flex;
     gap: 24px;
@@ -1743,7 +1739,6 @@ body {
     color: white;
 }
 
-/* Кнопка звонка в топбаре */
 .call-icon-btn {
     width: 40px;
     height: 40px;
@@ -1763,7 +1758,6 @@ body {
     transform: scale(1.05);
 }
 
-/* Входящий звонок */
 .incoming-call {
     position: fixed;
     top: 20px;
@@ -1840,7 +1834,7 @@ body {
 }
 
 /* ============================================
-   TOAST УВЕДОМЛЕНИЯ
+   TOAST
    ============================================ */
 .toast {
     position: fixed;
@@ -1972,7 +1966,6 @@ body {
     background: rgba(151, 206, 76, 0.15);
 }
 
-/* Стикеры в сообщениях */
 .msg-sticker {
     font-size: 72px;
     line-height: 1;
@@ -2346,7 +2339,6 @@ body {
         </div>
     </div>
 </div>
-
 <!-- ============================================
      ОСНОВНОЕ ПРИЛОЖЕНИЕ
      ============================================ -->
@@ -2424,9 +2416,7 @@ body {
              ============================================ -->
         <div class="content">
 
-            <!-- ============================================
-                 VIEW: ЧАТ
-                 ============================================ -->
+            <!-- VIEW: ЧАТ -->
             <div class="view active" id="view-chat">
                 <div class="chat-messages" id="chatMessages"></div>
 
@@ -2456,9 +2446,7 @@ body {
                 </div>
             </div>
 
-            <!-- ============================================
-                 VIEW: ПЛЕЙТЕСТЫ
-                 ============================================ -->
+            <!-- VIEW: ПЛЕЙТЕСТЫ -->
             <div class="view" id="view-playtests">
                 <div class="section">
                     <div class="section-title">🧪 Эксперименты Рика</div>
@@ -2494,9 +2482,7 @@ body {
                 </div>
             </div>
 
-            <!-- ============================================
-                 VIEW: ФИДБЕК
-                 ============================================ -->
+            <!-- VIEW: ФИДБЕК -->
             <div class="view" id="view-feedback">
                 <div class="section">
                     <div class="section-title">🐛 Баги и глюки</div>
@@ -2516,6 +2502,7 @@ body {
         </div>
     </div>
 </div>
+
 <!-- ============================================
      МОДАЛКА: ЗАГРУЗКА БИЛДА
      ============================================ -->
@@ -2532,22 +2519,29 @@ body {
             <div class="modal-field">
                 <label class="modal-label">Платформа</label>
                 <select class="modal-select" id="buildPlatform">
-                    <option>Windows</option>
-                    <option>macOS</option>
-                    <option>Linux</option>
-                    <option>WebGL</option>
-                    <option>Android</option>
-                    <option>iOS</option>
+                    <option value="Windows">Windows</option>
+                    <option value="macOS">macOS</option>
+                    <option value="Linux">Linux</option>
+                    <option value="WebGL">WebGL</option>
+                    <option value="Android">Android</option>
+                    <option value="iOS">iOS</option>
                 </select>
             </div>
             <div class="modal-field">
                 <label class="modal-label">Размер (МБ)</label>
-                <input type="number" class="modal-input" id="buildSize" placeholder="120">
+                <input type="number" class="modal-input" id="buildSize" placeholder="120" min="1">
             </div>
         </div>
 
+        <div class="modal-field">
+            <label class="modal-label">Changelog</label>
+            <textarea class="modal-textarea" id="buildChangelog" placeholder="Что нового в этой версии..."></textarea>
+        </div>
+
         <div class="modal-actions">
-            <button class="btn btn-ghost" onclick="closeModal('uploadModal')">Отмена</button>
+            <button class="btn btn-ghost" onclick="closeModal('uploadModal')">
+                <i class="fas fa-times"></i> Отмена
+            </button>
             <button class="btn btn-primary" onclick="uploadBuild()">
                 <i class="fas fa-upload"></i> Загрузить
             </button>
@@ -2560,7 +2554,7 @@ body {
      ============================================ -->
 <div class="modal-bg" id="feedbackModal">
     <div class="modal">
-        <div class="modal-title">🐛 Новый баг</div>
+        <div class="modal-title">🐛 Новый баг / идея</div>
 
         <div class="modal-row">
             <div class="modal-field">
@@ -2570,6 +2564,7 @@ body {
                     <option value="FEATURE">💡 Идея</option>
                     <option value="BALANCE">⚖️ Баланс</option>
                     <option value="UX">🎨 UX</option>
+                    <option value="PERFORMANCE">⚡ Производительность</option>
                 </select>
             </div>
             <div class="modal-field">
@@ -2585,16 +2580,18 @@ body {
 
         <div class="modal-field">
             <label class="modal-label">Заголовок</label>
-            <input type="text" class="modal-input" id="fbTitle" placeholder="Кратко">
+            <input type="text" class="modal-input" id="fbTitle" placeholder="Кратко о проблеме" maxlength="100">
         </div>
 
         <div class="modal-field">
             <label class="modal-label">Описание</label>
-            <textarea class="modal-textarea" id="fbContent" placeholder="Что произошло?"></textarea>
+            <textarea class="modal-textarea" id="fbContent" placeholder="Как воспроизвести, что ожидалось, что произошло..."></textarea>
         </div>
 
         <div class="modal-actions">
-            <button class="btn btn-ghost" onclick="closeModal('feedbackModal')">Отмена</button>
+            <button class="btn btn-ghost" onclick="closeModal('feedbackModal')">
+                <i class="fas fa-times"></i> Отмена
+            </button>
             <button class="btn btn-primary" onclick="submitFeedback()">
                 <i class="fas fa-paper-plane"></i> Отправить
             </button>
@@ -2610,17 +2607,19 @@ body {
         <div class="modal-title">👥 Добавить друга</div>
 
         <div class="modal-field">
-            <label class="modal-label">Никнейм</label>
-            <input type="text" class="modal-input" id="friendUsernameInput" placeholder="Введи ник друга">
-            <div style="font-size:11px;color:var(--text2);margin-top:8px;font-style:italic;">
+            <label class="modal-label">Никнейм друга</label>
+            <input type="text" class="modal-input" id="friendUsernameInput" placeholder="Введи ник друга" maxlength="20">
+            <div style="font-size:11px;color:var(--text2);margin-top:8px;font-style:italic;line-height:1.5;">
                 💡 Друг должен быть онлайн на этом же сайте, чтобы синхронизация сработала мгновенно.
             </div>
         </div>
 
-        <div id="addFriendResult" style="font-size:13px;margin-bottom:8px;"></div>
+        <div id="addFriendResult" style="font-size:13px;margin-bottom:8px;min-height:20px;"></div>
 
         <div class="modal-actions">
-            <button class="btn btn-ghost" onclick="closeModal('addFriendModal')">Отмена</button>
+            <button class="btn btn-ghost" onclick="closeModal('addFriendModal')">
+                <i class="fas fa-times"></i> Отмена
+            </button>
             <button class="btn btn-primary" onclick="addFriend()">
                 <i class="fas fa-user-plus"></i> Добавить
             </button>
@@ -2636,11 +2635,21 @@ body {
         <div class="profile-modal-user">
             <div class="profile-avatar-big avatar-wrap" id="profileAvatar"></div>
             <div class="profile-name" id="profileName"></div>
+            <div class="profile-engine" id="profileEngine" style="font-size:12px;color:var(--text2);font-family:'JetBrains Mono',monospace;margin-bottom:10px;"></div>
             <div id="profileBadge"></div>
         </div>
 
+        <div class="modal-field">
+            <label class="modal-label">ID</label>
+            <div id="profileId" style="font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--text2);"></div>
+        </div>
+
+        <div class="modal-field" id="profileActions"></div>
+
         <div class="modal-actions">
-            <button class="btn btn-ghost" onclick="closeModal('profileModal')">Закрыть</button>
+            <button class="btn btn-ghost" onclick="closeModal('profileModal')">
+                <i class="fas fa-times"></i> Закрыть
+            </button>
             <button class="btn btn-primary" id="profileMessageBtn" onclick="openChatWithProfile()">
                 <i class="fas fa-comment"></i> Написать
             </button>
@@ -2692,210 +2701,6 @@ body {
      TOAST УВЕДОМЛЕНИЕ
      ============================================ -->
 <div class="toast" id="toast"></div>
-<!-- ============================================
-     МОДАЛКА: ЗАГРУЗКА БИЛДА
-     ============================================ -->
-<div class="modal-bg" id="uploadModal">
-    <div class="modal">
-        <div class="modal-title">📦 Загрузить билд</div>
-
-        <div class="modal-field">
-            <label class="modal-label">Версия</label>
-            <input 
-                type="text" 
-                class="modal-input" 
-                id="buildVersion" 
-                placeholder="0.1.0"
-            >
-        </div>
-
-        <div class="modal-row">
-            <div class="modal-field">
-                <label class="modal-label">Платформа</label>
-                <select class="modal-select" id="buildPlatform">
-                    <option value="Windows">Windows</option>
-                    <option value="macOS">macOS</option>
-                    <option value="Linux">Linux</option>
-                    <option value="WebGL">WebGL</option>
-                    <option value="Android">Android</option>
-                    <option value="iOS">iOS</option>
-                </select>
-            </div>
-            <div class="modal-field">
-                <label class="modal-label">Размер (МБ)</label>
-                <input 
-                    type="number" 
-                    class="modal-input" 
-                    id="buildSize" 
-                    placeholder="120"
-                    min="1"
-                >
-            </div>
-        </div>
-
-        <div class="modal-field">
-            <label class="modal-label">Changelog</label>
-            <textarea 
-                class="modal-textarea" 
-                id="buildChangelog" 
-                placeholder="Что нового в этой версии..."
-            ></textarea>
-        </div>
-
-        <div class="modal-actions">
-            <button class="btn btn-ghost" onclick="closeModal('uploadModal')">
-                <i class="fas fa-times"></i> Отмена
-            </button>
-            <button class="btn btn-primary" onclick="uploadBuild()">
-                <i class="fas fa-upload"></i> Загрузить
-            </button>
-        </div>
-    </div>
-</div>
-
-<!-- ============================================
-     МОДАЛКА: НОВЫЙ ФИДБЕК
-     ============================================ -->
-<div class="modal-bg" id="feedbackModal">
-    <div class="modal">
-        <div class="modal-title">🐛 Новый баг / идея</div>
-
-        <div class="modal-row">
-            <div class="modal-field">
-                <label class="modal-label">Тип</label>
-                <select class="modal-select" id="fbType">
-                    <option value="BUG">🐛 Баг</option>
-                    <option value="FEATURE">💡 Идея</option>
-                    <option value="BALANCE">⚖️ Баланс</option>
-                    <option value="UX">🎨 UX</option>
-                    <option value="PERFORMANCE">⚡ Производительность</option>
-                </select>
-            </div>
-            <div class="modal-field">
-                <label class="modal-label">Приоритет</label>
-                <select class="modal-select" id="fbPriority">
-                    <option value="LOW">Низкий</option>
-                    <option value="MEDIUM" selected>Средний</option>
-                    <option value="HIGH">Высокий</option>
-                    <option value="CRITICAL">Критический</option>
-                </select>
-            </div>
-        </div>
-
-        <div class="modal-field">
-            <label class="modal-label">Заголовок</label>
-            <input 
-                type="text" 
-                class="modal-input" 
-                id="fbTitle" 
-                placeholder="Кратко о проблеме"
-                maxlength="100"
-            >
-        </div>
-
-        <div class="modal-field">
-            <label class="modal-label">Описание</label>
-            <textarea 
-                class="modal-textarea" 
-                id="fbContent" 
-                placeholder="Как воспроизвести, что ожидалось, что произошло..."
-            ></textarea>
-        </div>
-
-        <div class="modal-actions">
-            <button class="btn btn-ghost" onclick="closeModal('feedbackModal')">
-                <i class="fas fa-times"></i> Отмена
-            </button>
-            <button class="btn btn-primary" onclick="submitFeedback()">
-                <i class="fas fa-paper-plane"></i> Отправить
-            </button>
-        </div>
-    </div>
-</div>
-
-<!-- ============================================
-     МОДАЛКА: ДОБАВИТЬ ДРУГА
-     ============================================ -->
-<div class="modal-bg" id="addFriendModal">
-    <div class="modal">
-        <div class="modal-title">👥 Добавить друга</div>
-
-        <div class="modal-field">
-            <label class="modal-label">Никнейм друга</label>
-            <input 
-                type="text" 
-                class="modal-input" 
-                id="friendUsernameInput" 
-                placeholder="Введи ник друга"
-                maxlength="20"
-            >
-            <div style="
-                font-size: 11px; 
-                color: var(--text2); 
-                margin-top: 8px; 
-                font-style: italic;
-                line-height: 1.5;
-            ">
-                💡 Друг должен быть онлайн на этом же сайте, 
-                чтобы синхронизация сработала мгновенно.
-            </div>
-        </div>
-
-        <div 
-            id="addFriendResult" 
-            style="font-size:13px;margin-bottom:8px;min-height:20px;"
-        ></div>
-
-        <div class="modal-actions">
-            <button class="btn btn-ghost" onclick="closeModal('addFriendModal')">
-                <i class="fas fa-times"></i> Отмена
-            </button>
-            <button class="btn btn-primary" onclick="addFriend()">
-                <i class="fas fa-user-plus"></i> Добавить
-            </button>
-        </div>
-    </div>
-</div>
-
-<!-- ============================================
-     МОДАЛКА: ПРОФИЛЬ
-     ============================================ -->
-<div class="modal-bg" id="profileModal">
-    <div class="modal">
-        <!-- Шапка профиля -->
-        <div class="profile-modal-user">
-            <div class="profile-avatar-big avatar-wrap" id="profileAvatar"></div>
-            <div class="profile-name" id="profileName"></div>
-            <div class="profile-engine" id="profileEngine" style="font-size:12px;color:var(--text2);font-family:'JetBrains Mono',monospace;margin-bottom:10px;"></div>
-            <div id="profileBadge"></div>
-        </div>
-
-        <!-- Информация -->
-        <div class="modal-field">
-            <label class="modal-label">ID</label>
-            <div 
-                id="profileId" 
-                style="font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--text2);"
-            ></div>
-        </div>
-
-        <!-- Действия -->
-        <div class="modal-field" id="profileActions"></div>
-
-        <div class="modal-actions">
-            <button class="btn btn-ghost" onclick="closeModal('profileModal')">
-                <i class="fas fa-times"></i> Закрыть
-            </button>
-            <button 
-                class="btn btn-primary" 
-                id="profileMessageBtn" 
-                onclick="openChatWithProfile()"
-            >
-                <i class="fas fa-comment"></i> Написать
-            </button>
-        </div>
-    </div>
-</div>
 <script>
 // ============================================
 // СОЗДАНИЕ ЗВЁЗД НА ФОНЕ
@@ -2903,18 +2708,18 @@ body {
 (function createStars() {
     const container = document.getElementById('stars');
     const colors = ['#97ce4c', '#00c9ff', '#f5d547'];
-    
+
     for (let i = 0; i < 50; i++) {
         const star = document.createElement('div');
         star.className = 'star';
         star.style.left = Math.random() * 100 + '%';
         star.style.animationDuration = (Math.random() * 8 + 8) + 's';
         star.style.animationDelay = Math.random() * 8 + 's';
-        
+
         const color = colors[Math.floor(Math.random() * colors.length)];
         star.style.background = color;
         star.style.boxShadow = `0 0 10px ${color}`;
-        
+
         container.appendChild(star);
     }
 })();
@@ -2935,10 +2740,6 @@ const DB = {
     },
     remove(key) {
         localStorage.removeItem('rm_' + key);
-    },
-    clear() {
-        const keys = Object.keys(localStorage).filter(k => k.startsWith('rm_'));
-        keys.forEach(k => localStorage.removeItem(k));
     }
 };
 
@@ -2988,11 +2789,8 @@ function gotoStep(stepName) {
     });
 
     const targetStep = document.getElementById('step-' + stepName);
-    if (targetStep) {
-        targetStep.classList.add('active');
-    }
+    if (targetStep) targetStep.classList.add('active');
 
-    // Автофокус на первое OTP-поле
     setTimeout(() => {
         const otpInput = document.querySelector('.auth-step.active .otp-input');
         if (otpInput) otpInput.focus();
@@ -3033,7 +2831,6 @@ function checkPassword() {
     strengthEl.style.display = 'block';
     reqsEl.style.display = 'grid';
 
-    // Проверяем требования
     const requirements = {
         length: password.length >= 8,
         upper: /[A-Z]/.test(password),
@@ -3045,20 +2842,16 @@ function checkPassword() {
     Object.entries(requirements).forEach(([key, isOk]) => {
         const el = document.querySelector(`.pw-req[data-req="${key}"]`);
         el.classList.toggle('ok', isOk);
-        el.querySelector('i').className = isOk 
-            ? 'fas fa-check-circle' 
-            : 'fas fa-circle';
+        el.querySelector('i').className = isOk ? 'fas fa-check-circle' : 'fas fa-circle';
         if (isOk) score++;
     });
 
-    // Бонусы за спецсимволы и длину
     if (/[^A-Za-z0-9]/.test(password)) score += 0.5;
     if (password.length >= 12) score += 0.5;
 
-    // Обновляем визуальный индикатор
     const fill = document.getElementById('strengthFill');
     const text = document.getElementById('strengthText');
-    
+
     fill.className = 'strength-fill';
     text.className = 'strength-text';
 
@@ -3083,9 +2876,6 @@ function checkPassword() {
     checkPasswordMatch();
 }
 
-// ============================================
-// СОВПАДЕНИЕ ПАРОЛЕЙ
-// ============================================
 function checkPasswordMatch() {
     const pw1 = document.getElementById('regPassword').value;
     const pw2 = document.getElementById('regPassword2').value;
@@ -3108,9 +2898,6 @@ function checkPasswordMatch() {
     updateRegisterBtn();
 }
 
-// ============================================
-// ПРОВЕРКА НИКА
-// ============================================
 function checkUsername() {
     const username = document.getElementById('regUsername').value.trim();
     const hint = document.getElementById('usernameHint');
@@ -3156,16 +2943,13 @@ function checkUsername() {
     updateRegisterBtn();
 }
 
-// ============================================
-// АКТИВАЦИЯ КНОПКИ РЕГИСТРАЦИИ
-// ============================================
 function updateRegisterBtn() {
     const username = document.getElementById('regUsername').value.trim();
     const pw1 = document.getElementById('regPassword').value;
     const pw2 = document.getElementById('regPassword2').value;
     const users = DB.get('users', {});
 
-    const isValid = 
+    const isValid =
         username.length >= 3 &&
         username.length <= 20 &&
         /^[a-zA-Z0-9_]+$/.test(username) &&
@@ -3180,7 +2964,7 @@ function updateRegisterBtn() {
 }
 
 // ============================================
-// ХЕШИРОВАНИЕ ПАРОЛЯ (SHA-256)
+// ХЕШИРОВАНИЕ (SHA-256)
 // ============================================
 async function hashPassword(password) {
     const encoder = new TextEncoder();
@@ -3190,15 +2974,10 @@ async function hashPassword(password) {
     return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
 }
 
-// ============================================
-// ГЕНЕРАЦИЯ СЛУЧАЙНОЙ СОЛИ
-// ============================================
 function generateSalt() {
     const array = new Uint8Array(16);
     crypto.getRandomValues(array);
-    return Array.from(array)
-        .map(b => b.toString(16).padStart(2, '0'))
-        .join('');
+    return Array.from(array).map(b => b.toString(16).padStart(2, '0')).join('');
 }
 
 // ============================================
@@ -3209,9 +2988,7 @@ async function doRegister() {
     const password = document.getElementById('regPassword').value;
 
     const users = DB.get('users', {});
-    if (users[username]) {
-        return toast('❌ Ник уже занят', 'error');
-    }
+    if (users[username]) return toast('❌ Ник уже занят', 'error');
 
     const btn = document.getElementById('regBtn');
     const originalHTML = btn.innerHTML;
@@ -3219,17 +2996,14 @@ async function doRegister() {
     btn.disabled = true;
 
     try {
-        // Генерируем соль и хешируем пароль
         const salt = generateSalt();
         const passwordHash = await hashPassword(password + salt);
 
-        // Выбираем цвет
         const colors = ['#97ce4c', '#00c9ff', '#f5d547', '#ff6ec7', '#e74c3c', '#4a90e2'];
         const color = isFounder(username)
             ? '#f5d547'
             : colors[Math.floor(Math.random() * colors.length)];
 
-        // Формируем пользователя
         const newUser = {
             username: username,
             salt: salt,
@@ -3244,7 +3018,6 @@ async function doRegister() {
 
         tempUser = newUser;
 
-        // Предлагаем настроить 2FA
         setTimeout(() => {
             btn.innerHTML = originalHTML;
             btn.disabled = false;
@@ -3264,16 +3037,11 @@ async function doRegister() {
     }
 }
 
-// ============================================
-// СОХРАНЕНИЕ ПОЛЬЗОВАТЕЛЯ И ВХОД
-// ============================================
 function saveUserAndLogin(user) {
-    // Сохраняем в базу
     const users = DB.get('users', {});
     users[user.username] = user;
     DB.set('users', users);
 
-    // Запоминаем текущего пользователя
     currentUser = {
         username: user.username,
         color: user.color,
@@ -3282,7 +3050,6 @@ function saveUserAndLogin(user) {
     };
     DB.set('user', currentUser);
 
-    // Создаём приветственное сообщение
     const messages = DB.get('messages', {});
     if (!messages.general) messages.general = [];
 
@@ -3303,13 +3070,12 @@ function saveUserAndLogin(user) {
 }
 
 // ============================================
-// TOTP (Time-based One-Time Password)
-// Стандарт RFC 6238
+// TOTP (RFC 6238)
 // ============================================
 function base32Encode(bytes) {
     const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
     let bits = 0, value = 0, output = '';
-    
+
     for (let i = 0; i < bytes.length; i++) {
         value = (value << 8) | bytes[i];
         bits += 8;
@@ -3318,34 +3084,29 @@ function base32Encode(bytes) {
             bits -= 5;
         }
     }
-    
-    if (bits > 0) {
-        output += alphabet[(value << (5 - bits)) & 31];
-    }
-    
+
+    if (bits > 0) output += alphabet[(value << (5 - bits)) & 31];
     return output;
 }
 
 function base32Decode(str) {
     const alphabet = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ234567';
     str = str.toUpperCase().replace(/=+$/, '');
-    
+
     let bits = 0, value = 0;
     const bytes = [];
-    
+
     for (let i = 0; i < str.length; i++) {
         const idx = alphabet.indexOf(str[i]);
         if (idx === -1) continue;
-        
         value = (value << 5) | idx;
         bits += 5;
-        
         if (bits >= 8) {
             bytes.push((value >>> (bits - 8)) & 0xff);
             bits -= 8;
         }
     }
-    
+
     return new Uint8Array(bytes);
 }
 
@@ -3365,11 +3126,7 @@ async function generateTOTP(secret, timeOffset = 0) {
     view.setUint32(4, counter, false);
 
     const cryptoKey = await crypto.subtle.importKey(
-        'raw',
-        key,
-        { name: 'HMAC', hash: 'SHA-1' },
-        false,
-        ['sign']
+        'raw', key, { name: 'HMAC', hash: 'SHA-1' }, false, ['sign']
     );
 
     const signature = await crypto.subtle.sign('HMAC', cryptoKey, buffer);
@@ -3387,7 +3144,6 @@ async function generateTOTP(secret, timeOffset = 0) {
 }
 
 async function verifyTOTP(secret, code) {
-    // Проверяем текущее, прошлое и будущее значение (для дрейфа часов)
     for (const offset of [0, -30, 30]) {
         const expected = await generateTOTP(secret, offset);
         if (expected === code) return true;
@@ -3402,19 +3158,14 @@ async function start2FASetup() {
     tempSecret = generateTOTPSecret();
     document.getElementById('secretText').textContent = tempSecret;
 
-    const otpauthUrl = 
+    const otpauthUrl =
         `otpauth://totp/RickAndMorty:${tempUser.username}` +
         `?secret=${tempSecret}` +
         `&issuer=Rick%20and%20Morty` +
-        `&algorithm=SHA1` +
-        `&digits=6` +
-        `&period=30`;
+        `&algorithm=SHA1&digits=6&period=30`;
 
-    document.getElementById('qrImage').src = 
-        `https://api.qrserver.com/v1/create-qr-code/` +
-        `?size=300x300` +
-        `&data=${encodeURIComponent(otpauthUrl)}` +
-        `&bgcolor=ffffff&color=0a1a0a&margin=0`;
+    document.getElementById('qrImage').src =
+        `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(otpauthUrl)}&bgcolor=ffffff&color=0a1a0a&margin=0`;
 
     gotoStep('2fa-setup');
 }
@@ -3428,41 +3179,30 @@ function copySecret() {
     });
 }
 
-// ============================================
-// OTP ИНПУТЫ — ОБРАБОТКА ВВОДА
-// ============================================
+// OTP обработка
 document.querySelectorAll('.otp-inputs').forEach(group => {
     const inputs = group.querySelectorAll('.otp-input');
-    
+
     inputs.forEach((input, idx) => {
-        // Ввод цифры
         input.addEventListener('input', (e) => {
             const val = e.target.value.replace(/[^0-9]/g, '');
             e.target.value = val;
             e.target.classList.toggle('filled', val.length > 0);
-            
-            if (val && idx < inputs.length - 1) {
-                inputs[idx + 1].focus();
-            }
-            
+
+            if (val && idx < inputs.length - 1) inputs[idx + 1].focus();
             if (val) input.classList.remove('error');
         });
-        
-        // Backspace и Enter
+
         input.addEventListener('keydown', (e) => {
             if (e.key === 'Backspace' && !e.target.value && idx > 0) {
                 inputs[idx - 1].focus();
             }
             if (e.key === 'Enter') {
-                if (group.id === 'login2FAInputs') {
-                    verifyLogin2FA();
-                } else {
-                    verifySetup2FA();
-                }
+                if (group.id === 'login2FAInputs') verifyLogin2FA();
+                else verifySetup2FA();
             }
         });
-        
-        // Вставка кода
+
         input.addEventListener('paste', (e) => {
             e.preventDefault();
             const pasted = e.clipboardData.getData('text').replace(/[^0-9]/g, '');
@@ -3476,124 +3216,76 @@ document.querySelectorAll('.otp-inputs').forEach(group => {
 });
 
 function getOTPValue(groupId) {
-    const group = document.getElementById(groupId) || 
+    const group = document.getElementById(groupId) ||
                   document.querySelector('.auth-step.active .otp-inputs');
-    
     if (!group) return '';
-    
-    return Array.from(group.querySelectorAll('.otp-input'))
-        .map(i => i.value)
-        .join('');
+    return Array.from(group.querySelectorAll('.otp-input')).map(i => i.value).join('');
 }
 
-// ============================================
-// 2FA — ПОДТВЕРЖДЕНИЕ НАСТРОЙКИ
-// ============================================
 async function verifySetup2FA() {
     const code = getOTPValue('setup2FAInputs');
-    
-    if (code.length !== 6) {
-        return toast('⚠️ Введи 6 цифр', 'warning');
-    }
+    if (code.length !== 6) return toast('⚠️ Введи 6 цифр', 'warning');
 
     const isValid = await verifyTOTP(tempSecret, code);
-    
     if (!isValid) {
-        document.querySelectorAll('#setup2FAInputs .otp-input').forEach(input => {
-            input.classList.add('error');
-        });
+        document.querySelectorAll('#setup2FAInputs .otp-input').forEach(i => i.classList.add('error'));
         setTimeout(() => {
-            document.querySelectorAll('#setup2FAInputs .otp-input').forEach(input => {
-                input.classList.remove('error');
-            });
+            document.querySelectorAll('#setup2FAInputs .otp-input').forEach(i => i.classList.remove('error'));
         }, 500);
-        
         return toast('❌ Неверный код', 'error');
     }
 
-    // Генерируем резервные коды
     const backupCodes = generateBackupCodes();
-    
     tempUser.has2FA = true;
     tempUser.totpSecret = tempSecret;
     tempUser.backupCodes = backupCodes;
 
-    // Отображаем их
-    document.getElementById('backupCodes').innerHTML = backupCodes
-        .map((code, i) => `
-            <div class="backup-code">
-                ${code}
-                <span>#${i + 1}</span>
-            </div>
-        `)
-        .join('');
+    document.getElementById('backupCodes').innerHTML = backupCodes.map((code, i) =>
+        `<div class="backup-code">${code}<span>#${i + 1}</span></div>`
+    ).join('');
 
     gotoStep('2fa-backup');
     toast('✅ 2FA активирована!', 'success');
 }
 
-// ============================================
-// ГЕНЕРАЦИЯ РЕЗЕРВНЫХ КОДОВ
-// ============================================
 function generateBackupCodes() {
     const codes = [];
-    
     for (let i = 0; i < 8; i++) {
         const bytes = new Uint8Array(6);
         crypto.getRandomValues(bytes);
-        
-        const code = Array.from(bytes)
-            .map(b => b.toString(16).padStart(2, '0').toUpperCase())
-            .join('');
-        
+        const code = Array.from(bytes).map(b => b.toString(16).padStart(2, '0').toUpperCase()).join('');
         codes.push(`${code.slice(0,4)}-${code.slice(4,8)}-${code.slice(8,12)}`);
     }
-    
     return codes;
 }
 
-// ============================================
-// СКАЧИВАНИЕ РЕЗЕРВНЫХ КОДОВ
-// ============================================
 function downloadBackupCodes() {
     const codes = tempUser.backupCodes;
-    const text = 
+    const text =
         `Rick and Morty Messenger - Backup Codes\n` +
         `Пользователь: ${tempUser.username}\n` +
         `Создано: ${new Date().toLocaleString('ru-RU')}\n\n` +
         `${codes.join('\n')}\n\n` +
-        `⚠️ Каждый код работает только ОДИН раз.\n` +
-        `Храни в надёжном месте. Wubba lubba dub dub!`;
+        `⚠️ Каждый код работает только ОДИН раз.`;
 
     const blob = new Blob([text], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
-    
     a.href = url;
     a.download = `rm-backup-${tempUser.username}.txt`;
     a.click();
-    
     URL.revokeObjectURL(url);
     toast('📥 Файл скачан', 'success');
 }
 
-// ============================================
-// ЗАВЕРШЕНИЕ НАСТРОЙКИ 2FA
-// ============================================
 function complete2FA() {
     saveUserAndLogin(tempUser);
     tempUser = null;
     tempSecret = null;
 }
 
-// ============================================
-// ПРОПУСТИТЬ 2FA
-// ============================================
 function skip2FA() {
-    if (!confirm('⚠️ Пропустить 2FA?\n\nАккаунт будет менее защищён.')) {
-        return;
-    }
-    
+    if (!confirm('⚠️ Пропустить 2FA?\n\nАккаунт будет менее защищён.')) return;
     saveUserAndLogin(tempUser);
     tempUser = null;
     tempSecret = null;
@@ -3606,25 +3298,16 @@ async function doLogin() {
     const username = document.getElementById('loginUsername').value.trim();
     const password = document.getElementById('loginPassword').value;
 
-    if (!username || !password) {
-        return toast('⚠️ Заполни все поля', 'warning');
-    }
+    if (!username || !password) return toast('⚠️ Заполни все поля', 'warning');
 
     const users = DB.get('users', {});
     const user = users[username];
 
-    if (!user) {
-        return toast('❌ Пользователь не найден', 'error');
-    }
+    if (!user) return toast('❌ Пользователь не найден', 'error');
 
-    // Проверяем пароль
     const hash = await hashPassword(password + user.salt);
-    
-    if (hash !== user.passwordHash) {
-        return toast('❌ Неверный пароль', 'error');
-    }
+    if (hash !== user.passwordHash) return toast('❌ Неверный пароль', 'error');
 
-    // Проверяем 2FA
     if (user.has2FA) {
         loginTargetUser = user;
         gotoStep('2fa-verify');
@@ -3635,12 +3318,8 @@ async function doLogin() {
     finishLogin(user);
 }
 
-// ============================================
-// ЗАВЕРШЕНИЕ ВХОДА
-// ============================================
 function finishLogin(user) {
     user.lastLogin = Date.now();
-    
     const users = DB.get('users', {});
     users[user.username] = user;
     DB.set('users', users);
@@ -3653,7 +3332,6 @@ function finishLogin(user) {
     };
     DB.set('user', currentUser);
 
-    // Обновляем активность
     const activity = DB.get('activity', {});
     activity[user.username] = Date.now();
     DB.set('activity', activity);
@@ -3662,30 +3340,17 @@ function finishLogin(user) {
     setTimeout(openApp, 300);
 }
 
-// ============================================
-// 2FA ПРИ ЛОГИНЕ
-// ============================================
 async function verifyLogin2FA() {
     if (!loginTargetUser) return;
-    
     const code = getOTPValue('login2FAInputs');
-    
-    if (code.length !== 6) {
-        return toast('⚠️ Введи 6 цифр', 'warning');
-    }
+    if (code.length !== 6) return toast('⚠️ Введи 6 цифр', 'warning');
 
     const isValid = await verifyTOTP(loginTargetUser.totpSecret, code);
-    
     if (!isValid) {
-        document.querySelectorAll('#login2FAInputs .otp-input').forEach(input => {
-            input.classList.add('error');
-        });
+        document.querySelectorAll('#login2FAInputs .otp-input').forEach(i => i.classList.add('error'));
         setTimeout(() => {
-            document.querySelectorAll('#login2FAInputs .otp-input').forEach(input => {
-                input.classList.remove('error');
-            });
+            document.querySelectorAll('#login2FAInputs .otp-input').forEach(i => i.classList.remove('error'));
         }, 500);
-        
         return toast('❌ Неверный код', 'error');
     }
 
@@ -3693,30 +3358,17 @@ async function verifyLogin2FA() {
     loginTargetUser = null;
 }
 
-// ============================================
-// ВХОД ПО РЕЗЕРВНОМУ КОДУ
-// ============================================
 function verifyBackupCode() {
     const input = document.getElementById('backupCodeInput').value.trim().toUpperCase();
-    
-    if (!input) {
-        return toast('⚠️ Введи код', 'warning');
-    }
+    if (!input) return toast('⚠️ Введи код', 'warning');
 
     const user = loginTargetUser;
-    if (!user) {
-        return toast('❌ Сначала войди с паролем', 'error');
-    }
+    if (!user) return toast('❌ Сначала войди с паролем', 'error');
 
     const idx = user.backupCodes.indexOf(input);
-    
-    if (idx === -1) {
-        return toast('❌ Неверный или использованный код', 'error');
-    }
+    if (idx === -1) return toast('❌ Неверный или использованный код', 'error');
 
-    // Используем код — удаляем
     user.backupCodes.splice(idx, 1);
-    
     const users = DB.get('users', {});
     users[user.username] = user;
     DB.set('users', users);
@@ -3725,8 +3377,7 @@ function verifyBackupCode() {
     finishLogin(user);
     loginTargetUser = null;
 }
-</script>
-<script>
+
 // ============================================
 // ОТКРЫТИЕ ПРИЛОЖЕНИЯ
 // ============================================
@@ -3738,17 +3389,12 @@ function openApp() {
 
 function logout() {
     if (!confirm('Покинуть портал?')) return;
-
-    if (peer) {
-        try { peer.destroy(); } catch (e) {}
-    }
-
+    if (peer) { try { peer.destroy(); } catch (e) {} }
     DB.remove('user');
     location.reload();
 }
 
 function initUI() {
-    // Обновляем данные текущего пользователя
     document.getElementById('myAvatar').textContent = currentUser.username[0].toUpperCase();
     document.getElementById('myAvatar').style.background = isFounder(currentUser.username)
         ? '#f5d547'
@@ -3781,7 +3427,6 @@ function initUI() {
 function renderChannels() {
     const channels = DB.get('channels', ['general']);
     const container = document.getElementById('channelsList');
-
     const icons = { general: 'fa-hashtag' };
 
     container.innerHTML = channels.map(ch => {
@@ -3814,14 +3459,11 @@ function renderChannels() {
 function addChannel() {
     const name = prompt('Название измерения:');
     if (!name) return;
-
     const clean = name.toLowerCase().replace(/[^a-z0-9-]/g, '');
     if (!clean) return;
 
     const channels = DB.get('channels', []);
-    if (channels.includes(clean)) {
-        return toast('Уже существует', 'error');
-    }
+    if (channels.includes(clean)) return toast('Уже существует', 'error');
 
     channels.push(clean);
     DB.set('channels', channels);
@@ -3839,12 +3481,10 @@ function selectChannel(name) {
     if (name.startsWith('dm_')) {
         const parts = name.substring(3).split('_');
         const other = parts.find(p => p !== currentUser.username) || parts[0];
-
         document.getElementById('currentChannel').textContent = '💬 ' + other;
         document.getElementById('currentChannelSub').textContent = isFounder(other)
             ? '👑 Легенда'
             : 'частный канал';
-
         callBtn.style.display = 'flex';
     } else {
         document.getElementById('currentChannel').textContent = '#' + name;
@@ -3855,10 +3495,8 @@ function selectChannel(name) {
 
 function switchView(view, btn) {
     currentView = view;
-
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
     btn.classList.add('active');
-
     document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
     document.getElementById('view-' + view).classList.add('active');
 
@@ -3866,9 +3504,7 @@ function switchView(view, btn) {
         refreshStats();
         renderBuilds();
     }
-    if (view === 'feedback') {
-        renderFeedback();
-    }
+    if (view === 'feedback') renderFeedback();
 }
 
 // ============================================
@@ -3893,8 +3529,7 @@ function renderMessages() {
         const isFound = isFounder(m.author);
         const color = users[m.author]?.color || (isFound ? '#f5d547' : '#97ce4c');
         const time = new Date(m.time).toLocaleTimeString('ru-RU', {
-            hour: '2-digit',
-            minute: '2-digit'
+            hour: '2-digit', minute: '2-digit'
         });
 
         let content;
@@ -3914,9 +3549,7 @@ function renderMessages() {
                 </div>
                 <div class="msg-body">
                     <div class="msg-header">
-                        <span class="msg-author" style="color:${color}">
-                            ${escapeHtml(m.author)}
-                        </span>
+                        <span class="msg-author" style="color:${color}">${escapeHtml(m.author)}</span>
                         ${isFound ? '<span class="msg-badge badge-founder">ЛЕГЕНДА</span>' : ''}
                         <span class="msg-time">${time}</span>
                     </div>
@@ -3944,7 +3577,6 @@ function sendMessage() {
     });
     DB.set('messages', messages);
 
-    // Отправляем через PeerJS если DM
     if (currentChannel.startsWith('dm_')) {
         const parts = currentChannel.substring(3).split('_');
         const other = parts.find(p => p !== currentUser.username);
@@ -3975,20 +3607,9 @@ function autoResize(el) {
 // ============================================
 // СТИКЕРЫ / ЭМОДЗИ / GIF
 // ============================================
-const EMOJIS = [
-    '😀','😃','😄','😁','😆','😅','🤣','😂','🙂','😉','😊','🥰','😍','🤩','😘','😋',
-    '😛','😜','🤪','😝','🤑','🤗','🤭','🤔','🤐','😐','😏','😒','🙄','😬','😴','😷',
-    '🤒','🥵','🥶','😵','🤯','🥳','😎','🤓','🧐','😕','😢','😭','😱','😡','🤬','😈',
-    '💀','💩','🤡','👻','👽','👾','🤖','❤️','🧡','💛','💚','💙','💜','🖤','💔','💕',
-    '💖','👍','👎','👌','✌️','🤞','🤟','🤘','🤙','👈','👉','👆','👇','✋','🤚','👋',
-    '🤝','🙏','💪','👀','🧪','⚗️','🧬','🔬','🛸','🚀','🪐','⭐','🌌','🌀'
-];
+const EMOJIS = ['😀','😃','😄','😁','😆','😅','🤣','😂','🙂','😉','😊','🥰','😍','🤩','😘','😋','😛','😜','🤪','😝','🤑','🤗','🤭','🤔','🤐','😐','😏','😒','🙄','😬','😴','😷','🤒','🥵','🥶','😵','🤯','🥳','😎','🤓','🧐','😕','😢','😭','😱','😡','🤬','😈','💀','💩','🤡','👻','👽','👾','🤖','❤️','🧡','💛','💚','💙','💜','🖤','💔','💕','💖','👍','👎','👌','✌️','🤞','🤟','🤘','🤙','👈','👉','👆','👇','✋','🤚','👋','🤝','🙏','💪','👀','🧪','⚗️','🧬','🔬','🛸','🚀','🪐','⭐','🌌','🌀'];
 
-const STICKERS = [
-    '🧪','⚗️','🧬','🔬','🛸','🚀','🪐','⭐','🌌','🌀','👽','🤖','👾','🎮','💀','👻',
-    '🐱','🐶','🐸','🦄','🐙','🦑','🐉','🦖','🦕','🌈','☄️','🔥','⚡','❄️','💎','👑',
-    '🎩','🍕','🍔','🌮','🍩','🧁','🍺','🥃','💊','🚬','🎸','🎤','🎧','💻','📱','📺'
-];
+const STICKERS = ['🧪','⚗️','🧬','🔬','🛸','🚀','🪐','⭐','🌌','🌀','👽','🤖','👾','🎮','💀','👻','🐱','🐶','🐸','🦄','🐙','🦑','🐉','🦖','🦕','🌈','☄️','🔥','⚡','❄️','💎','👑','🎩','🍕','🍔','🌮','🍩','🧁','🍺','🥃','💊','🚬','🎸','🎤','🎧','💻','📱','📺','📡'];
 
 const GIFS = [
     'https://media.giphy.com/media/JIX9t2j0ZTN9S/giphy.gif',
@@ -4008,9 +3629,7 @@ function toggleEmojiPicker(e) {
     e.stopPropagation();
     const picker = document.getElementById('emojiPicker');
     picker.classList.toggle('show');
-    if (picker.classList.contains('show')) {
-        renderEmojiGrid();
-    }
+    if (picker.classList.contains('show')) renderEmojiGrid();
 }
 
 function switchEmojiTab(tab, btn) {
@@ -4036,11 +3655,7 @@ function renderEmojiGrid() {
     } else {
         grid.style.gridTemplateColumns = 'repeat(3, 1fr)';
         grid.innerHTML = GIFS.map((g, i) =>
-            `<div class="sticker-item" onclick="sendGif(${i})"
-                style="background-image:url('${g}');
-                background-size:cover;
-                background-position:center;">
-            </div>`
+            `<div class="sticker-item" onclick="sendGif(${i})" style="background-image:url('${g}');background-size:cover;background-position:center;"></div>`
         ).join('');
     }
 }
@@ -4065,13 +3680,10 @@ function sendSticker(sticker) {
     DB.set('messages', messages);
 
     if (currentChannel.startsWith('dm_')) {
-        const other = currentChannel.substring(3).split('_')
-            .find(p => p !== currentUser.username);
+        const other = currentChannel.substring(3).split('_').find(p => p !== currentUser.username);
         sendDataToPeer(other, {
-            type: 'message',
-            text: sticker,
-            author: currentUser.username,
-            msgType: 'sticker'
+            type: 'message', text: sticker,
+            author: currentUser.username, msgType: 'sticker'
         });
     }
 
@@ -4094,13 +3706,10 @@ function sendGif(index) {
     DB.set('messages', messages);
 
     if (currentChannel.startsWith('dm_')) {
-        const other = currentChannel.substring(3).split('_')
-            .find(p => p !== currentUser.username);
+        const other = currentChannel.substring(3).split('_').find(p => p !== currentUser.username);
         sendDataToPeer(other, {
-            type: 'message',
-            text: GIFS[index],
-            author: currentUser.username,
-            msgType: 'gif'
+            type: 'message', text: GIFS[index],
+            author: currentUser.username, msgType: 'gif'
         });
     }
 
@@ -4112,7 +3721,8 @@ function openGifPicker() {
     document.getElementById('emojiPicker').classList.add('show');
     switchEmojiTab('gifs', document.querySelectorAll('.emoji-picker-tab')[2]);
 }
-
+</script>
+<script>
 // ============================================
 // ДРУЗЬЯ
 // ============================================
@@ -4146,7 +3756,7 @@ function renderFriends() {
     container.innerHTML = friends.map(f => {
         const u = users[f] || { color: '#97ce4c' };
         const online = isUserOnline(f);
-        const crown = isFounder(f) ? '<span class="friend-crown">👑</span>' : '';
+        const crown = isFounder(f) ? '<span class="founder-crown">👑</span>' : '';
 
         return `
             <div class="friend ${online ? 'online' : ''}" onclick="openProfile('${escapeHtml(f)}')">
@@ -4210,7 +3820,6 @@ async function addFriend() {
     try {
         const conn = await connectToPeer(target);
 
-        // Регистрируем его данные
         const users = DB.get('users', {});
         if (!users[target]) {
             users[target] = {
@@ -4222,7 +3831,6 @@ async function addFriend() {
             DB.set('users', users);
         }
 
-        // Отправляем запрос
         conn.send({
             type: 'friend-request',
             from: currentUser.username,
@@ -4230,7 +3838,6 @@ async function addFriend() {
             fromEternalStatus: currentUser.eternalStatus
         });
 
-        // Ждём подтверждения
         const confirmed = await new Promise((resolve) => {
             const timeout = setTimeout(() => resolve(false), 3000);
 
@@ -4253,7 +3860,6 @@ async function addFriend() {
             conn.on('data', handler);
         });
 
-        // Добавляем в свой список
         const myFriends = getFriends(currentUser.username);
         if (!myFriends.includes(target)) myFriends.push(target);
         setFriends(currentUser.username, myFriends);
@@ -4272,7 +3878,6 @@ async function addFriend() {
         setTimeout(() => closeModal('addFriendModal'), 1200);
 
     } catch (err) {
-        // Друг офлайн — добавляем локально
         const users = DB.get('users', {});
         if (!users[target]) {
             users[target] = {
@@ -4305,12 +3910,12 @@ function getPeerId(username) {
 
 function initPeer() {
     if (typeof Peer === 'undefined') {
-        console.error('PeerJS не загружен');
+        console.error('❌ PeerJS не загружен');
         return;
     }
 
     peer = new Peer(getPeerId(currentUser.username), {
-        debug: 0,
+        debug: 1,
         config: {
             iceServers: [
                 { urls: 'stun:stun.l.google.com:19302' },
@@ -4329,6 +3934,8 @@ function initPeer() {
         console.error('Peer error:', err);
         if (err.type === 'unavailable-id') {
             toast('❌ Ник занят в сети', 'error');
+        } else if (err.type === 'peer-unavailable') {
+            toast('❌ Собеседник не в сети', 'error');
         }
     });
 
@@ -4338,14 +3945,10 @@ function initPeer() {
         conn.on('data', (data) => handlePeerData(conn, data));
         conn.on('open', () => {
             activeConnections[conn.peer] = conn;
-            console.log('📡 Подключение:', conn.peer);
         });
     });
 }
 
-// ============================================
-// СИНХРОНИЗАЦИЯ ДРУЗЕЙ
-// ============================================
 async function syncFriends() {
     const friends = getFriends(currentUser.username);
 
@@ -4361,19 +3964,15 @@ async function syncFriends() {
                 });
             }
         } catch (e) {
-            // Друг офлайн — пропускаем
+            // офлайн
         }
     }
 }
 
-// ============================================
-// ПОДКЛЮЧЕНИЕ К ДРУГОМУ ПОЛЬЗОВАТЕЛЮ
-// ============================================
 function connectToPeer(username) {
     return new Promise((resolve, reject) => {
         const targetId = getPeerId(username);
 
-        // Если уже подключены — используем
         if (activeConnections[targetId] && activeConnections[targetId].open) {
             return resolve(activeConnections[targetId]);
         }
@@ -4399,29 +3998,16 @@ function connectToPeer(username) {
     });
 }
 
-// ============================================
-// ОТПРАВКА ДАННЫХ ДРУГОМУ
-// ============================================
 function sendDataToPeer(username, data) {
     const conn = activeConnections[getPeerId(username)];
-
-    if (conn && conn.open) {
-        conn.send(data);
-    } else {
-        connectToPeer(username)
-            .then(c => c.send(data))
-            .catch(() => {});
-    }
+    if (conn && conn.open) conn.send(data);
+    else connectToPeer(username).then(c => c.send(data)).catch(() => {});
 }
 
-// ============================================
-// ОБРАБОТКА ДАННЫХ ОТ ДРУГИХ ПОЛЬЗОВАТЕЛЕЙ
-// ============================================
 function handlePeerData(conn, data) {
     const senderId = conn.peer;
     const users = DB.get('users', {});
 
-    // Определяем реальный ник отправителя
     let realSender = senderId.replace('rm-', '');
     for (const u in users) {
         if (getPeerId(u) === senderId) {
@@ -4430,7 +4016,7 @@ function handlePeerData(conn, data) {
         }
     }
 
-    // === ЗАПРОС В ДРУЗЬЯ ===
+    // ЗАПРОС В ДРУЗЬЯ
     if (data.type === 'friend-request') {
         const fromUser = data.from;
 
@@ -4458,7 +4044,7 @@ function handlePeerData(conn, data) {
         return;
     }
 
-    // === ПОДТВЕРЖДЕНИЕ ДРУЖБЫ ===
+    // ПОДТВЕРЖДЕНИЕ ДРУЖБЫ
     if (data.type === 'friend-accept') {
         const fromUser = data.from;
 
@@ -4478,7 +4064,7 @@ function handlePeerData(conn, data) {
         return;
     }
 
-    // === СООБЩЕНИЕ ===
+    // СООБЩЕНИЕ
     if (data.type === 'message') {
         const dmName = 'dm_' + [currentUser.username, realSender].sort().join('_');
 
@@ -4493,7 +4079,6 @@ function handlePeerData(conn, data) {
         });
         DB.set('messages', messages);
 
-        // Автодобавление в друзья
         if (!areFriends(currentUser.username, realSender)) {
             const mf = getFriends(currentUser.username);
             mf.push(realSender);
@@ -4511,15 +4096,12 @@ function handlePeerData(conn, data) {
             renderFriends();
         }
 
-        if (currentChannel === dmName) {
-            renderMessages();
-        } else {
-            toast(`💬 Сообщение от ${realSender}`, 'info');
-        }
+        if (currentChannel === dmName) renderMessages();
+        else toast(`💬 Сообщение от ${realSender}`, 'info');
         return;
     }
 
-    // === ОБНОВЛЕНИЕ ПРОФИЛЯ ===
+    // ОБНОВЛЕНИЕ ПРОФИЛЯ
     if (data.type === 'profile-update') {
         const us = DB.get('users', {});
         us[data.username] = {
@@ -4534,61 +4116,6 @@ function handlePeerData(conn, data) {
 }
 
 // ============================================
-// УТИЛИТЫ
-// ============================================
-function closeModal(id) {
-    document.getElementById(id).classList.remove('show');
-}
-
-function escapeHtml(str) {
-    const div = document.createElement('div');
-    div.textContent = str;
-    return div.innerHTML;
-}
-
-let toastTimer;
-function toast(message, type = 'info') {
-    const el = document.getElementById('toast');
-    el.textContent = message;
-    el.className = 'toast show ' + type;
-
-    clearTimeout(toastTimer);
-    toastTimer = setTimeout(() => el.classList.remove('show'), 3500);
-}
-
-// Закрытие модалок по клику вне
-document.querySelectorAll('.modal-bg').forEach(bg => {
-    bg.addEventListener('click', (e) => {
-        if (e.target === bg) bg.classList.remove('show');
-    });
-});
-
-// Закрытие emoji picker по клику вне
-document.addEventListener('click', (e) => {
-    const picker = document.getElementById('emojiPicker');
-    if (picker && picker.classList.contains('show') &&
-        !picker.contains(e.target) &&
-        !e.target.closest('button[onclick*="toggleEmojiPicker"]') &&
-        !e.target.closest('button[onclick*="openGifPicker"]')) {
-        picker.classList.remove('show');
-    }
-});
-
-// ============================================
-// ИНИЦИАЛИЗАЦИЯ
-// ============================================
-(function init() {
-    const saved = DB.get('user', null);
-    if (saved) {
-        currentUser = saved;
-        openApp();
-    } else {
-        gotoStep('welcome');
-    }
-})();
-</script>
-<script>
-// ============================================
 // ПРОФИЛЬ
 // ============================================
 function openProfile(username) {
@@ -4596,16 +4123,13 @@ function openProfile(username) {
     const users = DB.get('users', {});
     const u = users[username] || { color: '#97ce4c' };
 
-    // Имя и ID
     document.getElementById('profileName').textContent = username;
     document.getElementById('profileId').textContent = '@' + username;
 
-    // Аватар
     const avatarEl = document.getElementById('profileAvatar');
     avatarEl.style.background = u.color || '#97ce4c';
     avatarEl.innerHTML = username[0].toUpperCase();
 
-    // Корона для основателя
     if (isFounder(username)) {
         const crown = document.createElement('span');
         crown.className = 'founder-crown';
@@ -4619,7 +4143,6 @@ function openProfile(username) {
         document.getElementById('profileBadge').innerHTML = '';
     }
 
-    // Действия
     const actions = document.getElementById('profileActions');
     if (username === currentUser.username) {
         actions.innerHTML = '<div class="friend-badge">👤 Это вы</div>';
@@ -4682,70 +4205,6 @@ function openChatWithProfile() {
     selectChannel(dmName);
 }
 
-function initPeer() {
-    if (typeof Peer === 'undefined') {
-        console.error('❌ PeerJS не загружен');
-        toast('❌ Портал недоступен. Обнови страницу.', 'error');
-        return;
-    }
-
-    const myPeerId = getPeerId(currentUser.username);
-    console.log('🌀 Регистрирую портал:', myPeerId);
-
-    peer = new Peer(myPeerId, {
-        debug: 2,
-        config: {
-            iceServers: [
-                { urls: 'stun:stun.l.google.com:19302' },
-                { urls: 'stun:stun1.l.google.com:19302' },
-                { urls: 'stun:stun2.l.google.com:19302' },
-                { urls: 'stun:global.stun.twilio.com:3478' }
-            ]
-        }
-    });
-
-    peer.on('open', (id) => {
-        console.log('✅ Портал открыт:', id);
-        toast('🌀 Портал открыт', 'success');
-        syncFriends();
-    });
-
-    peer.on('error', (err) => {
-        console.error('❌ Peer error:', err);
-        if (err.type === 'unavailable-id') {
-            toast('❌ Ник занят в сети. Перезайди.', 'error');
-        } else if (err.type === 'peer-unavailable') {
-            toast('❌ Собеседник не в сети', 'error');
-        } else if (err.type === 'network') {
-            toast('❌ Проблема с сетью', 'error');
-        } else if (err.type === 'server-error') {
-            toast('❌ Сервер портала недоступен', 'error');
-        }
-    });
-
-    peer.on('disconnected', () => {
-        console.log('⚠️ Портал отключён, переподключаю...');
-        setTimeout(() => peer.reconnect(), 1000);
-    });
-
-    peer.on('close', () => {
-        console.log('❌ Портал закрыт');
-    });
-
-    peer.on('call', (call) => {
-        console.log('🌀 Входящий звонок');
-        handleIncomingCall(call);
-    });
-
-    peer.on('connection', (conn) => {
-        console.log('📡 Соединение от:', conn.peer);
-        conn.on('data', (data) => handlePeerData(conn, data));
-        conn.on('open', () => {
-            activeConnections[conn.peer] = conn;
-        });
-    });
-}
-
 // ============================================
 // ПЛЕЙТЕСТЫ
 // ============================================
@@ -4754,20 +4213,26 @@ function refreshStats() {
     const runs = DB.get('playtestRuns', []);
     const feedback = DB.get('feedback', []);
 
-    document.getElementById('statBuilds').textContent = builds.length;
-    document.getElementById('statRuns').textContent = runs.length;
-    document.getElementById('statBugs').textContent =
-        feedback.filter(f => f.type === 'BUG').length;
+    const statBuilds = document.getElementById('statBuilds');
+    const statRuns = document.getElementById('statRuns');
+    const statBugs = document.getElementById('statBugs');
+    const statAvgTime = document.getElementById('statAvgTime');
+
+    if (statBuilds) statBuilds.textContent = builds.length;
+    if (statRuns) statRuns.textContent = runs.length;
+    if (statBugs) statBugs.textContent = feedback.filter(f => f.type === 'BUG').length;
 
     const avgTime = runs.length > 0
         ? Math.round(runs.reduce((s, r) => s + (r.duration || 0), 0) / runs.length)
         : 0;
-    document.getElementById('statAvgTime').textContent = avgTime + 'м';
+
+    if (statAvgTime) statAvgTime.textContent = avgTime + 'м';
 }
 
 function renderBuilds() {
     const builds = DB.get('builds', []);
     const container = document.getElementById('buildsList');
+    if (!container) return;
 
     if (builds.length === 0) {
         container.innerHTML = `
@@ -4840,11 +4305,9 @@ function uploadBuild() {
 
 function deleteBuild(i) {
     if (!confirm('Удалить билд?')) return;
-
     const builds = DB.get('builds', []);
     builds.splice(i, 1);
     DB.set('builds', builds);
-
     renderBuilds();
     refreshStats();
     toast('Билд удалён', 'success');
@@ -4856,6 +4319,7 @@ function deleteBuild(i) {
 function renderFeedback() {
     const feedback = DB.get('feedback', []);
     const container = document.getElementById('feedbackList');
+    if (!container) return;
 
     if (feedback.length === 0) {
         container.innerHTML = `
@@ -4873,40 +4337,24 @@ function renderFeedback() {
         PERFORMANCE: '⚡ PERF'
     };
 
-    const priorityColors = {
-        LOW: 'rgba(151,206,76,0.15)',
-        MEDIUM: 'rgba(0,201,255,0.15)',
-        HIGH: 'rgba(245,213,71,0.15)',
-        CRITICAL: 'rgba(231,76,60,0.15)'
-    };
-
     container.innerHTML = feedback.map(f => {
         const isFound = isFounder(f.author);
         const date = new Date(f.time).toLocaleDateString('ru-RU');
-        const priorityColor = priorityColors[f.priority] || 'rgba(151,206,76,0.15)';
-
         return `
             <div class="feedback-item">
                 <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap;">
-                    <span style="font-size:10px;padding:3px 8px;border-radius:6px;
-                        font-weight:700;background:rgba(231,76,60,0.15);color:var(--red);
+                    <span style="font-size:10px;padding:3px 8px;border-radius:6px;font-weight:700;
+                        background:rgba(231,76,60,0.15);color:var(--red);
                         font-family:'JetBrains Mono',monospace;">
                         ${typeLabels[f.type] || f.type}
                     </span>
-                    <span style="font-size:10px;padding:3px 8px;border-radius:6px;
-                        font-weight:700;background:${priorityColor};color:var(--yellow);
-                        font-family:'JetBrains Mono',monospace;">
-                        ${f.priority}
-                    </span>
-                    <span style="font-size:10px;padding:3px 8px;border-radius:6px;
-                        font-weight:700;background:rgba(245,213,71,0.15);color:var(--morty-yellow);
+                    <span style="font-size:10px;padding:3px 8px;border-radius:6px;font-weight:700;
+                        background:rgba(245,213,71,0.15);color:var(--yellow);
                         font-family:'JetBrains Mono',monospace;">
                         ${f.status}
                     </span>
                     ${isFound ? '<span class="msg-badge badge-founder">👑</span>' : ''}
-                    <span style="margin-left:auto;font-size:11px;color:var(--text2);">
-                        ${date}
-                    </span>
+                    <span style="margin-left:auto;font-size:11px;color:var(--text2);">${date}</span>
                 </div>
                 <div style="font-size:15px;font-weight:700;margin-bottom:6px;">
                     ${escapeHtml(f.title)}
@@ -4925,9 +4373,7 @@ function openFeedbackModal() {
 
 function submitFeedback() {
     const title = document.getElementById('fbTitle').value.trim();
-    if (title.length < 5) {
-        return toast('Заголовок от 5 символов', 'error');
-    }
+    if (title.length < 5) return toast('Заголовок от 5 символов', 'error');
 
     const feedback = DB.get('feedback', []);
     feedback.unshift({
@@ -4951,7 +4397,7 @@ function submitFeedback() {
 }
 
 // ============================================
-// ГОЛОСОВЫЕ ЗВОНКИ (WebRTC через PeerJS)
+// ГОЛОСОВЫЕ ЗВОНКИ WEBRTC
 // ============================================
 async function getMicrophone() {
     return navigator.mediaDevices.getUserMedia({
@@ -4965,21 +4411,30 @@ async function getMicrophone() {
 }
 
 async function startCall() {
+    console.log('📞 startCall');
+
     if (!currentChannel || !currentChannel.startsWith('dm_')) {
         return toast('📞 Только в личных сообщениях', 'error');
     }
 
-    const partner = currentChannel.substring(3).split('_')
-        .find(p => p !== currentUser.username);
-    if (!partner) return toast('Не найдено', 'error');
+    const parts = currentChannel.substring(3).split('_');
+    const partner = parts.find(p => p !== currentUser.username);
+    if (!partner) return toast('Собеседник не найден', 'error');
 
     const users = DB.get('users', {});
-    if (!users[partner]) return toast('❌ Пользователь не найден', 'error');
+    const partnerData = users[partner] || { color: '#97ce4c' };
 
-    // Запрашиваем микрофон
+    if (!peer || peer.disconnected) {
+        if (peer) peer.reconnect();
+        await new Promise(r => setTimeout(r, 1000));
+    }
+
     try {
+        console.log('🎤 Микрофон...');
         localStream = await getMicrophone();
-    } catch {
+        console.log('✅ Микрофон OK');
+    } catch (err) {
+        console.log('❌ Ошибка микрофона:', err);
         return toast('❌ Разреши доступ к микрофону', 'error');
     }
 
@@ -4987,14 +4442,18 @@ async function startCall() {
     callState.ringing = true;
     callState.callPartner = partner;
 
-    showCallOverlay(partner, users[partner].color, '🌀 Открываю портал...');
+    showCallOverlay(partner, partnerData.color, '🌀 Открываю портал...');
     playRingTone();
 
     try {
-        currentCall = peer.call(getPeerId(partner), localStream);
+        const targetPeerId = getPeerId(partner);
+        console.log('📞 Звоню:', targetPeerId);
+
+        currentCall = peer.call(targetPeerId, localStream);
         if (!currentCall) throw new Error('No call');
 
         currentCall.on('stream', (remoteStream) => {
+            console.log('🎧 Поток получен');
             playRemoteStream(remoteStream);
             onCallConnected();
         });
@@ -5005,11 +4464,11 @@ async function startCall() {
         });
 
         currentCall.on('error', (err) => {
-            console.error('Call error:', err);
+            console.error('❌ Ошибка:', err);
+            toast('❌ Ошибка: ' + err.message, 'error');
             cleanupCall();
         });
 
-        // Таймаут 30 секунд
         setTimeout(() => {
             if (callState.ringing && callState.active) {
                 toast('📴 Не отвечает', 'error');
@@ -5018,13 +4477,15 @@ async function startCall() {
         }, 30000);
 
     } catch (err) {
-        console.error('Call error:', err);
-        toast('❌ Ошибка портала', 'error');
+        console.error('❌ Ошибка звонка:', err);
+        toast('❌ Ошибка портала: ' + err.message, 'error');
         cleanupCall();
     }
 }
 
 function handleIncomingCall(call) {
+    console.log('🌀 Входящий звонок от:', call.peer);
+
     if (callState.active) {
         call.close();
         return;
@@ -5043,7 +4504,6 @@ function handleIncomingCall(call) {
     callState.incoming = true;
     callState.callPartner = callerName;
 
-    // Показываем уведомление
     const el = document.getElementById('incomingCall');
     el.classList.add('show');
 
@@ -5056,21 +4516,23 @@ function handleIncomingCall(call) {
     playRingTone();
     toast(`🌀 Звонок от ${callerName}`, 'info');
 
-    // Отвечаем
     call.answer();
-    call.on('stream', (remoteStream) => playRemoteStream(remoteStream));
+    call.on('stream', (remoteStream) => {
+        console.log('🎧 Поток из входящего');
+        playRemoteStream(remoteStream);
+    });
 
     currentCall = call;
 
-    // Автоотклонение через 30 секунд
     setTimeout(() => {
         if (callState.incoming) declineCall();
     }, 30000);
 }
 
 function playRemoteStream(stream) {
-    let remoteAudio = document.getElementById('remoteAudio');
+    console.log('🔊 Воспроизведение');
 
+    let remoteAudio = document.getElementById('remoteAudio');
     if (!remoteAudio) {
         remoteAudio = document.createElement('audio');
         remoteAudio.id = 'remoteAudio';
@@ -5080,29 +4542,32 @@ function playRemoteStream(stream) {
     }
 
     remoteAudio.srcObject = stream;
-
     remoteAudio.play().catch(() => {
+        console.log('⚠️ Autoplay заблокирован');
         document.addEventListener('click', () => remoteAudio.play(), { once: true });
     });
 }
 
-function acceptCall() {
+async function acceptCall() {
+    console.log('✅ Принимаю');
+
     document.getElementById('incomingCall').classList.remove('show');
     stopRingTone();
 
-    // Подключаем свой микрофон
-    getMicrophone().then(stream => {
-        localStream = stream;
+    try {
+        localStream = await getMicrophone();
 
         if (currentCall && currentCall.peerConnection) {
             const senders = currentCall.peerConnection.getSenders();
-            stream.getTracks().forEach(track => {
+            localStream.getTracks().forEach(track => {
                 const sender = senders.find(s => s.track && s.track.kind === track.kind);
                 if (sender) sender.replaceTrack(track);
-                else currentCall.peerConnection.addTrack(track, stream);
+                else currentCall.peerConnection.addTrack(track, localStream);
             });
         }
-    }).catch(() => toast('❌ Нет доступа к микрофону', 'error'));
+    } catch (err) {
+        toast('❌ Нет микрофона', 'error');
+    }
 
     callState.active = true;
     callState.incoming = false;
@@ -5180,7 +4645,7 @@ function toggleMute() {
         ? '<i class="fas fa-microphone-slash"></i>'
         : '<i class="fas fa-microphone"></i>';
 
-    toast(callState.muted ? '🔇 Микрофон выключен' : '🎙 Микрофон включён');
+    toast(callState.muted ? '🔇 Выкл' : '🎙 Вкл');
 }
 
 function endCall() {
@@ -5203,10 +4668,7 @@ function cleanupCall() {
     document.getElementById('callOverlay').classList.remove('show');
     document.getElementById('incomingCall').classList.remove('show');
 
-    if (callState.timerInterval) {
-        clearInterval(callState.timerInterval);
-    }
-
+    if (callState.timerInterval) clearInterval(callState.timerInterval);
     stopRingTone();
 
     if (currentCall) {
@@ -5223,13 +4685,8 @@ function cleanupCall() {
     if (remoteAudio) remoteAudio.remove();
 
     callState = {
-        active: false,
-        incoming: false,
-        ringing: false,
-        muted: false,
-        callPartner: null,
-        startTime: null,
-        timerInterval: null,
+        active: false, incoming: false, ringing: false, muted: false,
+        callPartner: null, startTime: null, timerInterval: null,
         ringToneNodes: []
     };
 
@@ -5238,7 +4695,7 @@ function cleanupCall() {
 }
 
 // ============================================
-// RING TONE (звук вызова)
+// RING TONE
 // ============================================
 function playRingTone() {
     const ctx = new (window.AudioContext || window.webkitAudioContext)();
@@ -5272,17 +4729,15 @@ function playRingTone() {
         callState.ringToneNodes.push(osc1, osc2);
     }
 
-    function ringPattern() {
+    function pattern() {
         if (!callState.ringing && !callState.incoming) return;
-
         const now = ctx.currentTime;
         beep(now);
         beep(now + 0.5);
-
-        setTimeout(ringPattern, 2000);
+        setTimeout(pattern, 2000);
     }
 
-    ringPattern();
+    pattern();
 }
 
 function stopRingTone() {
@@ -5291,6 +4746,59 @@ function stopRingTone() {
     });
     callState.ringToneNodes = [];
 }
+
+// ============================================
+// УТИЛИТЫ
+// ============================================
+function closeModal(id) {
+    document.getElementById(id).classList.remove('show');
+}
+
+function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+}
+
+let toastTimer;
+function toast(message, type = 'info') {
+    const el = document.getElementById('toast');
+    el.textContent = message;
+    el.className = 'toast show ' + type;
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => el.classList.remove('show'), 3500);
+}
+
+// Закрытие модалок по клику вне
+document.querySelectorAll('.modal-bg').forEach(bg => {
+    bg.addEventListener('click', (e) => {
+        if (e.target === bg) bg.classList.remove('show');
+    });
+});
+
+// Закрытие emoji picker
+document.addEventListener('click', (e) => {
+    const picker = document.getElementById('emojiPicker');
+    if (picker && picker.classList.contains('show') &&
+        !picker.contains(e.target) &&
+        !e.target.closest('button[onclick*="toggleEmojiPicker"]') &&
+        !e.target.closest('button[onclick*="openGifPicker"]')) {
+        picker.classList.remove('show');
+    }
+});
+
+// ============================================
+// ИНИЦИАЛИЗАЦИЯ
+// ============================================
+(function init() {
+    const saved = DB.get('user', null);
+    if (saved) {
+        currentUser = saved;
+        openApp();
+    } else {
+        gotoStep('welcome');
+    }
+})();
 </script>
 </body>
 </html>
