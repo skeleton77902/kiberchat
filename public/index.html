@@ -3419,17 +3419,116 @@ function initUI() {
 
     updateActivity();
     setInterval(updateActivity, 60000);
-
-    initPeer()
-    peer = new Peer(getPeerId(currentUser.username), {
-    debug: 0,
-    config: window.ICE_CONFIG || {
-        iceServers: [
-            { urls: 'stun:stun.l.google.com:19302' },
-            { urls: 'stun:stun1.l.google.com:19302' }
-        ]
+    
+    function initPeer() {
+    // Уничтожаем старый peer если он есть
+    if (peer) {
+        try {
+            peer.destroy();
+        } catch (e) {}
+        peer = null;
     }
-});
+
+    if (typeof Peer === 'undefined') {
+        console.error('❌ PeerJS не загружен');
+        toast('❌ Портал недоступен', 'error');
+        return;
+    }
+
+    const myPeerId = getPeerId(currentUser.username);
+    console.log('🌀 Регистрирую портал:', myPeerId);
+
+    // Используем конфиг из ice-config.js
+    const config = window.ICE_CONFIG || {
+        iceServers: [
+            { urls: 'stun:stun.l.google.com:19302' }
+        ]
+    };
+
+    peer = new Peer(myPeerId, {
+        debug: 1,
+        config: config,
+        // Автоматически переподключаться
+        secure: true,
+        // Таймауты
+        pingInterval: 5000
+    });
+
+    peer.on('open', (id) => {
+        console.log('✅ Портал открыт:', id);
+        toast('🌀 Портал открыт', 'success');
+        syncFriends();
+    });
+
+    peer.on('error', (err) => {
+        console.error('❌ Peer error:', err);
+        
+        if (err.type === 'unavailable-id') {
+            toast('❌ Ник занят в сети. Перезайди.', 'error');
+            // Пытаемся восстановиться
+            setTimeout(() => {
+                if (peer) {
+                    try { peer.destroy(); } catch(e) {}
+                    peer = null;
+                    initPeer();
+                }
+            }, 2000);
+        } else if (err.type === 'peer-unavailable') {
+            toast('❌ Собеседник не в сети', 'error');
+        } else if (err.type === 'network') {
+            toast('⚠️ Проблема с сетью, переподключаюсь...', 'warning');
+            setTimeout(() => {
+                if (peer && !peer.destroyed) {
+                    try { peer.reconnect(); } catch(e) {}
+                }
+            }, 2000);
+        } else if (err.type === 'server-error') {
+            toast('❌ Сервер портала недоступен', 'error');
+        } else if (err.type === 'socket-error') {
+            toast('⚠️ Переподключение...', 'warning');
+            setTimeout(() => {
+                if (peer && !peer.destroyed) {
+                    try { peer.reconnect(); } catch(e) {}
+                }
+            }, 3000);
+        } else if (err.type === 'socket-closed') {
+            console.log('⚠️ Socket закрыт');
+        }
+    });
+
+    peer.on('disconnected', () => {
+        console.log('⚠️ Портал отключён');
+        
+        if (!peer.destroyed) {
+            setTimeout(() => {
+                try {
+                    peer.reconnect();
+                    console.log('🔄 Переподключение...');
+                } catch (e) {
+                    console.log('❌ Не удалось переподключиться:', e);
+                }
+            }, 2000);
+        }
+    });
+
+    peer.on('close', () => {
+        console.log('❌ Портал закрыт');
+    });
+
+    peer.on('call', (call) => {
+        console.log('🌀 Входящий звонок');
+        handleIncomingCall(call);
+    });
+
+    peer.on('connection', (conn) => {
+        console.log('📡 Соединение от:', conn.peer);
+        conn.on('data', (data) => handlePeerData(conn, data));
+        conn.on('open', () => {
+            activeConnections[conn.peer] = conn;
+        });
+    });
+}
+    initPeer();
 }
 
 // ============================================
@@ -4435,11 +4534,37 @@ async function startCall() {
     const users = DB.get('users', {});
     const partnerData = users[partner] || { color: '#97ce4c' };
 
-    if (!peer || peer.disconnected) {
-        if (peer) peer.reconnect();
-        await new Promise(r => setTimeout(r, 1000));
+    // Проверяем что peer готов
+    if (!peer) {
+        console.log('⚠️ Peer не создан, создаю заново...');
+        initPeer();
+        await new Promise(r => setTimeout(r, 2000));
     }
 
+    // Если peer уничтожен — создаём заново
+    if (peer.destroyed) {
+        console.log('⚠️ Peer уничтожен, создаю новый...');
+        initPeer();
+        await new Promise(r => setTimeout(r, 2000));
+    }
+
+    // Если peer отключён — переподключаем
+    if (peer.disconnected && !peer.destroyed) {
+        console.log('⚠️ Peer отключён, переподключаю...');
+        try {
+            peer.reconnect();
+            await new Promise(r => setTimeout(r, 1500));
+        } catch (e) {
+            console.log('❌ Не удалось переподключиться');
+        }
+    }
+
+    // Проверяем что peer ещё жив после всех манипуляций
+    if (!peer || peer.destroyed) {
+        return toast('❌ Портал не готов. Обнови страницу.', 'error');
+    }
+
+    // Запрашиваем микрофон
     try {
         console.log('🎤 Микрофон...');
         localStream = await getMicrophone();
@@ -4461,7 +4586,7 @@ async function startCall() {
         console.log('📞 Звоню:', targetPeerId);
 
         currentCall = peer.call(targetPeerId, localStream);
-        if (!currentCall) throw new Error('No call');
+        if (!currentCall) throw new Error('Не удалось создать звонок');
 
         currentCall.on('stream', (remoteStream) => {
             console.log('🎧 Поток получен');
@@ -4475,45 +4600,25 @@ async function startCall() {
         });
 
         currentCall.on('error', (err) => {
-            console.error('❌ Ошибка:', err);
+            console.error('❌ Ошибка звонка:', err);
             toast('❌ Ошибка: ' + err.message, 'error');
             cleanupCall();
         });
 
         setTimeout(() => {
             if (callState.ringing && callState.active) {
+                console.log('⏰ Таймаут');
                 toast('📴 Не отвечает', 'error');
                 cleanupCall();
             }
         }, 30000);
 
     } catch (err) {
-        console.error('❌ Ошибка звонка:', err);
+        console.error('❌ Ошибка:', err);
         toast('❌ Ошибка портала: ' + err.message, 'error');
         cleanupCall();
     }
 }
-
-function handleIncomingCall(call) {
-    console.log('🌀 Входящий звонок от:', call.peer);
-
-    if (callState.active) {
-        call.close();
-        return;
-    }
-
-    const users = DB.get('users', {});
-    let callerName = call.peer.replace('rm-', '');
-
-    for (const u in users) {
-        if (getPeerId(u) === call.peer) {
-            callerName = u;
-            break;
-        }
-    }
-
-    callState.incoming = true;
-    callState.callPartner = callerName;
 
     const el = document.getElementById('incomingCall');
     el.classList.add('show');
@@ -4538,7 +4643,7 @@ function handleIncomingCall(call) {
     setTimeout(() => {
         if (callState.incoming) declineCall();
     }, 30000);
-}
+
 
 function playRemoteStream(stream) {
     console.log('🔊 Воспроизведение');
