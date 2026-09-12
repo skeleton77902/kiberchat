@@ -8,6 +8,7 @@
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+<script src="/ice-config.js"></script>
 <style>
 /* ============================================
    ПЕРЕМЕННЫЕ ЦВЕТОВ
@@ -1637,6 +1638,7 @@ body {
     z-index: 1000;
     padding: 20px;
 }
+
 
 .call-overlay.show {
     display: flex;
@@ -3418,7 +3420,16 @@ function initUI() {
     updateActivity();
     setInterval(updateActivity, 60000);
 
-    initPeer();
+    initPeer()
+    peer = new Peer(getPeerId(currentUser.username), {
+    debug: 0,
+    config: window.ICE_CONFIG || {
+        iceServers: [
+            { urls: 'stun:stun.l.google.com:19302' },
+            { urls: 'stun:stun1.l.google.com:19302' }
+        ]
+    }
+});
 }
 
 // ============================================
