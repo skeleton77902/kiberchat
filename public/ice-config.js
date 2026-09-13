@@ -1,19 +1,20 @@
 // ============================================
-// ICE SERVERS CONFIG для WebRTC звонков
-// STUN определяет публичный IP
-// TURN пробрасывает трафик через NAT
+// ICE SERVERS CONFIG для WebRTC
+// STUN — определяет IP
+// TURN — ретранслирует трафик (работает всегда)
 // ============================================
 
 window.ICE_CONFIG = {
     iceServers: [
-        // STUN серверы Google (бесплатные)
+        // STUN серверы Google
         { urls: 'stun:stun.l.google.com:19302' },
         { urls: 'stun:stun1.l.google.com:19302' },
         { urls: 'stun:stun2.l.google.com:19302' },
         { urls: 'stun:stun3.l.google.com:19302' },
         { urls: 'stun:stun4.l.google.com:19302' },
 
-        // TURN серверы OpenRelay (бесплатные публичные)
+        // ===== TURN серверы =====
+        // OpenRelay (бесплатный публичный)
         {
             urls: 'turn:openrelay.metered.ca:80',
             username: 'openrelayproject',
@@ -29,8 +30,13 @@ window.ICE_CONFIG = {
             username: 'openrelayproject',
             credential: 'openrelayproject'
         },
+        {
+            urls: 'turn:openrelay.metered.ca:80?transport=tcp',
+            username: 'openrelayproject',
+            credential: 'openrelayproject'
+        },
 
-        // Дополнительные TURN серверы
+        // Дополнительный TURN сервер (резерв)
         {
             urls: 'turn:standard.relay.metered.ca:80',
             username: 'openrelayproject',
@@ -41,14 +47,13 @@ window.ICE_CONFIG = {
             username: 'openrelayproject',
             credential: 'openrelayproject'
         },
-
-        // Настройки ICE
         {
-            urls: 'stun:global.stun.twilio.com:3478'
+            urls: 'turn:standard.relay.metered.ca:443?transport=tcp',
+            username: 'openrelayproject',
+            credential: 'openrelayproject'
         }
     ],
 
-    // Дополнительные настройки PeerJS
     iceTransportPolicy: 'all',
     iceCandidatePoolSize: 10
 };
