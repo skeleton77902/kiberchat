@@ -1,6 +1,166 @@
 // ============================================
-// ГОЛОСОВЫЕ ЗВОНКИ WEBRTC
+// ГОЛОСОВЫЕ ЗВОНКИ WEBRTC (через Socket.io)
 // ============================================
+
+// ============================================
+// ИНИЦИАЛИЗАЦИЯ SOCKET.IO
+// ============================================
+function initSocket() {
+    if (typeof io === 'undefined') {
+        console.error('❌ Socket.io не загружен');
+        return;
+    }
+
+    socket = io();
+
+    socket.on('connect', () => {
+        console.log('🔌 Socket.io подключён');
+        if (currentUser && currentUser.userId) {
+            socket.emit('authenticate', currentUser.userId);
+        }
+    });
+
+    // ===== ВХОДЯЩИЕ ЗВОНКИ =====
+    socket.on('incoming_call', (data) => {
+        console.log('🌀 Входящий звонок:', data);
+        handleIncomingCall(data);
+    });
+
+    socket.on('call_accepted', async (data) => {
+        console.log('✅ Собеседник принял');
+        if (callState.active && !callState.incoming) {
+            await createAndSendOffer();
+        }
+    });
+
+    socket.on('call_declined', () => {
+        toast('📞 Звонок отклонён', 'info');
+        cleanupCall();
+    });
+
+    socket.on('call_failed', (data) => {
+        toast('❌ ' + (data.reason || 'Ошибка'), 'error');
+        cleanupCall();
+    });
+
+    socket.on('webrtc_offer', async (data) => {
+        console.log('📨 Получен offer');
+        if (!pc) await initPeerConnection();
+
+        try {
+            await pc.setRemoteDescription(new RTCSessionDescription(data.sdp));
+
+            for (const c of pendingCandidates) {
+                try { await pc.addIceCandidate(new RTCIceCandidate(c)); } catch (e) {}
+            }
+            pendingCandidates = [];
+
+            const answer = await pc.createAnswer();
+            await pc.setLocalDescription(answer);
+
+            socket.emit('webrtc_answer', {
+                toUserId: callState.callPartner.id,
+                fromUserId: currentUser.userId,
+                sdp: answer
+            });
+            console.log('📤 Answer отправлен');
+        } catch (err) {
+            console.error('Offer error:', err);
+        }
+    });
+
+    socket.on('webrtc_answer', async (data) => {
+        console.log('📨 Получен answer');
+        if (pc) {
+            try {
+                await pc.setRemoteDescription(new RTCSessionDescription(data.sdp));
+                for (const c of pendingCandidates) {
+                    try { await pc.addIceCandidate(new RTCIceCandidate(c)); } catch (e) {}
+                }
+                pendingCandidates = [];
+            } catch (err) {
+                console.error('Answer error:', err);
+            }
+        }
+    });
+
+    socket.on('webrtc_ice', async (data) => {
+        console.log('📨 Получен ICE candidate');
+        if (pc && pc.remoteDescription && pc.remoteDescription.type) {
+            try {
+                await pc.addIceCandidate(new RTCIceCandidate(data.candidate));
+            } catch (err) {
+                console.error('ICE error:', err);
+            }
+        } else {
+            pendingCandidates.push(data.candidate);
+        }
+    });
+
+    socket.on('call_ended', () => {
+        toast('📞 Собеседник завершил звонок', 'info');
+        cleanupCall();
+    });
+
+    // ===== СООБЩЕНИЯ =====
+    socket.on('new_message', (data) => {
+        if (typeof handleSocketMessage === 'function') {
+            handleSocketMessage(data);
+        }
+    });
+
+    socket.on('user_status_change', () => {
+        renderFriends();
+    });
+
+    socket.on('contact_added', () => {
+        loadContactsFromServer();
+    });
+}
+
+// ============================================
+// PEER CONNECTION
+// ============================================
+async function initPeerConnection() {
+    const config = window.ICE_CONFIG || {
+        iceServers: [
+            { urls: 'stun:stun.l.google.com:19302' }
+        ]
+    };
+
+    pc = new RTCPeerConnection(config);
+
+    pc.onicecandidate = (event) => {
+        if (event.candidate && callState.callPartner && socket) {
+            socket.emit('webrtc_ice', {
+                toUserId: callState.callPartner.id,
+                fromUserId: currentUser.userId,
+                candidate: event.candidate
+            });
+        }
+    };
+
+    pc.onconnectionstatechange = () => {
+        console.log('📡 Connection state:', pc.connectionState);
+        if (pc.connectionState === 'connected') {
+            onCallConnected();
+        } else if (pc.connectionState === 'failed' || pc.connectionState === 'disconnected') {
+            toast('❌ Соединение потеряно', 'error');
+            cleanupCall();
+        }
+    };
+
+    pc.ontrack = (event) => {
+        console.log('🎧 Получен поток собеседника');
+        playRemoteStream(event.streams[0]);
+    };
+
+    if (localStream) {
+        localStream.getTracks().forEach(track => {
+            pc.addTrack(track, localStream);
+        });
+    }
+}
 
 // ============================================
 // МИКРОФОН
@@ -17,6 +177,32 @@ async function getMicrophone() {
 }
 
 // ============================================
+// СОЗДАНИЕ OFFER
+// ============================================
+async function createAndSendOffer() {
+    try {
+        if (!pc) await initPeerConnection();
+
+        const offer = await pc.createOffer({
+            offerToReceiveAudio: true,
+            offerToReceiveVideo: false
+        });
+        await pc.setLocalDescription(offer);
+
+        socket.emit('webrtc_offer', {
+            toUserId: callState.callPartner.id,
+            fromUserId: currentUser.userId,
+            sdp: offer
+        });
+        console.log('📤 Offer отправлен');
+    } catch (err) {
+        console.error('Offer error:', err);
+        toast('❌ Ошибка соединения', 'error');
+        cleanupCall();
+    }
+}
+
+// ============================================
 // ИСХОДЯЩИЙ ЗВОНОК
 // ============================================
 async function startCall() {
@@ -26,39 +212,37 @@ async function startCall() {
         return toast('📞 Только в личных сообщениях', 'error');
     }
 
+    if (!socket || !socket.connected) {
+        return toast('❌ Нет соединения с сервером', 'error');
+    }
+
     const parts = currentChannel.substring(3).split('_');
     const partner = parts.find(p => p !== currentUser.username);
     if (!partner) return toast('Собеседник не найден', 'error');
 
+    // Получаем ID собеседника через сервер
+    let partnerId = null;
+    try {
+        const res = await fetch(`/api/user-by-name/${encodeURIComponent(partner)}`);
+        const data = await res.json();
+        if (data && data.id) partnerId = data.id;
+    } catch (e) {}
+
+    if (!partnerId) {
+        const users = DB.get('users', {});
+        if (users[partner] && users[partner].id) {
+            partnerId = users[partner].id;
+        }
+    }
+
+    if (!partnerId) {
+        return toast('❌ Собеседник не найден в базе', 'error');
+    }
+
     const users = DB.get('users', {});
     const partnerData = users[partner] || { color: '#97ce4c' };
 
-    // Восстанавливаем peer если нужно
-    if (!peer) {
-        console.log('⚠️ Peer нет, создаю...');
-        initPeer();
-        await new Promise(r => setTimeout(r, 2000));
-    }
-
-    if (peer.destroyed) {
-        console.log('⚠️ Peer уничтожен, создаю новый...');
-        initPeer();
-        await new Promise(r => setTimeout(r, 2000));
-    }
-
-    if (peer.disconnected && !peer.destroyed) {
-        console.log('⚠️ Peer отключён, переподключаю...');
-        try {
-            peer.reconnect();
-            await new Promise(r => setTimeout(r, 1500));
-        } catch (e) {}
-    }
-
-    if (!peer || peer.destroyed) {
-        return toast('❌ Портал не готов. Обнови страницу.', 'error');
-    }
-
-    // Запрашиваем микрофон
+    // Микрофон
     try {
         console.log('🎤 Микрофон...');
         localStream = await getMicrophone();
@@ -70,92 +254,63 @@ async function startCall() {
 
     callState.active = true;
     callState.ringing = true;
-    callState.callPartner = partner;
+    callState.callPartner = { id: partnerId, username: partner };
+    pendingCandidates = [];
 
     showCallOverlay(partner, partnerData.color, '🌀 Открываю портал...');
     playRingTone();
 
-    try {
-        const targetPeerId = getPeerId(partner);
-        console.log('📞 Звоню:', targetPeerId);
+    socket.emit('call_user', {
+        fromUserId: currentUser.userId,
+        fromUsername: currentUser.username,
+        fromColor: currentUser.color,
+        fromEternalStatus: currentUser.eternalStatus,
+        toUserId: partnerId
+    });
 
-        currentCall = peer.call(targetPeerId, localStream);
-        if (!currentCall) throw new Error('No call');
-
-        currentCall.on('stream', (remoteStream) => {
-            console.log('🎧 Поток получен');
-            playRemoteStream(remoteStream);
-            onCallConnected();
-        });
-
-        currentCall.on('close', () => {
-            toast('📞 Портал закрыт', 'info');
+    setTimeout(() => {
+        if (callState.ringing && callState.active) {
+            toast('📴 Не отвечает', 'error');
+            socket.emit('call_ended', {
+                toUserId: callState.callPartner.id,
+                fromUserId: currentUser.userId
+            });
             cleanupCall();
-        });
-
-        currentCall.on('error', (err) => {
-            console.error('❌ Ошибка:', err);
-            toast('❌ Ошибка: ' + err.message, 'error');
-            cleanupCall();
-        });
-
-        setTimeout(() => {
-            if (callState.ringing && callState.active) {
-                toast('📴 Не отвечает', 'error');
-                cleanupCall();
-            }
-        }, 30000);
-
-    } catch (err) {
-        console.error('❌ Ошибка:', err);
-        toast('❌ Ошибка портала: ' + err.message, 'error');
-        cleanupCall();
-    }
+        }
+    }, 30000);
 }
 
 // ============================================
-// ВХОДЯЩИЙ ЗВОНОК
+// ВХОДЯЩИЙ
 // ============================================
-function handleIncomingCall(call) {
-    console.log('🌀 Входящий звонок от:', call.peer);
+function handleIncomingCall(data) {
+    console.log('🌀 Входящий от:', data.fromUsername);
 
     if (callState.active) {
-        call.close();
+        socket.emit('call_declined', {
+            toUserId: data.fromUserId,
+            fromUserId: currentUser.userId
+        });
         return;
     }
 
-    const users = DB.get('users', {});
-    let callerName = call.peer.replace('rm-', '');
-
-    for (const u in users) {
-        if (getPeerId(u) === call.peer) {
-            callerName = u;
-            break;
-        }
-    }
-
     callState.incoming = true;
-    callState.callPartner = callerName;
+    callState.callPartner = {
+        id: data.fromUserId,
+        username: data.fromUsername
+    };
 
     const el = document.getElementById('incomingCall');
     el.classList.add('show');
 
     const avatar = document.getElementById('incomingAvatar');
-    avatar.style.background = users[callerName]?.color || '#97ce4c';
-    avatar.innerHTML = callerName[0].toUpperCase();
+    avatar.style.background = data.fromColor || '#97ce4c';
+    avatar.innerHTML = data.fromUsername[0].toUpperCase();
 
-    document.getElementById('incomingName').textContent = callerName;
+    document.getElementById('incomingName').textContent = data.fromUsername;
 
     playRingTone();
-    toast(`🌀 Звонок от ${callerName}`, 'info');
-
-    call.answer();
-    call.on('stream', (remoteStream) => {
-        console.log('🎧 Поток из входящего');
-        playRemoteStream(remoteStream);
-    });
-
-    currentCall = call;
+    toast(`🌀 Звонок от ${data.fromUsername}`, 'info');
 
     setTimeout(() => {
         if (callState.incoming) declineCall();
@@ -163,7 +318,66 @@ function handleIncomingCall(call) {
 }
 
 // ============================================
-// ВОСПРОИЗВЕДЕНИЕ ПОТОКА
+// ПРИНЯТЬ
+// ============================================
+async function acceptCall() {
+    console.log('✅ Принимаю');
+
+    document.getElementById('incomingCall').classList.remove('show');
+    stopRingTone();
+
+    if (!callState.callPartner) return;
+
+    try {
+        localStream = await getMicrophone();
+        console.log('🎤 Микрофон получен');
+    } catch (err) {
+        toast('❌ Нет микрофона', 'error');
+        socket.emit('call_declined', {
+            toUserId: callState.callPartner.id,
+            fromUserId: currentUser.userId
+        });
+        cleanupCall();
+        return;
+    }
+
+    callState.active = true;
+    callState.incoming = false;
+    callState.ringing = false;
+
+    await initPeerConnection();
+
+    const partner = callState.callPartner;
+    const users = DB.get('users', {});
+    showCallOverlay(partner.username, users[partner.username]?.color || '#97ce4c', '🎙 Соединение...');
+
+    socket.emit('call_accepted', {
+        toUserId: partner.id,
+        fromUserId: currentUser.userId
+    });
+}
+
+// ============================================
+// ОТКЛОНИТЬ
+// ============================================
+function declineCall() {
+    document.getElementById('incomingCall').classList.remove('show');
+    stopRingTone();
+
+    if (callState.callPartner && socket) {
+        socket.emit('call_declined', {
+            toUserId: callState.callPartner.id,
+            fromUserId: currentUser.userId
+        });
+    }
+
+    callState.incoming = false;
+    toast('📞 Отклонено', 'info');
+    cleanupCall();
+}
+
+// ============================================
+// ВОСПРОИЗВЕДЕНИЕ
 // ============================================
 function playRemoteStream(stream) {
     console.log('🔊 Воспроизведение');
@@ -186,58 +400,12 @@ function playRemoteStream(stream) {
 }
 
 // ============================================
-// ПРИНЯТЬ ЗВОНОК
-// ============================================
-async function acceptCall() {
-    console.log('✅ Принимаю');
-
-    document.getElementById('incomingCall').classList.remove('show');
-    stopRingTone();
-
-    try {
-        localStream = await getMicrophone();
-
-        if (currentCall && currentCall.peerConnection) {
-            const senders = currentCall.peerConnection.getSenders();
-            localStream.getTracks().forEach(track => {
-                const sender = senders.find(s => s.track && s.track.kind === track.kind);
-                if (sender) sender.replaceTrack(track);
-                else currentCall.peerConnection.addTrack(track, localStream);
-            });
-        }
-    } catch (err) {
-        toast('❌ Нет микрофона', 'error');
-    }
-
-    callState.active = true;
-    callState.incoming = false;
-    callState.ringing = false;
-
-    showCallOverlay(callState.callPartner, '#97ce4c', '🌀 Портал открыт!');
-}
-
-// ============================================
-// ОТКЛОНИТЬ ЗВОНОК
-// ============================================
-function declineCall() {
-    document.getElementById('incomingCall').classList.remove('show');
-    stopRingTone();
-
-    if (currentCall) {
-        try { currentCall.close(); } catch (e) {}
-        currentCall = null;
-    }
-
-    callState.incoming = false;
-    toast('📞 Отклонено', 'info');
-    cleanupCall();
-}
-
-// ============================================
 // СОЕДИНЕНИЕ УСТАНОВЛЕНО
 // ============================================
 function onCallConnected() {
     if (callState.startTime) return;
+
+    console.log('✅ Связь установлена');
 
     callState.ringing = false;
     callState.startTime = Date.now();
@@ -259,13 +427,10 @@ function onCallConnected() {
 }
 
 // ============================================
-// ОВЕРЛЕЙ ЗВОНКА
+// ОВЕРЛЕЙ
 // ============================================
 function showCallOverlay(username, color, statusText) {
-    if (!username) {
-        console.error('showCallOverlay: нет username');
-        return;
-    }
+    if (!username) return;
 
     document.getElementById('callOverlay').classList.add('show');
 
@@ -282,7 +447,7 @@ function showCallOverlay(username, color, statusText) {
     } else if (isPoop(username)) {
         const poop = document.createElement('span');
         poop.className = 'poop-badge';
-        poop.textContent = '💩';
+        poop.textContent = '🍆';
         avatar.appendChild(poop);
     }
 
@@ -312,12 +477,14 @@ function toggleMute() {
 }
 
 // ============================================
-// ЗАВЕРШИТЬ ЗВОНОК
+// ЗАВЕРШИТЬ
 // ============================================
 function endCall() {
-    if (currentCall) {
-        try { currentCall.close(); } catch (e) {}
-        currentCall = null;
+    if (callState.callPartner && socket) {
+        socket.emit('call_ended', {
+            toUserId: callState.callPartner.id,
+            fromUserId: currentUser.userId
+        });
     }
 
     if (callState.startTime) {
@@ -336,16 +503,15 @@ function endCall() {
 function cleanupCall() {
     const callOverlay = document.getElementById('callOverlay');
     const incomingCall = document.getElementById('incomingCall');
-
     if (callOverlay) callOverlay.classList.remove('show');
     if (incomingCall) incomingCall.classList.remove('show');
 
     if (callState.timerInterval) clearInterval(callState.timerInterval);
     stopRingTone();
 
-    if (currentCall) {
-        try { currentCall.close(); } catch (e) {}
-        currentCall = null;
+    if (pc) {
+        try { pc.close(); } catch (e) {}
+        pc = null;
     }
 
     if (localStream) {
@@ -355,6 +521,8 @@ function cleanupCall() {
 
     const remoteAudio = document.getElementById('remoteAudio');
     if (remoteAudio) remoteAudio.remove();
+
+    pendingCandidates = [];
 
     callState = {
         active: false,
@@ -375,7 +543,7 @@ function cleanupCall() {
 }
 
 // ============================================
-// RING TONE (звук вызова)
+// RING TONE
 // ============================================
 function playRingTone() {
     const ctx = new (window.AudioContext || window.webkitAudioContext)();
