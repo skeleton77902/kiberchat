@@ -580,14 +580,18 @@
 
 <!-- INIT -->
 <script>
-(function init() {
-    const saved = DB.get('user', null);
-    if (saved) {
-        currentUser = saved;
-        openApp();
-    } else {
-        gotoStep('welcome');
-    }
+(async function init() {
+    try {
+        const res = await fetch('/api/me', { credentials: 'same-origin' });
+        if (res.ok) {
+            const data = await res.json();
+            applyServerUser(data);
+            openApp();
+            return;
+        }
+    } catch (e) {}
+    DB.remove('user');
+    gotoStep('welcome');
 })();
 </script>
 

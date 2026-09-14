@@ -467,3 +467,36 @@ function handlePeerData(conn, data) {
 }
 
 console.log('✅ friends.js загружен');
+// ===== SERVER-BACKED CONTACTS OVERRIDES =====
+async function loadContactsFromServer() {
+    try {
+        const contacts = await apiJson('/api/contacts');
+        const friendNames = contacts.map(c => c.username);
+        const friends = DB.get('friends', {}); friends[currentUser.username] = friendNames; DB.set('friends', friends);
+        const users = DB.get('users', {});
+        contacts.forEach(c => { users[c.username] = { id:c.id, username:c.username, color:c.avatar_color, eternalStatus:c.eternal_status, status:c.status, bio:c.bio }; });
+        DB.set('users', users); renderFriends();
+    } catch (e) { console.warn('contacts:', e.message); }
+}
+function isUserOnline(username) {
+    const u = DB.get('users', {})[username];
+    return u?.status === 'online';
+}
+function updateActivity() { /* online state is maintained by authenticated Socket.IO connection */ }
+async function addFriend() {
+    const target = document.getElementById('friendUsernameInput').value.trim(); const result = document.getElementById('addFriendResult');
+    if (!target) return (result.textContent='❌ Введи ник');
+    result.textContent='⏳ Добавляю...';
+    try {
+        const contact = await apiJson('/api/contacts/add', { method:'POST', body:JSON.stringify({ contactUsername:target }) });
+        const friends=DB.get('friends',{}); friends[currentUser.username]=[...(friends[currentUser.username]||[]),contact.username]; DB.set('friends',friends);
+        const users=DB.get('users',{}); users[contact.username]={id:contact.id,username:contact.username,color:contact.avatar_color,eternalStatus:contact.eternal_status,status:'offline'}; DB.set('users',users);
+        result.textContent='✅ Друг добавлен!'; result.style.color='var(--green)'; renderFriends(); setTimeout(()=>closeModal('addFriendModal'),800);
+    } catch(e) { result.textContent='❌ '+e.message; result.style.color='var(--red)'; }
+}
+function renderFriends() {
+    const container=document.getElementById('friendsList'); if(!container)return;
+    const friends=getFriends(currentUser.username); const users=DB.get('users',{});
+    if(!friends.length){container.innerHTML='<div style="padding:8px 12px;font-size:12px;color:var(--text2);">Нет друзей в этой вселенной</div>';return;}
+    container.innerHTML=friends.map(f=>{const u=users[f]||{color:'#97ce4c'};const online=isUserOnline(f);const badge=isFounder(f)?'<span class="founder-crown">👑</span>':(isPoop(f)?'<span class="poop-badge">💩</span>':'');return `<div class="friend ${online?'online':''}" onclick="openProfile('${escapeHtml(f)}')"><div class="friend-avatar avatar-wrap" style="background:${u.color||'#97ce4c'}">${escapeHtml(f[0]?.toUpperCase()||'?')}${badge}</div><div class="friend-name">${escapeHtml(f)}</div></div>`;}).join('');
+}

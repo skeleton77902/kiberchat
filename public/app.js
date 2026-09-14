@@ -9,7 +9,10 @@ function openApp() {
     document.getElementById('authScreen').classList.add('hidden');
     document.getElementById('app').classList.remove('hidden');
     initUI();
+    if (typeof initSocket === 'function') initSocket();
+    if (typeof loadContactsFromServer === 'function') loadContactsFromServer();
 }
+
 
 function logout() {
     if (!confirm('Покинуть портал?')) return;
@@ -24,8 +27,7 @@ function logout() {
         localStream = null;
     }
 
-    DB.remove('user');
-    location.reload();
+    fetch('/api/logout', { method: 'POST', credentials: 'same-origin' }).finally(() => { DB.remove('user'); location.reload(); });
 }
 
 function initUI() {
@@ -52,7 +54,6 @@ function initUI() {
     updateActivity();
     setInterval(updateActivity, 60000);
 
-    initPeer();
 }
 
 // ============================================
@@ -411,3 +412,78 @@ document.querySelectorAll('.modal-bg').forEach(bg => {
 });
 
 console.log('✅ app.js загружен');
+// ===== SERVER-BACKED CHAT OVERRIDES =====
+async function getCurrentContactId() {
+    if (!currentChannel?.startsWith('dm_')) return null;
+    const other = currentChannel.substring(3).split('_').find(p => p !== currentUser.username);
+    if (!other) return null;
+    const cached = DB.get('users', {})[other];
+    if (cached?.id) return cached.id;
+    try {
+        const u = await apiJson('/api/user-by-name/' + encodeURIComponent(other));
+        if (u?.id) {
+            const users = DB.get('users', {}); users[other] = { username: u.username, id: u.id, color: u.avatar_color, eternalStatus: u.eternal_status }; DB.set('users', users);
+            return u.id;
+        }
+    } catch (_) {}
+    return null;
+}
+
+async function renderMessages() {
+    const container = document.getElementById('chatMessages');
+    if (!container) return;
+    if (!currentChannel?.startsWith('dm_')) {
+        const messages = DB.get('messages', {}); const msgs = messages[currentChannel] || [];
+        renderLocalMessages(msgs, container); return;
+    }
+    container.innerHTML = '<div style="text-align:center;padding:60px 20px;color:var(--text2);">⏳ Загружаю сообщения...</div>';
+    const contactId = await getCurrentContactId();
+    if (!contactId) return renderLocalMessages([], container);
+    try {
+        const rows = await apiJson('/api/messages/' + contactId);
+        const users = DB.get('users', {});
+        const msgs = rows.map(m => ({ author: m.sender_id === currentUser.userId ? currentUser.username : (Object.values(users).find(u => u.id === m.sender_id)?.username || 'User'), text: m.message, type: m.type || 'text', time: new Date(m.created_at).getTime(), sender_id: m.sender_id }));
+        renderLocalMessages(msgs, container);
+    } catch (e) { container.innerHTML = '<div style="text-align:center;padding:60px 20px;color:var(--red);">❌ ' + escapeHtml(e.message) + '</div>'; }
+}
+
+function renderLocalMessages(msgs, container) {
+    if (!msgs.length) { container.innerHTML = '<div style="text-align:center;padding:60px 20px;color:var(--text2);font-style:italic;">Тут пусто, как в голове Джерри...</div>'; return; }
+    const users = DB.get('users', {});
+    container.innerHTML = msgs.map(m => {
+        const author = m.author || 'User'; const isFound = isFounder(author); const isPoopUser = isPoop(author);
+        const color = users[author]?.color || (isFound ? '#f5d547' : '#97ce4c');
+        const time = new Date(m.time || Date.now()).toLocaleTimeString('ru-RU', { hour:'2-digit', minute:'2-digit' });
+        const badge = isFound ? '<span class="founder-crown">👑</span>' : (isPoopUser ? '<span class="poop-badge">💩</span>' : '');
+        const msgBadge = isFound ? '<span class="msg-badge badge-founder">ЛЕГЕНДА</span>' : (isPoopUser ? '<span class="msg-badge badge-poop">КАКАШКА</span>' : '');
+        let content = m.type === 'sticker' ? `<div class="msg-sticker">${escapeHtml(m.text)}</div>` : (m.type === 'gif' ? `<img src="${escapeHtml(m.text)}" class="msg-gif" alt="GIF">` : `<div class="msg-text">${escapeHtml(m.text)}</div>`);
+        return `<div class="msg ${isFound?'msg-founder':''} ${isPoopUser?'msg-poop':''}"><div class="msg-avatar avatar-wrap" style="background:${color}">${escapeHtml(author[0]?.toUpperCase() || '?')}${badge}</div><div class="msg-body"><div class="msg-header"><span class="msg-author" style="color:${color}">${escapeHtml(author)}</span>${msgBadge}<span class="msg-time">${time}</span></div>${content}</div></div>`;
+    }).join('');
+    container.scrollTop = container.scrollHeight;
+}
+
+async function sendMessage() {
+    const input = document.getElementById('messageInput'); const text = input.value.trim(); if (!text || !currentChannel) return;
+    if (!currentChannel.startsWith('dm_')) {
+        const messages = DB.get('messages', {}); if (!messages[currentChannel]) messages[currentChannel] = [];
+        messages[currentChannel].push({ author: currentUser.username, text, time: Date.now(), type:'text' }); DB.set('messages', messages); input.value=''; input.style.height='auto'; renderMessages(); return;
+    }
+    const receiverId = await getCurrentContactId(); if (!receiverId) return toast('❌ Собеседник не найден', 'error');
+    if (!socket?.connected) return toast('❌ Нет соединения с сервером', 'error');
+    socket.emit('send_message', { receiverId, message: text, type:'text' });
+    input.value=''; input.style.height='auto';
+}
+
+async function sendSticker(sticker) {
+    const receiverId = await getCurrentContactId(); if (!receiverId) return toast('❌ Открой личный чат', 'error');
+    socket.emit('send_message', { receiverId, message: sticker, type:'sticker' }); document.getElementById('emojiPicker').classList.remove('show');
+}
+async function sendGif(index) {
+    const receiverId = await getCurrentContactId(); if (!receiverId) return toast('❌ Открой личный чат', 'error');
+    socket.emit('send_message', { receiverId, message: GIFS[index], type:'gif' }); document.getElementById('emojiPicker').classList.remove('show');
+}
+
+function handleSocketMessage(data) {
+    const isForCurrent = currentChannel?.startsWith('dm_') && (Number(data.sender_id) === Number(currentUser.userId) || Number(data.receiver_id) === Number(currentUser.userId));
+    if (isForCurrent) renderMessages();
+}

@@ -14,11 +14,10 @@ function initSocket() {
     socket = io();
 
     socket.on('connect', () => {
-        console.log('🔌 Socket.io подключён');
-        if (currentUser && currentUser.userId) {
-            socket.emit('authenticate', currentUser.userId);
-        }
+        console.log('🔌 Socket.io подключён (серверная сессия)');
     });
+    socket.on('connect_error', () => toast('❌ Сессия Socket.IO недействительна', 'error'));
+    socket.on('message_error', data => toast('❌ ' + (data?.error || 'Ошибка сообщения'), 'error'));
 
     // ===== ВХОДЯЩИЕ ЗВОНКИ =====
     socket.on('incoming_call', (data) => {
@@ -109,7 +108,10 @@ function initSocket() {
         }
     });
 
-    socket.on('user_status_change', () => {
+    socket.on('user_status_change', (data) => {
+        const users = DB.get('users', {});
+        const found = Object.keys(users).find(name => Number(users[name].id) === Number(data?.userId));
+        if (found) { users[found].status = data.status; DB.set('users', users); }
         renderFriends();
     });
 

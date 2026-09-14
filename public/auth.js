@@ -536,3 +536,77 @@ function verifyBackupCode() {
 }
 
 console.log('✅ auth.js загружен');
+// ===== SERVER-AUTH OVERRIDES =====
+async function apiJson(url, options = {}) {
+    const res = await fetch(url, { credentials: 'same-origin', headers: { 'Content-Type': 'application/json', ...(options.headers || {}) }, ...options });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+    return data;
+}
+
+function applyServerUser(data) {
+    currentUser = {
+        userId: data.userId,
+        username: data.username,
+        dedsecId: data.dedsecId,
+        color: data.avatarColor || '#97ce4c',
+        eternalStatus: data.eternalStatus || 'normis',
+        has2FA: !!data.has2FA,
+        status: data.status || 'online',
+        bio: data.bio || ''
+    };
+    // Cache only non-sensitive presentation data. Passwords, salts and 2FA secrets are never stored here.
+    DB.set('user', currentUser);
+    const users = DB.get('users', {});
+    users[currentUser.username] = { username: currentUser.username, id: currentUser.userId, color: currentUser.color, eternalStatus: currentUser.eternalStatus };
+    DB.set('users', users);
+    return currentUser;
+}
+
+async function doRegister() {
+    const username = document.getElementById('regUsername').value.trim();
+    const password = document.getElementById('regPassword').value;
+    const btn = document.getElementById('regBtn');
+    if (!username || !password) return toast('⚠️ Заполни поля', 'warning');
+    const originalHTML = btn.innerHTML;
+    btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Создаю аккаунт...';
+    try {
+        const data = await apiJson('/api/register', { method: 'POST', body: JSON.stringify({ username, password }) });
+        applyServerUser(data);
+        toast('✅ Аккаунт создан!', 'success');
+        setTimeout(openApp, 250);
+    } catch (e) {
+        toast('❌ ' + e.message, 'error');
+    } finally { btn.disabled = false; btn.innerHTML = originalHTML; }
+}
+
+async function doLogin() {
+    const username = document.getElementById('loginUsername').value.trim();
+    const password = document.getElementById('loginPassword').value;
+    if (!username || !password) return toast('⚠️ Заполни поля', 'warning');
+    try {
+        const data = await apiJson('/api/login', { method: 'POST', body: JSON.stringify({ username, password }) });
+        if (data.requires2FA) {
+            loginTargetUser = { username: data.username, server2FA: true };
+            gotoStep('2fa-verify');
+            return toast('🔒 Введи код 2FA', 'warning');
+        }
+        finishLogin(data);
+    } catch (e) { toast('❌ ' + e.message, 'error'); }
+}
+
+function finishLogin(data) {
+    applyServerUser(data);
+    toast('✅ Wubba lubba dub dub!', 'success');
+    setTimeout(openApp, 250);
+}
+
+async function verifyLogin2FA() {
+    if (!loginTargetUser?.server2FA) return toast('❌ Сессия 2FA устарела', 'error');
+    const code = getOTPValue('login2FAInputs');
+    if (code.length !== 6) return toast('⚠️ Введи 6 цифр', 'warning');
+    try {
+        const data = await apiJson('/api/login/2fa', { method: 'POST', body: JSON.stringify({ username: loginTargetUser.username, code }) });
+        finishLogin(data); loginTargetUser = null;
+    } catch (e) { toast('❌ ' + e.message, 'error'); }
+}
