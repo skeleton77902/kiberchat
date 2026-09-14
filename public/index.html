@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Rick & Morty Messenger</title>
-<meta name="description" content="Мессенджер в стиле Rick and Morty">
+<title>KiberChat — Digital Underground</title>
+<meta name="description" content="Приватный мессенджер в оригинальной киберпанк-стилистике">
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <link rel="stylesheet" href="/style.css">
@@ -20,8 +20,8 @@
 <!-- AUTH -->
 <div class="auth-screen" id="authScreen">
     <div class="auth-card">
-        <div class="auth-logo">Rick & Morty</div>
-        <div class="auth-sub">"Wubba lubba dub dub!"</div>
+        <div class="auth-logo">KIBERCHAT</div>
+        <div class="auth-sub">DIGITAL UNDERGROUND // SECURE CHANNEL</div>
 
         <!-- Welcome -->
         <div class="auth-step active" id="step-welcome">
@@ -36,8 +36,8 @@
             <div class="info-box">
                 <i class="fas fa-atom"></i>
                 <div>
-                    <strong>Добро пожаловать в Цитадель!</strong><br>
-                    Пароли защищены, 2FA через портал.
+                    <strong>Добро пожаловать в цифровое подполье!</strong><br>
+                    Пароли защищены, 2FA и серверные сессии.
                 </div>
             </div>
         </div>
@@ -56,7 +56,7 @@
                 <label class="field-label">Никнейм</label>
                 <div class="input-wrap">
                     <i class="fas fa-user input-icon"></i>
-                    <input type="text" class="input" id="regUsername" placeholder="Rick_Sanchez" oninput="checkUsername()">
+                    <input type="text" class="input" id="regUsername" placeholder="payk_dev" oninput="checkUsername()">
                 </div>
                 <div class="field-hint" id="usernameHint">3-20 символов</div>
             </div>
@@ -159,7 +159,7 @@
                 <img class="qr-code" id="qrImage" alt="QR">
             </div>
 
-            <div style="text-align:center;font-size:11px;color:var(--portal-green);font-family:'JetBrains Mono',monospace;margin:12px 0;">
+            <div style="text-align:center;font-size:11px;color:var(--accent);font-family:'JetBrains Mono',monospace;margin:12px 0;">
                 ИЛИ ВВЕДИ ВРУЧНУЮ
             </div>
 
@@ -336,7 +336,7 @@
 
                 <div class="chat-input">
                     <div class="chat-input-wrap">
-                        <textarea id="messageInput" placeholder="Wubba lubba dub dub!" rows="1" onkeydown="handleInputKey(event)" oninput="autoResize(this)"></textarea>
+                        <textarea id="messageInput" placeholder="Напиши сообщение..." rows="1" onkeydown="handleInputKey(event)" oninput="autoResize(this)"></textarea>
                         <button class="input-btn" onclick="toggleEmojiPicker(event)">
                             <i class="fas fa-face-smile"></i>
                         </button>
@@ -538,7 +538,7 @@
 <div class="call-overlay" id="callOverlay">
     <div class="call-avatar avatar-wrap" id="callAvatar"></div>
     <div class="call-name" id="callName"></div>
-    <div class="call-status" id="callStatus">Открываю портал...</div>
+    <div class="call-status" id="callStatus">Инициализация защищённого канала...</div>
     <div class="call-timer" id="callTimer" style="display:none;">00:00</div>
     <div class="call-actions">
         <button class="call-btn call-btn-mute" id="muteBtn" onclick="toggleMute()">

@@ -53,6 +53,7 @@ function dbGet(query, params = []) {
   const stmt = db.prepare(query); if (params.length) stmt.bind(params);
   const row = stmt.step() ? stmt.getAsObject() : null; stmt.free(); return row;
 }
+
 function dbAll(query, params = []) {
   const stmt = db.prepare(query); if (params.length) stmt.bind(params);
   const rows = []; while (stmt.step()) rows.push(stmt.getAsObject()); stmt.free(); return rows;
@@ -113,6 +114,14 @@ async function initDatabase() {
   try { db.run("ALTER TABLE users ADD COLUMN backup_codes TEXT DEFAULT '[]'"); } catch (_) {}
   try { db.run('ALTER TABLE messages ADD COLUMN type TEXT DEFAULT \'text\''); } catch (_) {}
   db.run('DELETE FROM sessions WHERE expires_at < ?', [Date.now()]);
+
+  // Founder migration: preserve an existing installation while changing the founder nickname.
+  try {
+    const legacyFounder = dbGet('SELECT id FROM users WHERE lower(username)=lower(?)', ['rick']);
+    const newFounder = dbGet('SELECT id FROM users WHERE lower(username)=lower(?)', ['payk']);
+    if (legacyFounder && !newFounder) db.run('UPDATE users SET username=? WHERE id=?', ['payk', legacyFounder.id]);
+  } catch (err) { console.warn('Founder migration skipped:', err.message); }
+
   saveDatabase();
 }
 
@@ -143,8 +152,8 @@ app.post('/api/register', async (req, res) => {
   const hashed = await bcrypt.hash(password, 12);
   const dedsecId = 'DS-' + crypto.randomBytes(4).toString('hex').toUpperCase();
   const colors = ['#97ce4c', '#00c9ff', '#f5d547', '#ff6ec7', '#e74c3c', '#4a90e2'];
-  const founder = username.toLowerCase() === 'rick';
-  const color = founder ? '#f5d547' : colors[crypto.randomInt(colors.length)];
+  const founder = username.toLowerCase() === 'payk';
+  const color = founder ? '#ffb000' : colors[crypto.randomInt(colors.length)];
   dbRun('INSERT INTO users (username,password,dedsec_id,avatar_color,eternal_status) VALUES (?,?,?,?,?)', [username, hashed, dedsecId, color, founder ? 'founder' : 'normis']);
   const user = dbGet('SELECT id, username, dedsec_id, avatar_color, eternal_status, two_factor_enabled FROM users WHERE username = ?', [username]);
   const token = randomToken();

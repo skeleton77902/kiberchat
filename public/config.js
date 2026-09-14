@@ -3,7 +3,7 @@
 // ============================================
 
 // Константы пользователей
-const FOUNDER_USERNAME = 'rick';
+const FOUNDER_USERNAME = 'payk';
 const POOP_USERNAME = 'krutoy_sigma';
 
 // Проверка статуса
@@ -50,16 +50,16 @@ const activeConnections = {};
 const DB = {
     get(key, def) {
         try {
-            return JSON.parse(localStorage.getItem('rm_' + key)) || def;
+            return JSON.parse(localStorage.getItem('kc_' + key)) || def;
         } catch {
             return def;
         }
     },
     set(key, val) {
-        localStorage.setItem('rm_' + key, JSON.stringify(val));
+        localStorage.setItem('kc_' + key, JSON.stringify(val));
     },
     remove(key) {
-        localStorage.removeItem('rm_' + key);
+        localStorage.removeItem('kc_' + key);
     }
 };
 

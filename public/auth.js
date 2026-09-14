@@ -255,7 +255,7 @@ function saveUserAndLogin(user) {
     if (!messages.general) messages.general = [];
 
     const welcomeText = isFounder(user.username)
-        ? `🧪 ${user.username} вошёл! "Wubba lubba dub dub!"`
+        ? `🧪 ${user.username} вошёл! "Secure channel established."`
         : `👋 Добро пожаловать, ${user.username}!`;
 
     messages.general.push({
@@ -343,7 +343,7 @@ async function start2FASetup() {
     tempSecret = generateTOTPSecret();
     document.getElementById('secretText').textContent = tempSecret;
 
-    const otpauthUrl = `otpauth://totp/RickAndMorty:${tempUser.username}?secret=${tempSecret}&issuer=Rick%20and%20Morty&algorithm=SHA1&digits=6&period=30`;
+    const otpauthUrl = `otpauth://totp/KiberChat:${tempUser.username}?secret=${tempSecret}&issuer=KiberChat&algorithm=SHA1&digits=6&period=30`;
     document.getElementById('qrImage').src = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(otpauthUrl)}&bgcolor=ffffff&color=0a1a0a&margin=0`;
 
     gotoStep('2fa-setup');
@@ -495,7 +495,7 @@ function finishLogin(user) {
     activity[user.username] = Date.now();
     DB.set('activity', activity);
 
-    toast('✅ Wubba lubba dub dub!', 'success');
+    toast('✅ Secure channel established.', 'success');
     setTimeout(openApp, 300);
 }
 
@@ -597,7 +597,7 @@ async function doLogin() {
 
 function finishLogin(data) {
     applyServerUser(data);
-    toast('✅ Wubba lubba dub dub!', 'success');
+    toast('✅ Secure channel established.', 'success');
     setTimeout(openApp, 250);
 }
 

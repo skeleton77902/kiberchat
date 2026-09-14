@@ -153,14 +153,14 @@ function renderFeedback() {
     const priorityColors = {
         LOW: 'rgba(151,206,76,0.15)',
         MEDIUM: 'rgba(0,201,255,0.15)',
-        HIGH: 'rgba(245,213,71,0.15)',
+        HIGH: 'rgba(255,176,0,0.15)',
         CRITICAL: 'rgba(231,76,60,0.15)'
     };
 
     const priorityTextColors = {
         LOW: 'var(--green)',
         MEDIUM: 'var(--portal-cyan)',
-        HIGH: 'var(--morty-yellow)',
+        HIGH: 'var(--signal-amber)',
         CRITICAL: 'var(--red)'
     };
 
@@ -184,7 +184,7 @@ function renderFeedback() {
                         ${f.priority}
                     </span>
                     <span style="font-size:10px;padding:3px 8px;border-radius:6px;font-weight:700;
-                        background:rgba(245,213,71,0.15);color:var(--morty-yellow);
+                        background:rgba(255,176,0,0.15);color:var(--signal-amber);
                         font-family:'JetBrains Mono',monospace;">
                         ${f.status}
                     </span>
