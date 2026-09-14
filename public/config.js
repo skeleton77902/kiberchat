@@ -26,7 +26,11 @@ let currentPlaytestBuild = null;
 let viewingProfile = null;
 let peer = null;
 let currentCall = null;
+let activeCallId = null;
 let localStream = null;
+let socket = null;
+let peerConnection = null;
+let pendingCandidates = [];
 let toastTimer = null;
 
 // Состояние звонка

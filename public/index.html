@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>KiberChat — Digital Underground</title>
-<meta name="description" content="Приватный мессенджер в оригинальной киберпанк-стилистике">
+<title>KiberChat — Private Network</title>
+<meta name="description" content="Приватный мессенджер с собственной визуальной системой">
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <link rel="stylesheet" href="/style.css">
@@ -21,7 +21,7 @@
 <div class="auth-screen" id="authScreen">
     <div class="auth-card">
         <div class="auth-logo">KIBERCHAT</div>
-        <div class="auth-sub">DIGITAL UNDERGROUND // SECURE CHANNEL</div>
+        <div class="auth-sub">PRIVATE NETWORK // SECURE CHANNEL</div>
 
         <!-- Welcome -->
         <div class="auth-step active" id="step-welcome">
@@ -36,7 +36,7 @@
             <div class="info-box">
                 <i class="fas fa-atom"></i>
                 <div>
-                    <strong>Добро пожаловать в цифровое подполье!</strong><br>
+                    <strong>Добро пожаловать в KiberChat!</strong><br>
                     Пароли защищены, 2FA и серверные сессии.
                 </div>
             </div>
@@ -275,9 +275,10 @@
 
 <!-- APP -->
 <div class="app hidden" id="app">
-    <div class="sidebar">
+    <div class="mobile-backdrop" id="mobileBackdrop" onclick="closeMobileSidebar()"></div>
+    <div class="sidebar" id="sidebar">
         <div class="sb-header">
-            <div class="sb-logo">R&M Chat</div>
+            <div class="sb-logo">KIBERCHAT</div>
             <button class="input-btn" onclick="logout()" title="Выйти">
                 <i class="fas fa-sign-out-alt"></i>
             </button>
@@ -308,6 +309,9 @@
     <div class="main">
         <div class="topbar">
             <div class="topbar-left">
+                <button class="mobile-menu-btn" id="mobileMenuBtn" onclick="toggleMobileSidebar()" aria-label="Открыть меню" title="Меню">
+                    <i class="fas fa-bars"></i>
+                </button>
                 <div class="topbar-info">
                     <div class="topbar-title" id="currentChannel">#general</div>
                     <div class="topbar-sub" id="currentChannelSub">общее измерение</div>
@@ -362,7 +366,7 @@
             <!-- Playtests -->
             <div class="view" id="view-playtests">
                 <div class="section">
-                    <div class="section-title">🧪 Эксперименты Рика</div>
+                    <div class="section-title">🧪 Эксперименты KiberChat</div>
                     <div class="section-sub">Загружай билды, собирай метрики</div>
 
                     <div class="stats-grid">
@@ -555,7 +559,7 @@
     <div class="friend-avatar avatar-wrap" id="incomingAvatar" style="width:44px;height:44px;font-size:18px;"></div>
     <div class="incoming-call-info">
         <div class="incoming-call-name" id="incomingName"></div>
-        <div class="incoming-call-sub">🌀 Входящий портал</div>
+        <div class="incoming-call-sub">📞 Входящий звонок</div>
     </div>
     <div style="display:flex;gap:8px;">
         <button class="incoming-btn decline" onclick="declineCall()">

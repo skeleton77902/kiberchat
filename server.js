@@ -258,6 +258,37 @@ io.use((socket, next) => {
   socket.user = user; next();
 });
 const onlineSockets = new Map();
+const activeCalls = new Map();
+
+function validCallId(value) {
+  return typeof value === 'string' && /^[a-zA-Z0-9_-]{12,100}$/.test(value);
+}
+function getCallForUser(callId, userId) {
+  const call = activeCalls.get(callId);
+  if (!call) return null;
+  return call.callerId === userId || call.receiverId === userId ? call : null;
+}
+function emitCallError(socket, reason) {
+  socket.emit('call_failed', { reason });
+}
+function forwardCallSignal(socket, event, data, extra = {}) {
+  const callId = data?.callId;
+  const targetId = Number(data?.toUserId);
+  const call = validCallId(callId) ? getCallForUser(callId, socket.user.id) : null;
+  if (!call || !targetId || !isContact(socket.user.id, targetId)) return emitCallError(socket, 'Звонок больше недействителен');
+  const expectedTarget = call.callerId === socket.user.id ? call.receiverId : call.callerId;
+  if (targetId !== expectedTarget) return emitCallError(socket, 'Недопустимый собеседник');
+  const payload = {
+    callId,
+    fromUserId: socket.user.id,
+    fromUsername: socket.user.username,
+    fromColor: socket.user.avatar_color,
+    fromEternalStatus: socket.user.eternal_status,
+    ...extra
+  };
+  io.to(`user_${targetId}`).emit(event, payload);
+}
+
 io.on('connection', socket => {
   const user = socket.user;
   socket.join(`user_${user.id}`);
@@ -272,7 +303,7 @@ io.on('connection', socket => {
     const type = ['text','sticker','gif'].includes(data?.type) ? data.type : 'text';
     if (!receiverId || !message || message.length > 4000 || !isContact(user.id, receiverId)) return socket.emit('message_error', { error: 'Недопустимое сообщение' });
     dbRun('INSERT INTO messages(sender_id,receiver_id,message,type) VALUES(?,?,?,?)', [user.id, receiverId, message, type]);
-    const row = dbGet('SELECT id,sender_id,receiver_id,message,type,is_read,created_at FROM messages ORDER BY id DESC LIMIT 1');
+    const row = dbGet('SELECT id,sender_id,receiver_id,message,type,is_read,created_at FROM messages WHERE id=(SELECT MAX(id) FROM messages)');
     const payload = { ...row, author: user.username, text: row.message };
     io.to(`user_${receiverId}`).emit('new_message', payload);
     socket.emit('message_sent', payload);
@@ -280,24 +311,99 @@ io.on('connection', socket => {
   socket.on('typing', data => { const receiverId = Number(data?.receiverId); if (receiverId && isContact(user.id, receiverId)) io.to(`user_${receiverId}`).emit('user_typing', { userId: user.id, username: user.username }); });
   socket.on('stop_typing', data => { const receiverId = Number(data?.receiverId); if (receiverId && isContact(user.id, receiverId)) io.to(`user_${receiverId}`).emit('user_stop_typing', { userId: user.id }); });
 
-  socket.on('call_user', data => forwardCall(socket, 'incoming_call', data, 'toUserId'));
-  socket.on('call_accepted', data => forwardCall(socket, 'call_accepted', data, 'toUserId'));
-  socket.on('call_declined', data => forwardCall(socket, 'call_declined', data, 'toUserId'));
-  socket.on('call_ended', data => forwardCall(socket, 'call_ended', data, 'toUserId'));
-  socket.on('webrtc_offer', data => forwardCall(socket, 'webrtc_offer', data, 'toUserId', { sdp: data?.sdp }));
-  socket.on('webrtc_answer', data => forwardCall(socket, 'webrtc_answer', data, 'toUserId', { sdp: data?.sdp }));
-  socket.on('webrtc_ice', data => forwardCall(socket, 'webrtc_ice', data, 'toUserId', { candidate: data?.candidate }));
+  // ----- CALLS -----
+  socket.on('call_user', data => {
+    const callId = data?.callId;
+    const targetId = Number(data?.toUserId);
+    if (!validCallId(callId) || !targetId || targetId === user.id || !isContact(user.id, targetId)) return emitCallError(socket, 'Нельзя позвонить этому пользователю');
+    if (activeCalls.has(callId)) return emitCallError(socket, 'Идентификатор звонка уже используется');
+    const targetSockets = onlineSockets.get(targetId);
+    if (!targetSockets?.size) return emitCallError(socket, 'Пользователь сейчас не в сети');
+    const busy = [...activeCalls.values()].some(c => c.callerId === targetId || c.receiverId === targetId || c.callerId === user.id || c.receiverId === user.id);
+    if (busy) return emitCallError(socket, 'Пользователь уже разговаривает');
+
+    const call = { callId, callerId: user.id, receiverId: targetId, createdAt: Date.now() };
+    activeCalls.set(callId, call);
+    io.to(`user_${targetId}`).emit('incoming_call', {
+      callId,
+      fromUserId: user.id,
+      fromUsername: user.username,
+      fromColor: user.avatar_color,
+      fromEternalStatus: user.eternal_status
+    });
+    setTimeout(() => {
+      const current = activeCalls.get(callId);
+      if (current && current.status !== 'connected') {
+        activeCalls.delete(callId);
+        io.to(`user_${targetId}`).emit('call_ended', { callId });
+        io.to(`user_${user.id}`).emit('call_failed', { callId, reason: 'Время ожидания истекло' });
+      }
+    }, 35000);
+  });
+
+  socket.on('call_accepted', data => {
+    const call = getCallForUser(data?.callId, user.id);
+    if (!call || call.receiverId !== user.id) return emitCallError(socket, 'Звонок больше недействителен');
+    call.status = 'accepted';
+    io.to(`user_${call.callerId}`).emit('call_accepted', { callId: call.callId, fromUserId: user.id });
+  });
+
+  socket.on('call_declined', data => {
+    const call = getCallForUser(data?.callId, user.id);
+    if (!call) return;
+    const target = call.callerId === user.id ? call.receiverId : call.callerId;
+    activeCalls.delete(call.callId);
+    io.to(`user_${target}`).emit('call_declined', { callId: call.callId, fromUserId: user.id });
+  });
+
+  socket.on('call_ended', data => {
+    const call = getCallForUser(data?.callId, user.id);
+    if (!call) return;
+    const target = call.callerId === user.id ? call.receiverId : call.callerId;
+    activeCalls.delete(call.callId);
+    io.to(`user_${target}`).emit('call_ended', { callId: call.callId, fromUserId: user.id });
+  });
+
+  socket.on('webrtc_offer', data => {
+    const call = getCallForUser(data?.callId, user.id);
+    if (!call || call.callerId !== user.id || !['accepted','connecting','connected'].includes(call.status)) return emitCallError(socket, 'Offer отклонён');
+    call.status = 'connecting';
+    forwardCallSignal(socket, 'webrtc_offer', data, { sdp: data?.sdp });
+  });
+  socket.on('webrtc_answer', data => {
+    const call = getCallForUser(data?.callId, user.id);
+    if (!call || call.receiverId !== user.id) return emitCallError(socket, 'Answer отклонён');
+    call.status = 'connected';
+    forwardCallSignal(socket, 'webrtc_answer', data, { sdp: data?.sdp });
+  });
+  socket.on('webrtc_ice', data => {
+    const candidate = data?.candidate;
+    if (!candidate || typeof candidate !== 'object') return;
+    const call = getCallForUser(data?.callId, user.id);
+    if (!call) return emitCallError(socket, 'ICE отклонён');
+    forwardCallSignal(socket, 'webrtc_ice', data, { candidate });
+  });
 
   socket.on('disconnect', () => {
-    const set = onlineSockets.get(user.id); if (set) { set.delete(socket.id); if (!set.size) { onlineSockets.delete(user.id); dbRun('UPDATE users SET status=?,last_seen=CURRENT_TIMESTAMP WHERE id=?', ['offline', user.id]); broadcastStatus(user.id, 'offline'); } }
+    // Close calls belonging to this user so the other side is not left hanging.
+    for (const [callId, call] of activeCalls) {
+      if (call.callerId === user.id || call.receiverId === user.id) {
+        const target = call.callerId === user.id ? call.receiverId : call.callerId;
+        activeCalls.delete(callId);
+        io.to(`user_${target}`).emit('call_ended', { callId, fromUserId: user.id, reason: 'disconnect' });
+      }
+    }
+    const set = onlineSockets.get(user.id);
+    if (set) {
+      set.delete(socket.id);
+      if (!set.size) {
+        onlineSockets.delete(user.id);
+        dbRun('UPDATE users SET status=?,last_seen=CURRENT_TIMESTAMP WHERE id=?', ['offline', user.id]);
+        broadcastStatus(user.id, 'offline');
+      }
+    }
   });
 });
-function forwardCall(socket, event, data, targetKey, extra = {}) {
-  const target = Number(data?.[targetKey]);
-  if (!target || !isContact(socket.user.id, target)) return socket.emit('call_failed', { reason: 'Недопустимый собеседник' });
-  const payload = { ...extra, ...data, fromUserId: socket.user.id, fromUsername: socket.user.username, fromColor: socket.user.avatar_color, fromEternalStatus: socket.user.eternal_status };
-  io.to(`user_${target}`).emit(event, payload);
-}
 function broadcastStatus(userId, status) {
   const contacts = dbAll('SELECT contact_id FROM contacts WHERE user_id=?', [userId]);
   for (const c of contacts) io.to(`user_${c.contact_id}`).emit('user_status_change', { userId, status });

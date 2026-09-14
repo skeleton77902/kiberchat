@@ -10,3 +10,8 @@ The messenger now uses the server as the source of truth for authentication, con
 - The app serves on PORT supplied by Render.
 - Run with npm start.
 - For multi-instance production, replace SQLite/sql.js with PostgreSQL and move sessions/rate limiting to shared infrastructure.
+
+
+## Visual identity
+
+KiberChat uses an original Obsidian / Aurora visual system: dark editorial surfaces, restrained violet/sky accents, soft glass panels and minimal motion. The interface does not intentionally reproduce any third-party entertainment franchise branding, characters, artwork, or signature visual motifs.

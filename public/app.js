@@ -14,8 +14,29 @@ function openApp() {
 }
 
 
+function toggleMobileSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    const backdrop = document.getElementById('mobileBackdrop');
+    if (!sidebar || !backdrop) return;
+    const open = sidebar.classList.toggle('mobile-open');
+    backdrop.classList.toggle('show', open);
+    document.body.classList.toggle('mobile-menu-open', open);
+}
+
+function closeMobileSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    const backdrop = document.getElementById('mobileBackdrop');
+    if (sidebar) sidebar.classList.remove('mobile-open');
+    if (backdrop) backdrop.classList.remove('show');
+    document.body.classList.remove('mobile-menu-open');
+}
+
+function closeMobileSidebarOnNavigation() {
+    if (window.matchMedia('(max-width: 768px)').matches) closeMobileSidebar();
+}
+
 function logout() {
-    if (!confirm('Покинуть портал?')) return;
+    if (!confirm('Выйти из KiberChat?')) return;
 
     if (peer) {
         try { peer.destroy(); } catch (e) {}
@@ -91,7 +112,7 @@ function renderChannels() {
     }).join('') + `
         <div class="channel" onclick="addChannel()" style="color: var(--text2); font-size: 13px;">
             <span class="channel-icon"><i class="fas fa-plus"></i></span>
-            <span>Новое измерение</span>
+            <span>Новый канал</span>
         </div>
     `;
 }
@@ -112,6 +133,7 @@ function addChannel() {
 }
 
 function selectChannel(name) {
+    closeMobileSidebarOnNavigation();
     currentChannel = name;
     renderChannels();
     renderMessages();
@@ -138,6 +160,7 @@ function selectChannel(name) {
 }
 
 function switchView(view, btn) {
+    closeMobileSidebarOnNavigation();
     currentView = view;
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
     btn.classList.add('active');
